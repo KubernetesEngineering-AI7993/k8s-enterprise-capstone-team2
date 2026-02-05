@@ -1,0 +1,42 @@
+(base) jeking@jeking-vm:~/ai7993/Kubernetes-Enterprise-Capstone--main/week01-02/k8s/base$ sudo kubectl apply -f namespaces.yaml
+namespace/dev created
+namespace/staging created
+namespace/prod created
+(base) jeking@jeking-vm:~/ai7993/Kubernetes-Enterprise-Capstone--main/week01-02/k8s/base$ sudo kubectl config set-context --current --namespace=dev
+Context "default" modified.
+(base) jeking@jeking-vm:~/ai7993/Kubernetes-Enterprise-Capstone--main/week01-02/k8s/base$ sudo kubectl get namespaces
+NAME              STATUS   AGE
+default           Active   31m
+dev               Active   93s
+kube-node-lease   Active   31m
+kube-public       Active   31m
+kube-system       Active   31m
+prod              Active   93s
+staging           Active   93s
+(base) jeking@jeking-vm:~/ai7993/Kubernetes-Enterprise-Capstone--main/week01-02/k8s/base$ sudo kubectl describe namespace dev
+Name:         dev
+Labels:       kubernetes.io/metadata.name=dev
+Annotations:  <none>
+Status:       Active
+
+No resource quota.
+
+No LimitRange resource.
+(base) jeking@jeking-vm:~/ai7993/Kubernetes-Enterprise-Capstone--main/week01-02/k8s/base$ sudo kubectl describe namespace staging
+Name:         staging
+Labels:       kubernetes.io/metadata.name=staging
+Annotations:  <none>
+Status:       Active
+
+No resource quota.
+
+No LimitRange resource.
+(base) jeking@jeking-vm:~/ai7993/Kubernetes-Enterprise-Capstone--main/week01-02/k8s/base$ sudo kubectl describe namespace prod
+Name:         prod
+Labels:       kubernetes.io/metadata.name=prod
+Annotations:  <none>
+Status:       Active
+
+No resource quota.
+
+No LimitRange resource.
