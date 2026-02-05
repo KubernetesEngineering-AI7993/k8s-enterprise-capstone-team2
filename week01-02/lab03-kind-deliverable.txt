@@ -1,0 +1,37 @@
+jeking@jeking-vm:~$ sudo kubectl apply -f deployment.yaml
+deployment.apps/web-server created
+jeking@jeking-vm:~$ sudo kubectl apply -f service.yaml
+service/web-server-service created
+jeking@jeking-vm:~$ kubectl get all -n staging
+WARN[0000] Unable to read /etc/rancher/k3s/k3s.yaml, please start server with --write-kubeconfig-mode or --write-kubeconfig-group to modify kube config permissions
+error: error loading config file "/etc/rancher/k3s/k3s.yaml": open /etc/rancher/k3s/k3s.yaml: permission denied
+jeking@jeking-vm:~$ sudo kubectl get all -n staging
+NAME                              READY   STATUS    RESTARTS   AGE
+pod/web-server-6f9664446b-8pms9   1/1     Running   0          10m
+pod/web-server-6f9664446b-h42ds   1/1     Running   0          10m
+
+NAME                         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/web-server-service   ClusterIP   10.43.116.161   <none>        8080/TCP   2m50s
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/web-server   2/2     2            2           10m
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.apps/web-server-6f9664446b   2         2         2       10m
+jeking@jeking-vm:~$ cat service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-server-service
+  namespace: staging
+spec:
+  type: ClusterIP
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 80    jeking@jeking-vm:~$ sudo kubectl port-forward svc/web-server-service 8888:8080 -n staging
+Forwarding from 127.0.0.1:8888 -> 80
+Forwarding from [::1]:8888 -> 80
+
