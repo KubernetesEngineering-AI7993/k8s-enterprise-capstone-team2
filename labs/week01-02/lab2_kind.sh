@@ -1,3 +1,4 @@
+#!/bin/bash
 # Apply namespaces
 kubectl apply -f ./namespaces.yaml
 sleep 2

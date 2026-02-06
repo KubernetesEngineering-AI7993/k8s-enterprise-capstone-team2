@@ -1,3 +1,4 @@
+#!/bin/bash
 # Set to dev namespace
 kubectl config set-context --current --namespace=dev
 # Apply configmap and service
@@ -51,25 +52,17 @@ echo "========================================="
 
 echo ""
 echo "Starting port-forward in background..."
-kubectl port-forward -n dev service/nginx-service 8080:80 > /tmp/port-forward.log 2>&1 &
+kubectl port-forward -n dev --address 0.0.0.0 service/nginx-service 8080:80 > /tmp/port-forward.log 2>&1 &
 PORT_FORWARD_PID=$!
-echo "✓ Port-forward running on PID: $PORT_FORWARD_PID"
-echo "  Local access: http://localhost:8080"
+echo "Port-forward running on PID: $PORT_FORWARD_PID"
+echo "Local access: http://localhost:8080"
 
 # Wait for port-forward to be ready
 sleep 3
 
 echo ""
 echo "Testing local access..."
-if curl -s http://localhost:8080 | grep -q "Kubernetes Lab"; then
-    echo "✓ Successfully accessed nginx via port-forward!"
-    echo ""
-    echo "--- Page Content ---"
-    curl -s http://localhost:8080 | grep -E "(h1|Namespace|Deployment|Service)" | sed 's/<[^>]*>//g' | sed 's/^[[:space:]]*//'
-else
-    echo "✗ Failed to access nginx"
-fi
-
+curl -s http://localhost:8080 
 echo ""
 echo "========================================="
 echo "NodePort Access (kind-specific)"
@@ -77,8 +70,4 @@ echo "========================================="
 echo ""
 echo "NodePort service accessible at: http://localhost:30080"
 echo "Testing NodePort access..."
-if curl -s http://localhost:30080 | grep -q "Kubernetes Lab"; then
-    echo "✓ Successfully accessed nginx via NodePort!"
-else
-    echo "Note: NodePort might not be accessible depending on your kind setup"
-fi
+curl -s http://localhost:30080
