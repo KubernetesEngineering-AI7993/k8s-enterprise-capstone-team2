@@ -1,0 +1,160 @@
+ cmd - kind create cluster --name mycluster
+Creating cluster "mycluster" ...
+ ✓ Ensuring node image (gcr.io/k8s-staging-kind/node:v1.35.0) 🖼
+ ✓ Preparing nodes 📦
+ ✓ Writing configuration 📜
+ ✓ Starting control-plane 🕹️
+ ✓ Installing CNI 🔌
+ ✓ Installing StorageClass 💾
+Set kubectl context to "kind-mycluster"
+You can now use your cluster with:
+
+cmd - kubectl cluster-info --context kind-mycluster
+
+Have a question, bug, or feature request? Let us know! https://kind.sigs.k8s.io/#community 🙂
+ kind get clusters
+mycluster
+cmd - kubectl get nodes
+NAME                      STATUS   ROLES           AGE     VERSION
+mycluster-control-plane   Ready    control-plane   2m26s   v1.35.0
+cmd - kubectl get pods -A
+NAMESPACE            NAME                                              READY   STATUS    RESTARTS   AGE
+kube-system          coredns-7d764666f9-4hzvv                          1/1     Running   0          2m56s
+kube-system          coredns-7d764666f9-hpmhc                          1/1     Running   0          2m56s
+kube-system          etcd-mycluster-control-plane                      1/1     Running   0          3m4s
+kube-system          kindnet-vffwz                                     1/1     Running   0          2m56s
+kube-system          kube-apiserver-mycluster-control-plane            1/1     Running   0          3m4s
+kube-system          kube-controller-manager-mycluster-control-plane   1/1     Running   0          3m6s
+kube-system          kube-proxy-j8gsq                                  1/1     Running   0          2m56s
+kube-system          kube-scheduler-mycluster-control-plane            1/1     Running   0          3m4s
+local-path-storage   local-path-provisioner-7cd4f7d7f-wxlhc            1/1     Running   0          2m56s
+cmd - kubectl cluster-info
+Kubernetes control plane is running at https://127.0.0.1:43483
+CoreDNS is running at https://127.0.0.1:43483/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+cmd - kubectl get pods -n kube-system
+NAME                                              READY   STATUS    RESTARTS   AGE
+coredns-7d764666f9-4hzvv                          1/1     Running   0          7m11s
+coredns-7d764666f9-hpmhc                          1/1     Running   0          7m11s
+etcd-mycluster-control-plane                      1/1     Running   0          7m19s
+kindnet-vffwz                                     1/1     Running   0          7m11s
+kube-apiserver-mycluster-control-plane            1/1     Running   0          7m19s
+kube-controller-manager-mycluster-control-plane   1/1     Running   0          7m21s
+kube-proxy-j8gsq                                  1/1     Running   0          7m11s
+kube-scheduler-mycluster-control-plane            1/1     Running   0          7m19s
+cmd -  kubectl get pods -n kube-system -o wide
+NAME                                              READY   STATUS    RESTARTS   AGE     IP           NODE                      NOMINATED NODE   READINESS GATES
+coredns-7d764666f9-4hzvv                          1/1     Running   0          7m43s   10.244.0.3   mycluster-control-plane   <none>           <none>
+coredns-7d764666f9-hpmhc                          1/1     Running   0          7m43s   10.244.0.2   mycluster-control-plane   <none>           <none>
+etcd-mycluster-control-plane                      1/1     Running   0          7m51s   172.18.0.2   mycluster-control-plane   <none>           <none>
+kindnet-vffwz                                     1/1     Running   0          7m43s   172.18.0.2   mycluster-control-plane   <none>           <none>
+kube-apiserver-mycluster-control-plane            1/1     Running   0          7m51s   172.18.0.2   mycluster-control-plane   <none>           <none>
+kube-controller-manager-mycluster-control-plane   1/1     Running   0          7m53s   172.18.0.2   mycluster-control-plane   <none>           <none>
+kube-proxy-j8gsq                                  1/1     Running   0          7m43s   172.18.0.2   mycluster-control-plane   <none>           <none>
+kube-scheduler-mycluster-control-plane            1/1     Running   0          7m51s   172.18.0.2   mycluster-control-plane   <none>           <none>
+cmd - kubectl describe pod -n kube-system kube-apiserver-mycluster-control-plane
+Name:                 kube-apiserver-mycluster-control-plane
+Namespace:            kube-system
+Priority:             2000001000
+Priority Class Name:  system-node-critical
+Node:                 mycluster-control-plane/172.18.0.2
+Start Time:           Thu, 05 Feb 2026 15:07:22 -0500
+Labels:               component=kube-apiserver
+                      tier=control-plane
+Annotations:          kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint: 172.18.0.2:6443
+                      kubernetes.io/config.hash: 271a94356bc2cb1a8e13c67ea06aa518
+                      kubernetes.io/config.mirror: 271a94356bc2cb1a8e13c67ea06aa518
+                      kubernetes.io/config.seen: 2026-02-05T20:07:22.099669237Z
+                      kubernetes.io/config.source: file
+Status:               Running
+SeccompProfile:       RuntimeDefault
+IP:                   172.18.0.2
+IPs:
+  IP:           172.18.0.2
+Controlled By:  Node/mycluster-control-plane
+Containers:
+  kube-apiserver:
+    Container ID:  containerd://f2ce12802dbe07b60c0da175cb1bc7dcb9b4f3d9a84c1b8a442b849be6b958ca
+    Image:         registry.k8s.io/kube-apiserver:v1.35.0
+    Image ID:      sha256:5c6acd67e9cd10eb60a246cd233db251ef62ea97e6572f897e873f0cb648f499
+    Port:          6443/TCP (probe-port)
+    Host Port:     6443/TCP (probe-port)
+    Command:
+      kube-apiserver
+      --advertise-address=172.18.0.2
+      --allow-privileged=true
+      --authorization-mode=Node,RBAC
+      --client-ca-file=/etc/kubernetes/pki/ca.crt
+      --enable-admission-plugins=NodeRestriction
+      --enable-bootstrap-token-auth=true
+      --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt
+      --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt
+      --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key
+      --etcd-servers=https://127.0.0.1:2379
+      --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt
+      --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key
+      --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+      --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.crt
+      --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key
+      --requestheader-allowed-names=front-proxy-client
+      --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+      --requestheader-extra-headers-prefix=X-Remote-Extra-
+      --requestheader-group-headers=X-Remote-Group
+      --requestheader-username-headers=X-Remote-User
+      --runtime-config=
+      --secure-port=6443
+      --service-account-issuer=https://kubernetes.default.svc.cluster.local
+      --service-account-key-file=/etc/kubernetes/pki/sa.pub
+      --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
+      --service-cluster-ip-range=10.96.0.0/16
+      --tls-cert-file=/etc/kubernetes/pki/apiserver.crt
+      --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
+    State:          Running
+      Started:      Thu, 05 Feb 2026 15:07:17 -0500
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:        250m
+    Liveness:     http-get https://172.18.0.2:probe-port/livez delay=10s timeout=15s period=10s #success=1 #failure=8
+    Readiness:    http-get https://172.18.0.2:probe-port/readyz delay=0s timeout=15s period=1s #success=1 #failure=3
+    Startup:      http-get https://172.18.0.2:probe-port/livez delay=10s timeout=15s period=10s #success=1 #failure=24
+    Environment:  <none>
+    Mounts:
+      /etc/ca-certificates from etc-ca-certificates (ro)
+      /etc/kubernetes/pki from k8s-certs (ro)
+      /etc/ssl/certs from ca-certs (ro)
+      /usr/local/share/ca-certificates from usr-local-share-ca-certificates (ro)
+      /usr/share/ca-certificates from usr-share-ca-certificates (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  ca-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/ssl/certs
+    HostPathType:  DirectoryOrCreate
+  etc-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/ca-certificates
+    HostPathType:  DirectoryOrCreate
+  k8s-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/kubernetes/pki
+    HostPathType:  DirectoryOrCreate
+  usr-local-share-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/local/share/ca-certificates
+    HostPathType:  DirectoryOrCreate
+  usr-share-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/share/ca-certificates
+    HostPathType:  DirectoryOrCreate
+QoS Class:         Burstable
+Node-Selectors:    <none>
+Tolerations:       :NoExecute op=Exists
+Events:            <none>

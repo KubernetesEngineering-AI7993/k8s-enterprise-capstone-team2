@@ -1,0 +1,23 @@
+cmd - kubectl apply -f sample-deployment.yaml
+deployment.apps/sample-app unchanged
+cmd - kubectl get deployment -n dev
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+sample-app   2/2     2            2           15m
+cmd - kubectl get pods -n dev -o wide
+NAME                          READY   STATUS    RESTARTS   AGE   IP           NODE                      NOMINATED NODE   READINESS GATES
+sample-app-696b4db5cb-c8kqh   1/1     Running   0          16m   10.244.0.5   mycluster-control-plane   <none>           <none>
+sample-app-696b4db5cb-qn944   1/1     Running   0          16m   10.244.0.6   mycluster-control-plane   <none>           <none>
+cmd - kubectl apply -f sample-service.yaml
+service/sample-app created
+cmd - kubectl get svc -n dev
+NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+sample-app   ClusterIP   10.96.216.51   <none>        80/TCP    19s
+cmd - kubectl get endpoints -n dev sample-app
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+NAME         ENDPOINTS                     AGE
+sample-app   10.244.0.5:80,10.244.0.6:80   81s
+cmd - kubectl port-forward -n dev svc/sample-app 8080:80
+Forwarding from 127.0.0.1:8080 -> 80
+Forwarding from [::1]:8080 -> 80
+Handling connection for 8080
+Handling connection for 8080
