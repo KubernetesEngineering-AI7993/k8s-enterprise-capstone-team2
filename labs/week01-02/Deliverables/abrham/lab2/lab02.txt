@@ -1,0 +1,28 @@
+cmd - kubectl apply -f namespaces.yaml
+namespace/dev created
+namespace/staging created
+namespace/prod created
+adejene@adejene:/mnt/c/Users/seifu/OneDrive/Desktop/Capstone/week01-week02/lab2$ kubectl get namespaces
+NAME                 STATUS   AGE
+default              Active   27m
+dev                  Active   32s
+kube-node-lease      Active   27m
+kube-public          Active   27m
+kube-system          Active   27m
+local-path-storage   Active   27m
+prod                 Active   32s
+staging              Active   32s
+cmd - kubectl config get-contexts
+CURRENT   NAME             CLUSTER          AUTHINFO         NAMESPACE
+*         kind-mycluster   kind-mycluster   kind-mycluster
+cmd - kubectl config set-context --current --namespace=dev
+Context "kind-mycluster" modified.
+cmd - kubectl config get-contexts
+CURRENT   NAME             CLUSTER          AUTHINFO         NAMESPACE
+*         kind-mycluster   kind-mycluster   kind-mycluster   dev
+cmd - kubectl apply -f sample-deployment.yaml
+deployment.apps/sample-app created
+cmd - kubectl get pods
+NAME                          READY   STATUS    RESTARTS   AGE
+sample-app-696b4db5cb-c8kqh   1/1     Running   0          17s
+sample-app-696b4db5cb-qn944   1/1     Running   0          17s

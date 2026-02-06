@@ -1,0 +1,100 @@
+Context "kind-test-k8s" modified.
+configmap/nginx-html unchanged
+service/nginx-service unchanged
+service/nginx-nodeport unchanged
+deployment.apps/nginx-deployment unchanged
+deployment "nginx-deployment" successfully rolled out
+
+--- Deployment ---
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES         SELECTOR
+nginx-deployment   3/3     3            3           9d    nginx        nginx:alpine   app=nginx
+
+--- ReplicaSet ---
+NAME                          DESIRED   CURRENT   READY   AGE
+nginx-deployment-86644db9cc   3         3         3       9d
+
+--- Pods ---
+NAME                                READY   STATUS    RESTARTS   AGE   IP           NODE               NOMINATED NODE   READINESS GATES
+nginx-deployment-86644db9cc-4xs6m   1/1     Running   0          9d    10.244.2.2   test-k8s-worker2   <none>           <none>
+nginx-deployment-86644db9cc-fndg5   1/1     Running   0          9d    10.244.1.2   test-k8s-worker    <none>           <none>
+nginx-deployment-86644db9cc-jm7bz   1/1     Running   0          9d    10.244.1.3   test-k8s-worker    <none>           <none>
+
+--- Services ---
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+nginx-nodeport   NodePort    10.96.141.34    <none>        80:30080/TCP   9d
+nginx-service    ClusterIP   10.96.158.252   <none>        80/TCP         9d
+
+=========================================
+Testing Application Access
+=========================================
+
+Testing pod: nginx-deployment-86644db9cc-4xs6m
+
+--- Direct Pod Access Test ---
+<title>Welcome to nginx!</title>
+
+--- ClusterIP Service Test ---
+<title>Welcome to nginx!</title>
+
+=========================================
+Port Forward Setup
+=========================================
+
+Starting port-forward in background...
+Port-forward running on PID: 487620
+Local access: http://localhost:8080
+
+Testing local access...
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+
+=========================================
+NodePort Access (kind-specific)
+=========================================
+
+NodePort service accessible at: http://localhost:30080
+Testing NodePort access...
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
