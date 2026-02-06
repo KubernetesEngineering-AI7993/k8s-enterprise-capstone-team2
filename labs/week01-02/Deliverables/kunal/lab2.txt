@@ -1,0 +1,20 @@
+namespace/dev created
+namespace/staging created
+namespace/prod created
+namespace/monitoring created
+NAME                 STATUS   AGE     LABELS
+default              Active   7m11s   kubernetes.io/metadata.name=default
+dev                  Active   2s      environment=development,kubernetes.io/metadata.name=dev
+kube-node-lease      Active   7m11s   kubernetes.io/metadata.name=kube-node-lease
+kube-public          Active   7m11s   kubernetes.io/metadata.name=kube-public
+kube-system          Active   7m11s   kubernetes.io/metadata.name=kube-system
+local-path-storage   Active   7m8s    kubernetes.io/metadata.name=local-path-storage
+monitoring           Active   2s      kubernetes.io/metadata.name=monitoring,purpose=observability
+prod                 Active   2s      environment=production,kubernetes.io/metadata.name=prod
+staging              Active   2s      environment=staging,kubernetes.io/metadata.name=staging
+kind-test-k8s
+
+Context "kind-test-k8s" modified.
+dev
+pod/test-pod created
+pod/test-pod condition met

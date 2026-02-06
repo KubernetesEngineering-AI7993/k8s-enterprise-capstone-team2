@@ -1,0 +1,42 @@
+================================================
+Creating Kubernetes cluster...
+================================================
+
+================================================
+Cluster Information
+================================================
+
+--- Nodes ---
+NAME                     STATUS     ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION     CONTAINER-RUNTIME
+test-k8s-control-plane   NotReady   control-plane   10s   v1.35.0   172.18.0.4    <none>        Debian GNU/Linux 12 (bookworm)   6.8.0-90-generic   containerd://2.2.0
+test-k8s-worker          NotReady   <none>          1s    v1.35.0   172.18.0.2    <none>        Debian GNU/Linux 12 (bookworm)   6.8.0-90-generic   containerd://2.2.0
+test-k8s-worker2         NotReady   <none>          1s    v1.35.0   172.18.0.3    <none>        Debian GNU/Linux 12 (bookworm)   6.8.0-90-generic   containerd://2.2.0
+
+--- Pods ---
+NAMESPACE            NAME                                             READY   STATUS    RESTARTS   AGE   IP           NODE                     NOMINATED NODE   READINESS GATES
+kube-system          coredns-7d764666f9-lrz6g                         0/1     Pending   0          2s    <none>       <none>                   <none>           <none>
+kube-system          coredns-7d764666f9-qdhm9                         0/1     Pending   0          2s    <none>       <none>                   <none>           <none>
+kube-system          etcd-test-k8s-control-plane                      1/1     Running   0          8s    172.18.0.4   test-k8s-control-plane   <none>           <none>
+kube-system          kindnet-bht6k                                    0/1     Pending   0          1s    <none>       test-k8s-worker2         <none>           <none>
+kube-system          kindnet-gncsn                                    0/1     Pending   0          1s    <none>       test-k8s-worker          <none>           <none>
+kube-system          kindnet-wn47g                                    1/1     Running   0          3s    172.18.0.4   test-k8s-control-plane   <none>           <none>
+kube-system          kube-apiserver-test-k8s-control-plane            0/1     Running   0          8s    172.18.0.4   test-k8s-control-plane   <none>           <none>
+kube-system          kube-controller-manager-test-k8s-control-plane   1/1     Running   0          8s    172.18.0.4   test-k8s-control-plane   <none>           <none>
+kube-system          kube-proxy-48klc                                 1/1     Running   0          3s    172.18.0.4   test-k8s-control-plane   <none>           <none>
+kube-system          kube-proxy-c7p4g                                 0/1     Pending   0          1s    <none>       test-k8s-worker          <none>           <none>
+kube-system          kube-proxy-hqpbs                                 0/1     Pending   0          1s    <none>       test-k8s-worker2         <none>           <none>
+kube-system          kube-scheduler-test-k8s-control-plane            1/1     Running   0          8s    172.18.0.4   test-k8s-control-plane   <none>           <none>
+local-path-storage   local-path-provisioner-67b8995b4b-kmrm8          0/1     Pending   0          2s    <none>       <none>                   <none>           <none>
+
+--- Cluster Info ---
+Kubernetes control plane is running at https://127.0.0.1:34063
+CoreDNS is running at https://127.0.0.1:34063/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+--- Context Info ---
+CURRENT   NAME            CLUSTER         AUTHINFO        NAMESPACE
+*         kind-test-k8s   kind-test-k8s   kind-test-k8s   
+
+--- Current Context ---
+kind-test-k8s

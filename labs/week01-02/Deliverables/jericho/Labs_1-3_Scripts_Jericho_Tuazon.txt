@@ -1,0 +1,277 @@
+SETUP AND VERIFICATION
+____________________________________________________________________________________________________________________________________________________________________
+
+> kind create cluster --image kindest/node:v1.29.8
+
+> kind get clusters
+kind
+
+>kubectl cluster-info
+Kubernetes control plane is running at https://127.0.0.1:60266
+CoreDNS is running at https://127.0.0.1:60266/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+> kubectl get nodes
+NAME                 STATUS   ROLES           AGE     VERSION
+kind-control-plane   Ready    control-plane   7d19h   v1.29.8
+
+
+>kubectl get pods -n kube-system
+
+NAME                                         READY   STATUS    RESTARTS        AGE
+coredns-76f75df574-pz4sb                     1/1     Running   2 (2m48s ago)   7d19h
+coredns-76f75df574-x9rlp                     1/1     Running   2 (2m48s ago)   7d19h
+etcd-kind-control-plane                      1/1     Running   2 (2m48s ago)   7d19h
+kindnet-8hz9z                                1/1     Running   2 (2m48s ago)   7d19h
+kube-apiserver-kind-control-plane            1/1     Running   2 (2m48s ago)   7d19h
+kube-controller-manager-kind-control-plane   1/1     Running   2 (2m48s ago)   7d19h
+kube-proxy-v8v6f                             1/1     Running   2 (2m48s ago)   7d19h
+kube-scheduler-kind-control-plane            1/1     Running   2 (2m48s ago)   7d19h
+
+LAB 1
+____________________________________________________________________________________________________________________________________________________________________
+
+
+> kind get clusters
+> kubectl config current-context
+
+kind
+kind-kind
+
+> kubectl get nodes
+
+NAME                 STATUS   ROLES           AGE     VERSION
+kind-control-plane   Ready    control-plane   7d19h   v1.29.8
+
+> kubectl get pods -n kube-system
+
+NAME                                         READY   STATUS    RESTARTS        AGE
+coredns-76f75df574-pz4sb                     1/1     Running   2 (5m42s ago)   7d19h
+coredns-76f75df574-x9rlp                     1/1     Running   2 (5m42s ago)   7d19h
+etcd-kind-control-plane                      1/1     Running   2 (5m42s ago)   7d19h
+kindnet-8hz9z                                1/1     Running   2 (5m42s ago)   7d19h
+kube-apiserver-kind-control-plane            1/1     Running   2 (5m42s ago)   7d19h
+kube-controller-manager-kind-control-plane   1/1     Running   2 (5m42s ago)   7d19h
+kube-proxy-v8v6f                             1/1     Running   2 (5m42s ago)   7d19h
+kube-scheduler-kind-control-plane            1/1     Running   2 (5m42s ago)   7d19h
+
+> kubectl cluster-info
+
+Kubernetes control plane is running at https://127.0.0.1:60266
+CoreDNS is running at https://127.0.0.1:60266/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+> kubectl get pods -n kube-system
+
+NAME                                         READY   STATUS    RESTARTS        AGE
+coredns-76f75df574-pz4sb                     1/1     Running   2 (6m33s ago)   7d19h
+coredns-76f75df574-x9rlp                     1/1     Running   2 (6m33s ago)   7d19h
+etcd-kind-control-plane                      1/1     Running   2 (6m33s ago)   7d19h
+kindnet-8hz9z                                1/1     Running   2 (6m33s ago)   7d19h
+kube-apiserver-kind-control-plane            1/1     Running   2 (6m33s ago)   7d19h
+kube-controller-manager-kind-control-plane   1/1     Running   2 (6m33s ago)   7d19h
+kube-proxy-v8v6f                             1/1     Running   2 (6m33s ago)   7d19h
+kube-scheduler-kind-control-plane            1/1     Running   2 (6m33s ago)   7d19h
+
+> kubectl describe pod kube-apiserver-kind-control-plane -n kube-system
+
+Name:                 kube-apiserver-kind-control-plane
+Namespace:            kube-system
+Priority:             2000001000
+Priority Class Name:  system-node-critical
+Node:                 kind-control-plane/172.18.0.2
+Start Time:           Thu, 05 Feb 2026 09:48:28 -0500
+Labels:               component=kube-apiserver
+                      tier=control-plane
+Annotations:          kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint: 172.18.0.2:6443
+                      kubernetes.io/config.hash: ed52323d43855ad42984108f52371ffa
+                      kubernetes.io/config.mirror: ed52323d43855ad42984108f52371ffa
+                      kubernetes.io/config.seen: 2026-01-28T19:26:14.319666662Z
+                      kubernetes.io/config.source: file
+Status:               Running
+SeccompProfile:       RuntimeDefault
+IP:                   172.18.0.2
+IPs:
+  IP:           172.18.0.2
+Controlled By:  Node/kind-control-plane
+Containers:
+  kube-apiserver:
+    Container ID:  containerd://310b63b0e36227ca69c015e1150ffc2bc7276e7144a16702fd6e196dc8242c20
+    Image:         registry.k8s.io/kube-apiserver:v1.29.8
+    Image ID:      docker.io/library/import-2024-08-15@sha256:202cee32bb707b90df9d7870999e82637566589718e9f76cf66a196c096c4c07
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      kube-apiserver
+      --advertise-address=172.18.0.2
+      --allow-privileged=true
+      --authorization-mode=Node,RBAC
+      --client-ca-file=/etc/kubernetes/pki/ca.crt
+      --enable-admission-plugins=NodeRestriction
+      --enable-bootstrap-token-auth=true
+      --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt
+      --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt
+      --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key
+      --etcd-servers=https://127.0.0.1:2379
+      --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt
+      --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key
+      --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+      --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.crt
+      --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key
+      --requestheader-allowed-names=front-proxy-client
+      --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+      --requestheader-extra-headers-prefix=X-Remote-Extra-
+      --requestheader-group-headers=X-Remote-Group
+      --requestheader-username-headers=X-Remote-User
+      --runtime-config=
+      --secure-port=6443
+      --service-account-issuer=https://kubernetes.default.svc.cluster.local
+      --service-account-key-file=/etc/kubernetes/pki/sa.pub
+      --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
+      --service-cluster-ip-range=10.96.0.0/16
+      --tls-cert-file=/etc/kubernetes/pki/apiserver.crt
+      --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
+    State:          Running
+      Started:      Thu, 05 Feb 2026 09:48:29 -0500
+    Last State:     Terminated
+      Reason:       Unknown
+      Exit Code:    255
+      Started:      Thu, 05 Feb 2026 09:45:49 -0500
+      Finished:     Thu, 05 Feb 2026 09:48:26 -0500
+    Ready:          True
+    Restart Count:  2
+    Requests:
+      cpu:        250m
+    Liveness:     http-get https://172.18.0.2:6443/livez delay=10s timeout=15s period=10s #success=1 #failure=8
+    Readiness:    http-get https://172.18.0.2:6443/readyz delay=0s timeout=15s period=1s #success=1 #failure=3
+    Startup:      http-get https://172.18.0.2:6443/livez delay=10s timeout=15s period=10s #success=1 #failure=24
+    Environment:  <none>
+    Mounts:
+      /etc/ca-certificates from etc-ca-certificates (ro)
+      /etc/kubernetes/pki from k8s-certs (ro)
+      /etc/ssl/certs from ca-certs (ro)
+      /usr/local/share/ca-certificates from usr-local-share-ca-certificates (ro)
+      /usr/share/ca-certificates from usr-share-ca-certificates (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  ca-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/ssl/certs
+    HostPathType:  DirectoryOrCreate
+  etc-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/ca-certificates
+    HostPathType:  DirectoryOrCreate
+  k8s-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/kubernetes/pki
+    HostPathType:  DirectoryOrCreate
+  usr-local-share-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/local/share/ca-certificates
+    HostPathType:  DirectoryOrCreate
+  usr-share-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/share/ca-certificates
+    HostPathType:  DirectoryOrCreate
+QoS Class:         Burstable
+Node-Selectors:    <none>
+Tolerations:       :NoExecute op=Exists
+Events:
+  Type    Reason          Age    From     Message
+  ----    ------          ----   ----     -------
+  Normal  SandboxChanged  10m    kubelet  Pod sandbox changed, it will be killed and re-created.
+  Normal  Pulled          10m    kubelet  Container image "registry.k8s.io/kube-apiserver:v1.29.8" already present on machine
+  Normal  Created         10m    kubelet  Created container kube-apiserver
+  Normal  Started         10m    kubelet  Started container kube-apiserver
+  Normal  SandboxChanged  7m21s  kubelet  Pod sandbox changed, it will be killed and re-created.
+  Normal  Pulled          7m21s  kubelet  Container image "registry.k8s.io/kube-apiserver:v1.29.8" already present on machine
+  Normal  Created         7m21s  kubelet  Created container kube-apiserver
+  Normal  Started         7m21s  kubelet  Started container kube-apiserver
+
+
+> kubectl get pods -n kube-system -o wide
+
+NAME                                         READY   STATUS    RESTARTS        AGE     IP           NODE                 NOMINATED NODE   READINESS GATES
+coredns-76f75df574-pz4sb                     1/1     Running   2 (8m11s ago)   7d19h   10.244.0.2   kind-control-plane   <none>           <none>
+coredns-76f75df574-x9rlp                     1/1     Running   2 (8m11s ago)   7d19h   10.244.0.3   kind-control-plane   <none>           <none>
+etcd-kind-control-plane                      1/1     Running   2 (8m11s ago)   7d19h   172.18.0.2   kind-control-plane   <none>           <none>
+kindnet-8hz9z                                1/1     Running   2 (8m11s ago)   7d19h   172.18.0.2   kind-control-plane   <none>           <none>
+kube-apiserver-kind-control-plane            1/1     Running   2 (8m11s ago)   7d19h   172.18.0.2   kind-control-plane   <none>           <none>
+kube-controller-manager-kind-control-plane   1/1     Running   2 (8m11s ago)   7d19h   172.18.0.2   kind-control-plane   <none>           <none>
+kube-proxy-v8v6f                             1/1     Running   2 (8m11s ago)   7d19h   172.18.0.2   kind-control-plane   <none>           <none>
+kube-scheduler-kind-control-plane            1/1     Running   2 (8m11s ago)   7d19h   172.18.0.2   kind-control-plane   <none>           <none>
+
+>kubectl get componentstatuses
+
+Warning: v1 ComponentStatus is deprecated in v1.19+
+NAME                 STATUS    MESSAGE   ERROR
+controller-manager   Healthy   ok
+scheduler            Healthy   ok
+etcd-0               Healthy   ok
+
+LAB 2
+____________________________________________________________________________________________________________________________________________________________________
+
+> kubectl apply -f namespaces.yaml
+
+namespace/dev created
+namespace/staging created
+namespace/prod created
+
+> kubectl get namespaces
+
+NAME                 STATUS   AGE
+default              Active   7d19h
+dev                  Active   7d19h
+kube-node-lease      Active   7d19h
+kube-public          Active   7d19h
+kube-system          Active   7d19h
+local-path-storage   Active   7d19h
+prod                 Active   7d19h
+staging              Active   7d19h
+
+>kubectl config set-context --current --namespace=dev
+
+Context "kind-kind" modified.
+
+>kubectl config view --minify | Select-String namespace
+
+namespace: dev
+
+>kubectl apply -f sample-deployment.yaml
+
+deployment.apps/sample-app created
+
+> kubectl apply -f sample-deployment.yaml
+deployment.apps/sample-app unchanged
+
+> kubectl get pods
+
+NAME                                READY   STATUS    RESTARTS      AGE
+nginx-deployment-7c79c4bf97-lphr4   1/1     Running   2 (22m ago)   7d19h
+nginx-deployment-7c79c4bf97-p7rsw   1/1     Running   2 (22m ago)   7d19h
+nginx-pod                           1/1     Running   2 (22m ago)   7d19h
+sample-app-6c87f7bb8d-kv5lx         1/1     Running   0             113s
+sample-app-6c87f7bb8d-svrwd         1/1     Running   0             113s
+
+>kubectl get svc
+
+NAME            TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+nginx-service   ClusterIP   10.96.3.225    <none>        80/TCP    7d19h
+sample-app      ClusterIP   10.96.70.134   <none>        80/TCP    70s
+
+
+>kubectl port-forward svc/nginx-service 8080:80
+
+Forwarding from 127.0.0.1:8080 -> 80
+Forwarding from [::1]:8080 -> 80
+
