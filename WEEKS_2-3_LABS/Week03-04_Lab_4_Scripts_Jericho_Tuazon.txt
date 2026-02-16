@@ -1,0 +1,173 @@
+> kubectl describe pod resource-demo-dd96769d5-vr5gx -n dev
+Name:             resource-demo-dd96769d5-vr5gx
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             kind-control-plane/172.18.0.2
+Start Time:       Mon, 16 Feb 2026 15:44:05 -0500
+Labels:           app=resource-demo
+                  pod-template-hash=dd96769d5
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.23
+IPs:
+  IP:           10.244.0.23
+Controlled By:  ReplicaSet/resource-demo-dd96769d5
+Containers:
+  app:
+    Container ID:  containerd://74f3b1856e18cf28824422a856162c6294c256d40ad21b18cf68ff5e08a45b29
+    Image:         busybox
+    Image ID:      docker.io/library/busybox@sha256:b3255e7dfbcd10cb367af0d409747d511aeb66dfac98cf30e97e87e4207dd76f
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+    Args:
+      echo "Triggering OOM..."; tail -f /dev/zero
+
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       OOMKilled
+      Exit Code:    137
+      Started:      Mon, 16 Feb 2026 16:05:19 -0500
+      Finished:     Mon, 16 Feb 2026 16:05:20 -0500
+    Ready:          False
+    Restart Count:  9
+    Limits:
+      memory:  128Mi
+    Requests:
+      memory:     64Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-rbs6p (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       False
+  ContainersReady             False
+  PodScheduled                True
+Volumes:
+  kube-api-access-rbs6p:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  26m                   default-scheduler  Successfully assigned dev/resource-demo-dd96769d5-vr5gx to kind-control-plane
+  Normal   Pulled     26m                   kubelet            Successfully pulled image "busybox" in 242ms (242ms including waiting)
+  Normal   Pulled     26m                   kubelet            Successfully pulled image "busybox" in 260ms (260ms including waiting)
+  Normal   Pulled     26m                   kubelet            Successfully pulled image "busybox" in 228ms (228ms including waiting)
+  Normal   Started    25m (x4 over 26m)     kubelet            Started container app
+  Normal   Pulled     25m                   kubelet            Successfully pulled image "busybox" in 246ms (246ms including waiting)
+  Normal   Created    24m (x5 over 26m)     kubelet            Created container app
+  Normal   Pulled     24m                   kubelet            Successfully pulled image "busybox" in 286ms (286ms including waiting)
+  Warning  BackOff    15m (x46 over 26m)    kubelet            Back-off restarting failed container app in pod resource-demo-dd96769d5-vr5gx_dev(929cb9e9-f700-4c57-9421-aefdc6b61929)
+  Normal   Pulling    5m12s (x10 over 26m)  kubelet            Pulling image "busybox"
+
+> kubectl logs resource-demo-dd96769d5-vr5gx -n dev
+Triggering OOM...
+FIX RESOURCE-LIMITS.YAML
+_______________________________________________________________________________
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resource-demo
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: resource-demo
+  template:
+    metadata:
+      labels:
+        app: resource-demo
+    spec:
+      containers:
+      - name: app
+        image: busybox
+        command: ["sh", "-c", "echo 'Running safely...'; sleep 3600"]
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+APPLY RESOURCE-LIMITS.YAML
+_______________________________________________________________________________
+
+>  kubectl apply -f resource-limits.yaml
+
+deployment.apps/resource-demo configured
+
+> kubectl get pods -n dev -w
+
+NAME                                READY   STATUS        RESTARTS   AGE
+nginx-deployment-7c79c4bf97-269kw   1/1     Running       0          23s
+nginx-deployment-7c79c4bf97-cdkhb   1/1     Running       0          23s
+resource-demo-647b7bc4c5-qlkqx      1/1     Running       0          11s
+sample-app-697b6f8995-6nkrt         1/1     Terminating   0          2m8s
+sample-app-697b6f8995-6t88x         1/1     Terminating   0          3m5s
+sample-app-697b6f8995-bsmqt         1/1     Terminating   0          2m25s
+sample-app-697b6f8995-d9wlx         1/1     Running       0          23s
+sample-app-697b6f8995-dvmzw         1/1     Terminating   0          23s
+sample-app-697b6f8995-g2zpt         1/1     Terminating   0          23s
+sample-app-697b6f8995-k6ppt         1/1     Terminating   0          23s
+sample-app-697b6f8995-kzsz4         1/1     Terminating   0          23s
+sample-app-697b6f8995-mrx49         1/1     Terminating   0          2m25s
+sample-app-697b6f8995-w5x5r         1/1     Terminating   0          2m25s
+sample-app-697b6f8995-6nkrt         0/1     Terminating   0          2m17s
+sample-app-697b6f8995-bsmqt         0/1     Terminating   0          2m34s
+sample-app-697b6f8995-6t88x         0/1     Terminating   0          3m14s
+sample-app-697b6f8995-w5x5r         0/1     Terminating   0          2m34s
+sample-app-697b6f8995-mrx49         0/1     Terminating   0          2m34s
+sample-app-697b6f8995-mrx49         0/1     Terminating   0          2m35s
+sample-app-697b6f8995-mrx49         0/1     Terminating   0          2m35s
+sample-app-697b6f8995-6t88x         0/1     Terminating   0          3m15s
+sample-app-697b6f8995-6t88x         0/1     Terminating   0          3m15s
+sample-app-697b6f8995-w5x5r         0/1     Terminating   0          2m35s
+sample-app-697b6f8995-w5x5r         0/1     Terminating   0          2m35s
+sample-app-697b6f8995-bsmqt         0/1     Terminating   0          2m35s
+sample-app-697b6f8995-bsmqt         0/1     Terminating   0          2m35s
+sample-app-697b6f8995-6nkrt         0/1     Terminating   0          2m18s
+sample-app-697b6f8995-6nkrt         0/1     Terminating   0          2m18s
+sample-app-697b6f8995-swhj8         0/1     Pending       0          0s
+sample-app-697b6f8995-swhj8         0/1     Pending       0          0s
+sample-app-697b6f8995-llp5n         0/1     Pending       0          0s
+sample-app-697b6f8995-2kqdq         0/1     Pending       0          0s
+sample-app-697b6f8995-llp5n         0/1     Pending       0          0s
+sample-app-697b6f8995-2kqdq         0/1     Pending       0          0s
+sample-app-697b6f8995-swhj8         0/1     ContainerCreating   0          0s
+sample-app-697b6f8995-llp5n         0/1     ContainerCreating   0          0s
+sample-app-697b6f8995-2kqdq         0/1     ContainerCreating   0          0s
+sample-app-697b6f8995-2kqdq         1/1     Running             0          4s
+sample-app-697b6f8995-swhj8         1/1     Running             0          4s
+sample-app-697b6f8995-llp5n         1/1     Running             0          4s
+sample-app-697b6f8995-kzsz4         0/1     Terminating         0          48s
+sample-app-697b6f8995-dvmzw         0/1     Terminating         0          48s
+sample-app-697b6f8995-g2zpt         0/1     Terminating         0          48s
+sample-app-697b6f8995-k6ppt         0/1     Terminating         0          48s
+sample-app-697b6f8995-dvmzw         0/1     Terminating         0          49s
+sample-app-697b6f8995-dvmzw         0/1     Terminating         0          49s
+sample-app-697b6f8995-k6ppt         0/1     Terminating         0          49s
+sample-app-697b6f8995-k6ppt         0/1     Terminating         0          49s
+sample-app-697b6f8995-g2zpt         0/1     Terminating         0          49s
+sample-app-697b6f8995-g2zpt         0/1     Terminating         0          49s
+sample-app-697b6f8995-kzsz4         0/1     Terminating         0          49s
+sample-app-697b6f8995-kzsz4         0/1     Terminating         0          49s
+sample-app-697b6f8995-lmmb5         0/1     Pending             0          0s
+sample-app-697b6f8995-lmmb5         0/1     Pending             0          0s
+sample-app-697b6f8995-lmmb5         0/1     ContainerCreating   0          0s
+sample-app-697b6f8995-lmmb5         1/1     Running             0          2s
