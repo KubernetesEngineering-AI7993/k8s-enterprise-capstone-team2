@@ -1,0 +1,72 @@
+CREATE SAMPLE-APP.YAML
+________________________________________________________________
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-app
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sample-app
+  template:
+    metadata:
+      labels:
+        app: sample-app
+    spec:
+      containers:
+      - name: app
+        image: busybox
+        command:
+          - sh
+          - -c
+        args:
+          - while true; do
+              echo "CPU load"; 
+              md5sum /dev/zero; 
+            done
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            cpu: 500m
+
+APPLY SAMPLE-APP.YAML
+________________________________________________________________
+
+> kubectl apply -f sample-app.yaml
+
+deployment.apps/sample-app configured
+
+> kubectl get pods -n dev
+
+nginx-deployment-7c79c4bf97-hqg57   1/1     Running            0               20m
+nginx-deployment-7c79c4bf97-sf97h   1/1     Running            0               20m
+node-selector-demo                  1/1     Running            0               4m45s
+resource-demo-dd96769d5-vr5gx       0/1     CrashLoopBackOff   8 (3m33s ago)   19m
+sample-app-657dcfb566-8vgz5         1/1     Running            0               20m
+sample-app-697b6f8995-bjgs5         0/1     Pending            0               12s
+toleration-demo
+
+>kubectl apply -f hpa.yaml
+
+horizontalpodautoscaler.autoscaling/sample-hpa unchanged
+
+>kubectl get hpa -n dev
+
+NAME         REFERENCE               TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+sample-hpa   Deployment/sample-app   0%/50%    1         5         1          4d23h
+
+
+
+>kubectl exec -it sample-app-657dcfb566-8vgz5 -n dev -- sh
+
+while true; do md5sum /dev/zeril done
+
+> kubectl get hpa sample-hpa -n dev -w
+NAME         REFERENCE               TARGETS    MINPODS   MAXPODS   REPLICAS   AGE
+sample-hpa   Deployment/sample-app   501%/50%   1         5         3          4d23h
+sample-hpa   Deployment/sample-app   427%/50%   1         5         5          4d23h
+sample-hpa   Deployment/sample-app   501%/50%   1         5         5          4d23h
+sample-hpa   Deployment/sample-app   449%/50%   1         5         5          4d23h
