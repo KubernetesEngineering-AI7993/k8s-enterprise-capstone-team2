@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pendingpod-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pendingpod-demo
+  template:
+    metadata:
+      labels:
+        app: pendingpod-demo
+    spec:
+      containers:
+      - name: app
+        image: nginx
