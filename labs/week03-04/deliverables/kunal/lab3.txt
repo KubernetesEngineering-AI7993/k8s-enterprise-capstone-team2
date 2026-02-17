@@ -1,0 +1,412 @@
+=== Verify Metrics Server (kube-system) ===
+NAME             READY   UP-TO-DATE   AVAILABLE   AGE
+metrics-server   1/1     1            1           11h
+
+=== Current resource usage: top nodes ===
+NAME                     CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+test-k8s-control-plane   69m          3%       1381Mi          8%          
+test-k8s-worker          11m          0%       931Mi           5%          
+test-k8s-worker2         9m           0%       904Mi           5%          
+
+=== Current resource usage: top pods ===
+NAME              CPU(cores)   MEMORY(bytes)   
+toleration-demo   0m           3Mi             
+
+=== Deploying sample app (sample.yaml) ===
+deployment.apps/sample-app created
+deployment.apps/sample-app condition met
+
+=== Pods ===
+NAME                          READY   STATUS    RESTARTS   AGE
+sample-app-765cbf5cb7-pgr87   1/1     Running   0          1s
+toleration-demo               1/1     Running   0          15m
+
+=== Creating HPA (hpa.yaml) ===
+horizontalpodautoscaler.autoscaling/sample-hpa created
+
+=== HPA status ===
+NAME         REFERENCE               TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+sample-hpa   Deployment/sample-app   cpu: <unknown>/50%   1         5         0          3s
+
+=== HPA details: sample-hpa ===
+Name:                                                  sample-hpa
+Namespace:                                             dev
+Labels:                                                <none>
+Annotations:                                           <none>
+CreationTimestamp:                                     Tue, 17 Feb 2026 08:52:44 +0000
+Reference:                                             Deployment/sample-app
+Metrics:                                               ( current / target )
+  resource cpu on pods  (as a percentage of request):  <unknown> / 50%
+Min replicas:                                          1
+Max replicas:                                          5
+Deployment pods:                                       0 current / 0 desired
+Events:                                                <none>
+
+=== Generating load in pod ===
+pod/sample-app-765cbf5cb7-pgr87 condition met
+
+=== Events (sorted by timestamp) ===
+LAST SEEN   TYPE      REASON                         OBJECT                                     MESSAGE
+60m         Normal    SuccessfulCreate               replicaset/selector-demo-79fbd46954        Created pod: selector-demo-79fbd46954-m2sgm
+60m         Normal    SuccessfulCreate               replicaset/selector-demo-79fbd46954        Created pod: selector-demo-79fbd46954-gqrjj
+60m         Normal    Scheduled                      pod/selector-demo-79fbd46954-gqrjj         Successfully assigned dev/selector-demo-79fbd46954-gqrjj to test-k8s-worker
+60m         Normal    Pulling                        pod/selector-demo-79fbd46954-gqrjj         Pulling image "nginx"
+60m         Normal    Pulling                        pod/selector-demo-79fbd46954-m2sgm         Pulling image "nginx"
+60m         Normal    ScalingReplicaSet              deployment/selector-demo                   Scaled up replica set selector-demo-79fbd46954 from 0 to 2
+60m         Normal    Scheduled                      pod/selector-demo-79fbd46954-m2sgm         Successfully assigned dev/selector-demo-79fbd46954-m2sgm to test-k8s-worker
+60m         Normal    Started                        pod/selector-demo-79fbd46954-gqrjj         Container started
+60m         Normal    Created                        pod/selector-demo-79fbd46954-gqrjj         Container created
+60m         Normal    Started                        pod/selector-demo-79fbd46954-m2sgm         Container started
+60m         Normal    Created                        pod/selector-demo-79fbd46954-m2sgm         Container created
+60m         Normal    Pulled                         pod/selector-demo-79fbd46954-m2sgm         Successfully pulled image "nginx" in 392ms (817ms including waiting). Image size: 62939286 bytes.
+60m         Normal    Pulled                         pod/selector-demo-79fbd46954-gqrjj         Successfully pulled image "nginx" in 437ms (437ms including waiting). Image size: 62939286 bytes.
+59m         Normal    Scheduled                      pod/selector-demo-79fbd46954-knzgl         Successfully assigned dev/selector-demo-79fbd46954-knzgl to test-k8s-worker
+59m         Normal    Killing                        pod/selector-demo-79fbd46954-gqrjj         Stopping container app
+59m         Normal    ScalingReplicaSet              deployment/selector-demo                   Scaled up replica set selector-demo-79fbd46954 from 0 to 2
+59m         Normal    SuccessfulCreate               replicaset/selector-demo-79fbd46954        Created pod: selector-demo-79fbd46954-sz6mz
+59m         Normal    SuccessfulCreate               replicaset/selector-demo-79fbd46954        Created pod: selector-demo-79fbd46954-knzgl
+59m         Normal    Pulling                        pod/selector-demo-79fbd46954-knzgl         Pulling image "nginx"
+59m         Normal    Killing                        pod/selector-demo-79fbd46954-m2sgm         Stopping container app
+59m         Normal    Scheduled                      pod/selector-demo-79fbd46954-sz6mz         Successfully assigned dev/selector-demo-79fbd46954-sz6mz to test-k8s-worker
+59m         Normal    Pulling                        pod/selector-demo-79fbd46954-sz6mz         Pulling image "nginx"
+59m         Normal    Pulled                         pod/selector-demo-79fbd46954-sz6mz         Successfully pulled image "nginx" in 325ms (325ms including waiting). Image size: 62939286 bytes.
+59m         Normal    Created                        pod/selector-demo-79fbd46954-sz6mz         Container created
+59m         Normal    Started                        pod/selector-demo-79fbd46954-sz6mz         Container started
+59m         Normal    Pulled                         pod/selector-demo-79fbd46954-knzgl         Successfully pulled image "nginx" in 342ms (665ms including waiting). Image size: 62939286 bytes.
+59m         Normal    Created                        pod/selector-demo-79fbd46954-knzgl         Container created
+59m         Normal    Started                        pod/selector-demo-79fbd46954-knzgl         Container started
+46m         Warning   FailedGetScale                 horizontalpodautoscaler/sample-hpa         deployments.apps "sample-app" not found
+45m         Normal    Killing                        pod/selector-demo-79fbd46954-sz6mz         Stopping container app
+45m         Normal    Killing                        pod/selector-demo-79fbd46954-knzgl         Stopping container app
+41m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-8575fdcfbd from 0 to 1
+41m         Normal    Scheduled                      pod/resource-demo-8575fdcfbd-4twfv         Successfully assigned dev/resource-demo-8575fdcfbd-4twfv to test-k8s-worker
+41m         Normal    SuccessfulCreate               replicaset/resource-demo-8575fdcfbd        Created pod: resource-demo-8575fdcfbd-4twfv
+41m         Normal    Pulling                        pod/resource-demo-646f77465d-2q4bn         Pulling image "nginx"
+41m         Normal    Scheduled                      pod/resource-demo-646f77465d-2q4bn         Successfully assigned dev/resource-demo-646f77465d-2q4bn to test-k8s-worker
+41m         Normal    Scheduled                      pod/resource-demo-646f77465d-ddpr4         Successfully assigned dev/resource-demo-646f77465d-ddpr4 to test-k8s-worker
+41m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+41m         Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-ddpr4
+41m         Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-2q4bn
+41m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+41m         Normal    Started                        pod/resource-demo-646f77465d-2q4bn         Container started
+41m         Normal    Pulled                         pod/resource-demo-646f77465d-2q4bn         Successfully pulled image "nginx" in 460ms (460ms including waiting). Image size: 62939286 bytes.
+41m         Normal    Created                        pod/resource-demo-646f77465d-2q4bn         Container created
+34m         Normal    Killing                        pod/resource-demo-646f77465d-2q4bn         Stopping container app
+31m         Normal    Scheduled                      pod/resource-demo-8575fdcfbd-kcb2h         Successfully assigned dev/resource-demo-8575fdcfbd-kcb2h to test-k8s-worker
+31m         Normal    SuccessfulCreate               replicaset/resource-demo-8575fdcfbd        Created pod: resource-demo-8575fdcfbd-kcb2h
+31m         Normal    Pulling                        pod/resource-demo-8575fdcfbd-kcb2h         Pulling image "nginx"
+31m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-8575fdcfbd from 0 to 1
+31m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+31m         Normal    Scheduled                      pod/resource-demo-646f77465d-lf67w         Successfully assigned dev/resource-demo-646f77465d-lf67w to test-k8s-worker
+31m         Normal    Started                        pod/resource-demo-8575fdcfbd-kcb2h         Container started
+31m         Normal    Created                        pod/resource-demo-8575fdcfbd-kcb2h         Container created
+31m         Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-lf67w
+31m         Normal    Pulled                         pod/resource-demo-8575fdcfbd-kcb2h         Successfully pulled image "nginx" in 396ms (396ms including waiting). Image size: 62939286 bytes.
+31m         Normal    Started                        pod/resource-demo-646f77465d-lf67w         Container started
+31m         Normal    Created                        pod/resource-demo-646f77465d-lf67w         Container created
+31m         Normal    Killing                        pod/resource-demo-8575fdcfbd-kcb2h         Stopping container app
+31m         Normal    Pulling                        pod/resource-demo-646f77465d-lf67w         Pulling image "nginx"
+31m         Normal    Pulled                         pod/resource-demo-646f77465d-lf67w         Successfully pulled image "nginx" in 385ms (385ms including waiting). Image size: 62939286 bytes.
+31m         Normal    Scheduled                      pod/resource-demo-646f77465d-7rcmm         Successfully assigned dev/resource-demo-646f77465d-7rcmm to test-k8s-worker
+31m         Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-7rcmm
+31m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+31m         Normal    Started                        pod/resource-demo-646f77465d-7rcmm         Container started
+31m         Normal    Created                        pod/resource-demo-646f77465d-7rcmm         Container created
+31m         Normal    Pulled                         pod/resource-demo-646f77465d-7rcmm         Successfully pulled image "nginx" in 400ms (400ms including waiting). Image size: 62939286 bytes.
+31m         Normal    Pulling                        pod/resource-demo-646f77465d-7rcmm         Pulling image "nginx"
+31m         Normal    Killing                        pod/resource-demo-646f77465d-lf67w         Stopping container app
+27m         Normal    Killing                        pod/resource-demo-646f77465d-7rcmm         Stopping container app
+25m         Normal    SuccessfulCreate               replicaset/resource-demo-8575fdcfbd        Created pod: resource-demo-8575fdcfbd-584dz
+25m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-8575fdcfbd from 0 to 1
+25m         Normal    Scheduled                      pod/resource-demo-8575fdcfbd-584dz         Successfully assigned dev/resource-demo-8575fdcfbd-584dz to test-k8s-worker
+25m         Normal    Pulling                        pod/resource-demo-8575fdcfbd-584dz         Pulling image "nginx"
+25m         Normal    Created                        pod/resource-demo-8575fdcfbd-584dz         Container created
+25m         Normal    Pulled                         pod/resource-demo-8575fdcfbd-584dz         Successfully pulled image "nginx" in 407ms (407ms including waiting). Image size: 62939286 bytes.
+25m         Normal    Started                        pod/resource-demo-8575fdcfbd-584dz         Container started
+24m         Normal    Pulling                        pod/resource-demo-646f77465d-8xl2s         Pulling image "nginx"
+24m         Normal    Scheduled                      pod/resource-demo-646f77465d-8xl2s         Successfully assigned dev/resource-demo-646f77465d-8xl2s to test-k8s-worker
+24m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+24m         Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-8xl2s
+24m         Normal    Started                        pod/resource-demo-646f77465d-8xl2s         Container started
+24m         Normal    Created                        pod/resource-demo-646f77465d-8xl2s         Container created
+24m         Normal    Pulled                         pod/resource-demo-646f77465d-8xl2s         Successfully pulled image "nginx" in 376ms (376ms including waiting). Image size: 62939286 bytes.
+24m         Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-njwfg
+24m         Normal    Scheduled                      pod/resource-demo-646f77465d-njwfg         Successfully assigned dev/resource-demo-646f77465d-njwfg to test-k8s-worker
+24m         Normal    Pulling                        pod/resource-demo-646f77465d-njwfg         Pulling image "nginx"
+24m         Normal    Killing                        pod/resource-demo-8575fdcfbd-584dz         Stopping container app
+24m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+24m         Normal    Started                        pod/resource-demo-646f77465d-njwfg         Container started
+24m         Normal    Created                        pod/resource-demo-646f77465d-njwfg         Container created
+24m         Normal    Pulled                         pod/resource-demo-646f77465d-njwfg         Successfully pulled image "nginx" in 377ms (377ms including waiting). Image size: 62939286 bytes.
+24m         Normal    Killing                        pod/resource-demo-646f77465d-8xl2s         Stopping container app
+21m         Normal    Killing                        pod/resource-demo-646f77465d-njwfg         Stopping container app
+21m         Normal    SuccessfulCreate               replicaset/resource-demo-8575fdcfbd        Created pod: resource-demo-8575fdcfbd-k2jbq
+21m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-8575fdcfbd from 0 to 1
+21m         Normal    Scheduled                      pod/resource-demo-8575fdcfbd-k2jbq         Successfully assigned dev/resource-demo-8575fdcfbd-k2jbq to test-k8s-worker
+21m         Normal    Created                        pod/resource-demo-8575fdcfbd-k2jbq         Container created
+21m         Normal    Pulling                        pod/resource-demo-8575fdcfbd-k2jbq         Pulling image "nginx"
+21m         Normal    Pulled                         pod/resource-demo-8575fdcfbd-k2jbq         Successfully pulled image "nginx" in 408ms (408ms including waiting). Image size: 62939286 bytes.
+21m         Normal    Started                        pod/resource-demo-8575fdcfbd-k2jbq         Container started
+21m         Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-ctmx4
+21m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+21m         Normal    Scheduled                      pod/resource-demo-646f77465d-ctmx4         Successfully assigned dev/resource-demo-646f77465d-ctmx4 to test-k8s-worker
+21m         Normal    Pulled                         pod/resource-demo-646f77465d-ctmx4         Successfully pulled image "nginx" in 364ms (364ms including waiting). Image size: 62939286 bytes.
+21m         Normal    Pulling                        pod/resource-demo-646f77465d-ctmx4         Pulling image "nginx"
+21m         Normal    Started                        pod/resource-demo-646f77465d-ctmx4         Container started
+21m         Normal    Created                        pod/resource-demo-646f77465d-ctmx4         Container created
+21m         Normal    Killing                        pod/resource-demo-8575fdcfbd-k2jbq         Stopping container app
+21m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+21m         Normal    Scheduled                      pod/resource-demo-646f77465d-ngggj         Successfully assigned dev/resource-demo-646f77465d-ngggj to test-k8s-worker
+21m         Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-ngggj
+21m         Normal    Pulled                         pod/resource-demo-646f77465d-ngggj         Successfully pulled image "nginx" in 385ms (385ms including waiting). Image size: 62939286 bytes.
+21m         Normal    Killing                        pod/resource-demo-646f77465d-ctmx4         Stopping container app
+20m         Normal    Created                        pod/resource-demo-646f77465d-ngggj         Container created
+20m         Normal    Pulled                         pod/resource-demo-646f77465d-ngggj         Successfully pulled image "nginx" in 402ms (402ms including waiting). Image size: 62939286 bytes.
+20m         Normal    Pulling                        pod/resource-demo-646f77465d-ngggj         Pulling image "nginx"
+20m         Normal    Started                        pod/resource-demo-646f77465d-ngggj         Container started
+18m         Normal    Killing                        pod/resource-demo-646f77465d-ngggj         Stopping container app
+18m         Normal    SuccessfulCreate               replicaset/resource-demo-8575fdcfbd        Created pod: resource-demo-8575fdcfbd-sn8td
+18m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-8575fdcfbd from 0 to 1
+18m         Normal    Scheduled                      pod/resource-demo-8575fdcfbd-sn8td         Successfully assigned dev/resource-demo-8575fdcfbd-sn8td to test-k8s-worker
+18m         Normal    Pulling                        pod/resource-demo-8575fdcfbd-sn8td         Pulling image "nginx"
+17m         Normal    Pulled                         pod/resource-demo-8575fdcfbd-sn8td         Successfully pulled image "nginx" in 398ms (398ms including waiting). Image size: 62939286 bytes.
+17m         Normal    Scheduled                      pod/resource-demo-646f77465d-8nmfz         Successfully assigned dev/resource-demo-646f77465d-8nmfz to test-k8s-worker
+17m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+17m         Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-8nmfz
+17m         Normal    Started                        pod/resource-demo-8575fdcfbd-sn8td         Container started
+17m         Normal    Created                        pod/resource-demo-8575fdcfbd-sn8td         Container created
+17m         Normal    Created                        pod/resource-demo-646f77465d-8nmfz         Container created
+17m         Normal    Pulling                        pod/resource-demo-646f77465d-8nmfz         Pulling image "nginx"
+17m         Normal    Pulled                         pod/resource-demo-646f77465d-8nmfz         Successfully pulled image "nginx" in 391ms (391ms including waiting). Image size: 62939286 bytes.
+17m         Normal    Started                        pod/resource-demo-646f77465d-8nmfz         Container started
+17m         Normal    Killing                        pod/resource-demo-8575fdcfbd-sn8td         Stopping container app
+17m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+17m         Normal    Scheduled                      pod/resource-demo-646f77465d-k2kmx         Successfully assigned dev/resource-demo-646f77465d-k2kmx to test-k8s-worker
+17m         Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-k2kmx
+17m         Normal    Pulled                         pod/resource-demo-646f77465d-k2kmx         Successfully pulled image "nginx" in 378ms (378ms including waiting). Image size: 62939286 bytes.
+17m         Normal    Killing                        pod/resource-demo-646f77465d-8nmfz         Stopping container app
+16m         Normal    Pulling                        pod/resource-demo-646f77465d-k2kmx         Pulling image "nginx"
+16m         Normal    Created                        pod/resource-demo-646f77465d-k2kmx         Container created
+16m         Normal    Started                        pod/resource-demo-646f77465d-k2kmx         Container started
+16m         Normal    Pulled                         pod/resource-demo-646f77465d-k2kmx         Successfully pulled image "nginx" in 390ms (390ms including waiting). Image size: 62939286 bytes.
+16m         Normal    Killing                        pod/resource-demo-646f77465d-k2kmx         Stopping container app
+16m         Warning   FailedScheduling               pod/test-pod                               0/3 nodes are available: 1 node(s) didn't match Pod's node affinity/selector, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+16m         Normal    Scheduled                      pod/toleration-demo                        Successfully assigned dev/toleration-demo to test-k8s-worker2
+16m         Normal    Pulling                        pod/toleration-demo                        Pulling image "nginx"
+16m         Normal    Created                        pod/toleration-demo                        Container created
+16m         Normal    Started                        pod/toleration-demo                        Container started
+16m         Normal    Pulled                         pod/toleration-demo                        Successfully pulled image "nginx" in 373ms (373ms including waiting). Image size: 62939286 bytes.
+16m         Normal    ScalingReplicaSet              deployment/sample-app                      Scaled up replica set sample-app-765cbf5cb7 from 0 to 1
+16m         Normal    SuccessfulCreate               replicaset/sample-app-765cbf5cb7           Created pod: sample-app-765cbf5cb7-lnpd4
+16m         Normal    Scheduled                      pod/sample-app-765cbf5cb7-lnpd4            Successfully assigned dev/sample-app-765cbf5cb7-lnpd4 to test-k8s-worker
+16m         Normal    Pulling                        pod/sample-app-765cbf5cb7-lnpd4            Pulling image "nginx"
+16m         Normal    Started                        pod/sample-app-765cbf5cb7-lnpd4            Container started
+16m         Normal    Pulled                         pod/sample-app-765cbf5cb7-lnpd4            Successfully pulled image "nginx" in 369ms (369ms including waiting). Image size: 62939286 bytes.
+16m         Normal    Created                        pod/sample-app-765cbf5cb7-lnpd4            Container created
+16m         Normal    Killing                        pod/sample-app-765cbf5cb7-lnpd4            Stopping container app
+16m         Normal    ScalingReplicaSet              deployment/crashloop-demo                  Scaled up replica set crashloop-demo-c6dd8b4d4 from 0 to 1
+16m         Normal    SuccessfulCreate               replicaset/crashloop-demo-c6dd8b4d4        Created pod: crashloop-demo-c6dd8b4d4-4d9xk
+16m         Normal    Scheduled                      pod/crashloop-demo-c6dd8b4d4-4d9xk         Successfully assigned dev/crashloop-demo-c6dd8b4d4-4d9xk to test-k8s-worker
+16m         Normal    Pulled                         pod/crashloop-demo-c6dd8b4d4-4d9xk         Successfully pulled image "nginx" in 415ms (415ms including waiting). Image size: 62939286 bytes.
+16m         Normal    Pulling                        pod/crashloop-demo-c6dd8b4d4-4d9xk         Pulling image "nginx"
+16m         Normal    Pulled                         pod/crashloop-demo-c6dd8b4d4-4d9xk         Successfully pulled image "nginx" in 384ms (384ms including waiting). Image size: 62939286 bytes.
+16m         Normal    Created                        pod/crashloop-demo-c6dd8b4d4-4d9xk         Container created
+16m         Normal    Started                        pod/crashloop-demo-c6dd8b4d4-4d9xk         Container started
+16m         Warning   BackOff                        pod/crashloop-demo-c6dd8b4d4-4d9xk         Back-off restarting failed container app in pod crashloop-demo-c6dd8b4d4-4d9xk_dev(3d7225b9-61ae-4e78-abaa-f4cb4adb0e14)
+15m         Normal    SuccessfulCreate               replicaset/crashloop-demo-98f65959f        Created pod: crashloop-demo-98f65959f-thbkc
+15m         Normal    ScalingReplicaSet              deployment/crashloop-demo                  Scaled up replica set crashloop-demo-98f65959f from 0 to 1
+15m         Normal    Scheduled                      pod/crashloop-demo-98f65959f-thbkc         Successfully assigned dev/crashloop-demo-98f65959f-thbkc to test-k8s-worker
+15m         Normal    Started                        pod/crashloop-demo-98f65959f-thbkc         Container started
+15m         Normal    Created                        pod/crashloop-demo-98f65959f-thbkc         Container created
+15m         Normal    Pulled                         pod/crashloop-demo-98f65959f-thbkc         Successfully pulled image "nginx" in 398ms (398ms including waiting). Image size: 62939286 bytes.
+15m         Normal    Pulling                        pod/crashloop-demo-98f65959f-thbkc         Pulling image "nginx"
+15m         Warning   Failed                         pod/imagepullback-demo-5ff8f787b4-xmstj    Error: ImagePullBackOff
+15m         Normal    Killing                        pod/crashloop-demo-98f65959f-thbkc         Stopping container app
+15m         Normal    ScalingReplicaSet              deployment/imagepullback-demo              Scaled up replica set imagepullback-demo-5ff8f787b4 from 0 to 1
+15m         Normal    Scheduled                      pod/imagepullback-demo-5ff8f787b4-xmstj    Successfully assigned dev/imagepullback-demo-5ff8f787b4-xmstj to test-k8s-worker
+15m         Normal    SuccessfulCreate               replicaset/imagepullback-demo-5ff8f787b4   Created pod: imagepullback-demo-5ff8f787b4-xmstj
+15m         Normal    BackOff                        pod/imagepullback-demo-5ff8f787b4-xmstj    Back-off pulling image "nginx:faketag"
+15m         Warning   Failed                         pod/imagepullback-demo-5ff8f787b4-xmstj    Error: ErrImagePull
+15m         Normal    Pulling                        pod/imagepullback-demo-5ff8f787b4-xmstj    Pulling image "nginx:faketag"
+15m         Warning   Failed                         pod/imagepullback-demo-5ff8f787b4-xmstj    Failed to pull image "nginx:faketag": rpc error: code = NotFound desc = failed to pull and unpack image "docker.io/library/nginx:faketag": failed to resolve reference "docker.io/library/nginx:faketag": docker.io/library/nginx:faketag: not found
+15m         Normal    Pulling                        pod/imagepullback-demo-7d57f5b67-sksd2     Pulling image "nginx"
+15m         Normal    Scheduled                      pod/imagepullback-demo-7d57f5b67-sksd2     Successfully assigned dev/imagepullback-demo-7d57f5b67-sksd2 to test-k8s-worker
+15m         Normal    ScalingReplicaSet              deployment/imagepullback-demo              Scaled up replica set imagepullback-demo-7d57f5b67 from 0 to 1
+15m         Normal    SuccessfulCreate               replicaset/imagepullback-demo-7d57f5b67    Created pod: imagepullback-demo-7d57f5b67-sksd2
+15m         Normal    Created                        pod/imagepullback-demo-7d57f5b67-sksd2     Container created
+15m         Normal    Pulled                         pod/imagepullback-demo-7d57f5b67-sksd2     Successfully pulled image "nginx" in 324ms (324ms including waiting). Image size: 62939286 bytes.
+15m         Normal    Started                        pod/imagepullback-demo-7d57f5b67-sksd2     Container started
+15m         Normal    SuccessfulCreate               replicaset/pendingpod-demo-59c5d5fbcf      Created pod: pendingpod-demo-59c5d5fbcf-8pd6z
+15m         Normal    ScalingReplicaSet              deployment/pendingpod-demo                 Scaled up replica set pendingpod-demo-59c5d5fbcf from 0 to 1
+15m         Normal    Killing                        pod/imagepullback-demo-7d57f5b67-sksd2     Stopping container app
+15m         Warning   FailedScheduling               pod/pendingpod-demo-59c5d5fbcf-8pd6z       0/3 nodes are available: 1 Insufficient cpu, 1 Insufficient memory, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+15m         Normal    SuccessfulCreate               replicaset/pendingpod-demo-897647bcd       Created pod: pendingpod-demo-897647bcd-sfv5b
+15m         Normal    Scheduled                      pod/pendingpod-demo-897647bcd-sfv5b        Successfully assigned dev/pendingpod-demo-897647bcd-sfv5b to test-k8s-worker
+15m         Normal    Pulling                        pod/pendingpod-demo-897647bcd-sfv5b        Pulling image "nginx"
+15m         Normal    ScalingReplicaSet              deployment/pendingpod-demo                 Scaled up replica set pendingpod-demo-897647bcd from 0 to 1
+15m         Normal    Created                        pod/pendingpod-demo-897647bcd-sfv5b        Container created
+15m         Normal    Pulled                         pod/pendingpod-demo-897647bcd-sfv5b        Successfully pulled image "nginx" in 335ms (335ms including waiting). Image size: 62939286 bytes.
+15m         Normal    Started                        pod/pendingpod-demo-897647bcd-sfv5b        Container started
+15m         Normal    SuccessfulCreate               replicaset/selector-demo-79fbd46954        Created pod: selector-demo-79fbd46954-vqzlw
+15m         Normal    ScalingReplicaSet              deployment/selector-demo                   Scaled up replica set selector-demo-79fbd46954 from 0 to 2
+15m         Normal    Pulling                        pod/selector-demo-79fbd46954-xtqq9         Pulling image "nginx"
+15m         Normal    Pulled                         pod/selector-demo-79fbd46954-xtqq9         Successfully pulled image "nginx" in 335ms (335ms including waiting). Image size: 62939286 bytes.
+15m         Normal    Pulling                        pod/selector-demo-79fbd46954-vqzlw         Pulling image "nginx"
+15m         Normal    Scheduled                      pod/selector-demo-79fbd46954-vqzlw         Successfully assigned dev/selector-demo-79fbd46954-vqzlw to test-k8s-worker
+15m         Normal    SuccessfulCreate               replicaset/selector-demo-79fbd46954        Created pod: selector-demo-79fbd46954-xtqq9
+15m         Normal    Scheduled                      pod/selector-demo-79fbd46954-xtqq9         Successfully assigned dev/selector-demo-79fbd46954-xtqq9 to test-k8s-worker
+15m         Normal    Killing                        pod/pendingpod-demo-897647bcd-sfv5b        Stopping container app
+15m         Normal    Started                        pod/selector-demo-79fbd46954-xtqq9         Container started
+15m         Normal    Created                        pod/selector-demo-79fbd46954-xtqq9         Container created
+15m         Normal    Started                        pod/selector-demo-79fbd46954-vqzlw         Container started
+15m         Normal    Pulled                         pod/selector-demo-79fbd46954-vqzlw         Successfully pulled image "nginx" in 343ms (639ms including waiting). Image size: 62939286 bytes.
+15m         Normal    Created                        pod/selector-demo-79fbd46954-vqzlw         Container created
+15m         Normal    Killing                        pod/selector-demo-79fbd46954-xtqq9         Stopping container app
+15m         Normal    Scheduled                      pod/selector-demo-79fbd46954-dz7wr         Successfully assigned dev/selector-demo-79fbd46954-dz7wr to test-k8s-worker
+15m         Normal    Killing                        pod/selector-demo-79fbd46954-vqzlw         Stopping container app
+15m         Normal    Pulling                        pod/selector-demo-79fbd46954-dz7wr         Pulling image "nginx"
+15m         Normal    SuccessfulCreate               replicaset/selector-demo-79fbd46954        Created pod: selector-demo-79fbd46954-dz7wr
+15m         Normal    Scheduled                      pod/selector-demo-79fbd46954-4znh8         Successfully assigned dev/selector-demo-79fbd46954-4znh8 to test-k8s-worker
+15m         Normal    Pulling                        pod/selector-demo-79fbd46954-4znh8         Pulling image "nginx"
+15m         Normal    SuccessfulCreate               replicaset/selector-demo-79fbd46954        Created pod: selector-demo-79fbd46954-4znh8
+15m         Normal    ScalingReplicaSet              deployment/selector-demo                   Scaled up replica set selector-demo-79fbd46954 from 0 to 2
+15m         Normal    Pulled                         pod/selector-demo-79fbd46954-4znh8         Successfully pulled image "nginx" in 328ms (709ms including waiting). Image size: 62939286 bytes.
+15m         Normal    Started                        pod/selector-demo-79fbd46954-4znh8         Container started
+15m         Normal    Started                        pod/selector-demo-79fbd46954-dz7wr         Container started
+15m         Normal    Pulled                         pod/selector-demo-79fbd46954-dz7wr         Successfully pulled image "nginx" in 425ms (425ms including waiting). Image size: 62939286 bytes.
+15m         Normal    Created                        pod/selector-demo-79fbd46954-dz7wr         Container created
+15m         Normal    Created                        pod/selector-demo-79fbd46954-4znh8         Container created
+15m         Normal    Killing                        pod/selector-demo-79fbd46954-4znh8         Stopping container app
+15m         Normal    Killing                        pod/selector-demo-79fbd46954-dz7wr         Stopping container app
+14m         Normal    SuccessfulCreate               replicaset/resource-demo-8575fdcfbd        Created pod: resource-demo-8575fdcfbd-qxgwh
+14m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-8575fdcfbd from 0 to 1
+14m         Normal    Scheduled                      pod/resource-demo-8575fdcfbd-qxgwh         Successfully assigned dev/resource-demo-8575fdcfbd-qxgwh to test-k8s-worker
+14m         Normal    Pulling                        pod/resource-demo-8575fdcfbd-qxgwh         Pulling image "nginx"
+14m         Normal    Created                        pod/resource-demo-8575fdcfbd-qxgwh         Container created
+14m         Normal    Started                        pod/resource-demo-8575fdcfbd-qxgwh         Container started
+14m         Normal    Pulled                         pod/resource-demo-8575fdcfbd-qxgwh         Successfully pulled image "nginx" in 484ms (484ms including waiting). Image size: 62939286 bytes.
+14m         Normal    Scheduled                      pod/resource-demo-646f77465d-6dk4z         Successfully assigned dev/resource-demo-646f77465d-6dk4z to test-k8s-worker
+14m         Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-6dk4z
+14m         Normal    Pulling                        pod/resource-demo-646f77465d-6dk4z         Pulling image "nginx"
+14m         Normal    Killing                        pod/resource-demo-8575fdcfbd-qxgwh         Stopping container app
+14m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+13m         Normal    Pulled                         pod/resource-demo-646f77465d-6dk4z         Successfully pulled image "nginx" in 334ms (334ms including waiting). Image size: 62939286 bytes.
+13m         Normal    Created                        pod/resource-demo-646f77465d-6dk4z         Container created
+13m         Normal    Started                        pod/resource-demo-646f77465d-6dk4z         Container started
+13m         Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-jqns8
+13m         Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+13m         Normal    Scheduled                      pod/resource-demo-646f77465d-jqns8         Successfully assigned dev/resource-demo-646f77465d-jqns8 to test-k8s-worker
+13m         Normal    Killing                        pod/resource-demo-646f77465d-6dk4z         Stopping container app
+12m         Normal    Created                        pod/resource-demo-646f77465d-jqns8         Container created
+12m         Normal    Pulling                        pod/resource-demo-646f77465d-jqns8         Pulling image "nginx"
+12m         Normal    Started                        pod/resource-demo-646f77465d-jqns8         Container started
+12m         Normal    Pulled                         pod/resource-demo-646f77465d-jqns8         Successfully pulled image "nginx" in 362ms (362ms including waiting). Image size: 62939286 bytes.
+12m         Normal    Killing                        pod/resource-demo-646f77465d-jqns8         Stopping container app
+12m         Warning   FailedScheduling               pod/test-pod                               0/3 nodes are available: 1 node(s) didn't match Pod's node affinity/selector, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+12m         Normal    ScalingReplicaSet              deployment/sample-app                      Scaled up replica set sample-app-765cbf5cb7 from 0 to 1
+12m         Normal    SuccessfulCreate               replicaset/sample-app-765cbf5cb7           Created pod: sample-app-765cbf5cb7-pqdpv
+12m         Normal    Scheduled                      pod/sample-app-765cbf5cb7-pqdpv            Successfully assigned dev/sample-app-765cbf5cb7-pqdpv to test-k8s-worker
+12m         Normal    Started                        pod/sample-app-765cbf5cb7-pqdpv            Container started
+12m         Normal    Created                        pod/sample-app-765cbf5cb7-pqdpv            Container created
+12m         Normal    Pulled                         pod/sample-app-765cbf5cb7-pqdpv            Successfully pulled image "nginx" in 362ms (362ms including waiting). Image size: 62939286 bytes.
+12m         Normal    Pulling                        pod/sample-app-765cbf5cb7-pqdpv            Pulling image "nginx"
+12m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/sample-hpa         failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+12m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/sample-hpa         invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+11m         Normal    Scheduled                      pod/sample-app-765cbf5cb7-jmf4g            Successfully assigned dev/sample-app-765cbf5cb7-jmf4g to test-k8s-worker
+11m         Normal    Pulling                        pod/sample-app-765cbf5cb7-jmf4g            Pulling image "nginx"
+11m         Normal    Pulling                        pod/sample-app-765cbf5cb7-75b56            Pulling image "nginx"
+11m         Normal    SuccessfulCreate               replicaset/sample-app-765cbf5cb7           Created pod: sample-app-765cbf5cb7-jmf4g
+11m         Normal    SuccessfulCreate               replicaset/sample-app-765cbf5cb7           Created pod: sample-app-765cbf5cb7-rtgbt
+11m         Normal    SuccessfulCreate               replicaset/sample-app-765cbf5cb7           Created pod: sample-app-765cbf5cb7-75b56
+11m         Normal    SuccessfulRescale              horizontalpodautoscaler/sample-hpa         New size: 4; reason: cpu resource utilization (percentage of request) above target
+11m         Normal    Scheduled                      pod/sample-app-765cbf5cb7-75b56            Successfully assigned dev/sample-app-765cbf5cb7-75b56 to test-k8s-worker
+11m         Normal    Pulling                        pod/sample-app-765cbf5cb7-rtgbt            Pulling image "nginx"
+11m         Normal    ScalingReplicaSet              deployment/sample-app                      Scaled up replica set sample-app-765cbf5cb7 from 1 to 4
+11m         Normal    Scheduled                      pod/sample-app-765cbf5cb7-rtgbt            Successfully assigned dev/sample-app-765cbf5cb7-rtgbt to test-k8s-worker
+11m         Normal    Created                        pod/sample-app-765cbf5cb7-jmf4g            Container created
+11m         Normal    Pulled                         pod/sample-app-765cbf5cb7-75b56            Successfully pulled image "nginx" in 365ms (365ms including waiting). Image size: 62939286 bytes.
+11m         Normal    Created                        pod/sample-app-765cbf5cb7-75b56            Container created
+11m         Normal    Started                        pod/sample-app-765cbf5cb7-75b56            Container started
+11m         Normal    Pulled                         pod/sample-app-765cbf5cb7-jmf4g            Successfully pulled image "nginx" in 342ms (664ms including waiting). Image size: 62939286 bytes.
+11m         Normal    Started                        pod/sample-app-765cbf5cb7-jmf4g            Container started
+11m         Normal    Started                        pod/sample-app-765cbf5cb7-rtgbt            Container started
+11m         Normal    Created                        pod/sample-app-765cbf5cb7-rtgbt            Container created
+11m         Normal    Pulled                         pod/sample-app-765cbf5cb7-rtgbt            Successfully pulled image "nginx" in 351ms (998ms including waiting). Image size: 62939286 bytes.
+11m         Normal    Scheduled                      pod/sample-app-765cbf5cb7-hmq9k            Successfully assigned dev/sample-app-765cbf5cb7-hmq9k to test-k8s-worker
+11m         Normal    SuccessfulCreate               replicaset/sample-app-765cbf5cb7           Created pod: sample-app-765cbf5cb7-hmq9k
+11m         Normal    SuccessfulRescale              horizontalpodautoscaler/sample-hpa         New size: 5; reason: cpu resource utilization (percentage of request) above target
+11m         Normal    Pulling                        pod/sample-app-765cbf5cb7-hmq9k            Pulling image "nginx"
+11m         Normal    ScalingReplicaSet              deployment/sample-app                      Scaled up replica set sample-app-765cbf5cb7 from 4 to 5
+11m         Normal    Started                        pod/sample-app-765cbf5cb7-hmq9k            Container started
+11m         Normal    Created                        pod/sample-app-765cbf5cb7-hmq9k            Container created
+11m         Normal    Pulled                         pod/sample-app-765cbf5cb7-hmq9k            Successfully pulled image "nginx" in 342ms (342ms including waiting). Image size: 62939286 bytes.
+3m24s       Normal    Killing                        pod/sample-app-765cbf5cb7-hmq9k            Stopping container app
+3m24s       Normal    Killing                        pod/sample-app-765cbf5cb7-jmf4g            Stopping container app
+3m24s       Normal    Killing                        pod/sample-app-765cbf5cb7-rtgbt            Stopping container app
+3m24s       Normal    Killing                        pod/sample-app-765cbf5cb7-pqdpv            Stopping container app
+3m24s       Normal    Killing                        pod/sample-app-765cbf5cb7-75b56            Stopping container app
+3m13s       Normal    Pulling                        pod/resource-demo-8575fdcfbd-5ntwf         Pulling image "nginx"
+3m13s       Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-8575fdcfbd from 0 to 1
+3m13s       Normal    SuccessfulCreate               replicaset/resource-demo-8575fdcfbd        Created pod: resource-demo-8575fdcfbd-5ntwf
+3m13s       Normal    Scheduled                      pod/resource-demo-8575fdcfbd-5ntwf         Successfully assigned dev/resource-demo-8575fdcfbd-5ntwf to test-k8s-worker
+3m12s       Normal    Started                        pod/resource-demo-8575fdcfbd-5ntwf         Container started
+3m12s       Normal    Pulled                         pod/resource-demo-8575fdcfbd-5ntwf         Successfully pulled image "nginx" in 436ms (436ms including waiting). Image size: 62939286 bytes.
+3m12s       Normal    Created                        pod/resource-demo-8575fdcfbd-5ntwf         Container created
+3m11s       Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-ddxlp
+3m11s       Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+3m11s       Normal    Pulling                        pod/resource-demo-646f77465d-ddxlp         Pulling image "nginx"
+3m11s       Normal    Scheduled                      pod/resource-demo-646f77465d-ddxlp         Successfully assigned dev/resource-demo-646f77465d-ddxlp to test-k8s-worker
+3m10s       Normal    Pulled                         pod/resource-demo-646f77465d-ddxlp         Successfully pulled image "nginx" in 350ms (350ms including waiting). Image size: 62939286 bytes.
+3m10s       Normal    Started                        pod/resource-demo-646f77465d-ddxlp         Container started
+3m10s       Normal    Created                        pod/resource-demo-646f77465d-ddxlp         Container created
+3m9s        Normal    Killing                        pod/resource-demo-8575fdcfbd-5ntwf         Stopping container app
+3m9s        Normal    Scheduled                      pod/resource-demo-646f77465d-mmfgw         Successfully assigned dev/resource-demo-646f77465d-mmfgw to test-k8s-worker
+3m9s        Normal    SuccessfulCreate               replicaset/resource-demo-646f77465d        Created pod: resource-demo-646f77465d-mmfgw
+3m9s        Normal    ScalingReplicaSet              deployment/resource-demo                   Scaled up replica set resource-demo-646f77465d from 0 to 1
+3m8s        Normal    Pulled                         pod/resource-demo-646f77465d-mmfgw         Successfully pulled image "nginx" in 341ms (341ms including waiting). Image size: 62939286 bytes.
+3m7s        Normal    Killing                        pod/resource-demo-646f77465d-ddxlp         Stopping container app
+2m6s        Normal    Pulling                        pod/resource-demo-646f77465d-mmfgw         Pulling image "nginx"
+2m6s        Normal    Pulled                         pod/resource-demo-646f77465d-mmfgw         Successfully pulled image "nginx" in 382ms (382ms including waiting). Image size: 62939286 bytes.
+2m6s        Normal    Started                        pod/resource-demo-646f77465d-mmfgw         Container started
+2m6s        Normal    Created                        pod/resource-demo-646f77465d-mmfgw         Container created
+2m2s        Normal    Killing                        pod/resource-demo-646f77465d-mmfgw         Stopping container app
+111s        Warning   FailedScheduling               pod/test-pod                               0/3 nodes are available: 1 node(s) didn't match Pod's node affinity/selector, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+94s         Normal    Scheduled                      pod/sample-app-765cbf5cb7-pgr87            Successfully assigned dev/sample-app-765cbf5cb7-pgr87 to test-k8s-worker
+94s         Normal    ScalingReplicaSet              deployment/sample-app                      Scaled up replica set sample-app-765cbf5cb7 from 0 to 1
+94s         Normal    Pulled                         pod/sample-app-765cbf5cb7-pgr87            Successfully pulled image "nginx" in 338ms (338ms including waiting). Image size: 62939286 bytes.
+94s         Normal    SuccessfulCreate               replicaset/sample-app-765cbf5cb7           Created pod: sample-app-765cbf5cb7-pgr87
+94s         Normal    Pulling                        pod/sample-app-765cbf5cb7-pgr87            Pulling image "nginx"
+93s         Normal    Started                        pod/sample-app-765cbf5cb7-pgr87            Container started
+93s         Normal    Created                        pod/sample-app-765cbf5cb7-pgr87            Container created
+78s         Warning   FailedGetResourceMetric        horizontalpodautoscaler/sample-hpa         failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+78s         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/sample-hpa         invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+63s         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/sample-hpa         invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+63s         Warning   FailedGetResourceMetric        horizontalpodautoscaler/sample-hpa         failed to get cpu utilization: did not receive metrics for targeted pods (pods might be unready)
+48s         Normal    SuccessfulCreate               replicaset/sample-app-765cbf5cb7           Created pod: sample-app-765cbf5cb7-bl8qj
+48s         Normal    SuccessfulCreate               replicaset/sample-app-765cbf5cb7           Created pod: sample-app-765cbf5cb7-sq29f
+48s         Normal    SuccessfulCreate               replicaset/sample-app-765cbf5cb7           Created pod: sample-app-765cbf5cb7-2wz2b
+48s         Normal    Scheduled                      pod/sample-app-765cbf5cb7-bl8qj            Successfully assigned dev/sample-app-765cbf5cb7-bl8qj to test-k8s-worker
+48s         Normal    ScalingReplicaSet              deployment/sample-app                      Scaled up replica set sample-app-765cbf5cb7 from 1 to 4
+48s         Normal    SuccessfulRescale              horizontalpodautoscaler/sample-hpa         New size: 4; reason: cpu resource utilization (percentage of request) above target
+48s         Normal    Scheduled                      pod/sample-app-765cbf5cb7-2wz2b            Successfully assigned dev/sample-app-765cbf5cb7-2wz2b to test-k8s-worker
+48s         Normal    Scheduled                      pod/sample-app-765cbf5cb7-sq29f            Successfully assigned dev/sample-app-765cbf5cb7-sq29f to test-k8s-worker
+47s         Normal    Pulled                         pod/sample-app-765cbf5cb7-bl8qj            Successfully pulled image "nginx" in 315ms (651ms including waiting). Image size: 62939286 bytes.
+47s         Normal    Started                        pod/sample-app-765cbf5cb7-bl8qj            Container started
+47s         Normal    Started                        pod/sample-app-765cbf5cb7-2wz2b            Container started
+47s         Normal    Created                        pod/sample-app-765cbf5cb7-2wz2b            Container created
+47s         Normal    Pulled                         pod/sample-app-765cbf5cb7-2wz2b            Successfully pulled image "nginx" in 348ms (348ms including waiting). Image size: 62939286 bytes.
+47s         Normal    Pulling                        pod/sample-app-765cbf5cb7-2wz2b            Pulling image "nginx"
+47s         Normal    Pulling                        pod/sample-app-765cbf5cb7-bl8qj            Pulling image "nginx"
+47s         Normal    Pulling                        pod/sample-app-765cbf5cb7-sq29f            Pulling image "nginx"
+47s         Normal    Created                        pod/sample-app-765cbf5cb7-bl8qj            Container created
+46s         Normal    Created                        pod/sample-app-765cbf5cb7-sq29f            Container created
+46s         Normal    Pulled                         pod/sample-app-765cbf5cb7-sq29f            Successfully pulled image "nginx" in 346ms (987ms including waiting). Image size: 62939286 bytes.
+46s         Normal    Started                        pod/sample-app-765cbf5cb7-sq29f            Container started
+33s         Normal    Scheduled                      pod/sample-app-765cbf5cb7-l97tk            Successfully assigned dev/sample-app-765cbf5cb7-l97tk to test-k8s-worker
+33s         Normal    SuccessfulRescale              horizontalpodautoscaler/sample-hpa         New size: 5; reason: cpu resource utilization (percentage of request) above target
+33s         Normal    ScalingReplicaSet              deployment/sample-app                      Scaled up replica set sample-app-765cbf5cb7 from 4 to 5
+33s         Normal    Pulling                        pod/sample-app-765cbf5cb7-l97tk            Pulling image "nginx"
+33s         Normal    SuccessfulCreate               replicaset/sample-app-765cbf5cb7           Created pod: sample-app-765cbf5cb7-l97tk
+32s         Normal    Started                        pod/sample-app-765cbf5cb7-l97tk            Container started
+32s         Normal    Pulled                         pod/sample-app-765cbf5cb7-l97tk            Successfully pulled image "nginx" in 360ms (360ms including waiting). Image size: 62939286 bytes.
+32s         Normal    Created                        pod/sample-app-765cbf5cb7-l97tk            Container created

@@ -1,0 +1,419 @@
+=== Initial state: deployments ===
+
+=== Deploying workload WITHOUT resource limits (no-resource-limits.yaml) ===
+deployment.apps/resource-demo created
+deployment.apps/resource-demo condition met
+
+=== Deployments after applying no-resource-limits ===
+NAME            READY   UP-TO-DATE   AVAILABLE   AGE
+resource-demo   1/1     1            1           2s
+
+=== Pods (no resource limits) ===
+NAME                             READY   STATUS    RESTARTS   AGE
+resource-demo-8575fdcfbd-5ntwf   1/1     Running   0          2s
+toleration-demo                  1/1     Running   0          13m
+
+=== Resource usage: top pods ===
+NAME              CPU(cores)   MEMORY(bytes)   
+toleration-demo   0m           3Mi             
+
+=== Resource usage: top nodes ===
+NAME                     CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+test-k8s-control-plane   65m          3%       1379Mi          8%          
+test-k8s-worker          664m         33%      925Mi           5%          
+test-k8s-worker2         10m          0%       903Mi           5%          
+
+=== Deleting deployment, then deploying WITH resource limits (resource-limits.yaml) ===
+deployment.apps "resource-demo" deleted from dev namespace
+deployment.apps/resource-demo created
+deployment.apps/resource-demo condition met
+
+=== Pods (with resource limits) ===
+NAME                             READY   STATUS        RESTARTS   AGE
+resource-demo-646f77465d-ddxlp   1/1     Running       0          2s
+resource-demo-8575fdcfbd-5ntwf   1/1     Terminating   0          4s
+toleration-demo                  1/1     Running       0          13m
+
+=== Resource usage with limits: top pods ===
+NAME              CPU(cores)   MEMORY(bytes)   
+toleration-demo   0m           3Mi             
+
+=== Pod details (resource limits) ===
+Name:             resource-demo-646f77465d-ddxlp
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker/172.18.0.3
+Start Time:       Tue, 17 Feb 2026 08:51:06 +0000
+Labels:           app=resource-demo
+                  pod-template-hash=646f77465d
+Annotations:      <none>
+Status:           Running
+IP:               10.244.1.63
+IPs:
+  IP:           10.244.1.63
+Controlled By:  ReplicaSet/resource-demo-646f77465d
+Containers:
+  app:
+    Container ID:   containerd://5c28751bb90fec7828729aa1c5f77869e751ed3979bfce212f6cd70a2c1511f8
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Tue, 17 Feb 2026 08:51:07 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     500m
+      memory:  256Mi
+    Requests:
+      cpu:        100m
+      memory:     128Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-ps8bb (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-ps8bb:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  2s    default-scheduler  Successfully assigned dev/resource-demo-646f77465d-ddxlp to test-k8s-worker
+  Normal  Pulling    2s    kubelet            spec.containers{app}: Pulling image "nginx"
+  Normal  Pulled     1s    kubelet            spec.containers{app}: Successfully pulled image "nginx" in 350ms (350ms including waiting). Image size: 62939286 bytes.
+  Normal  Created    1s    kubelet            spec.containers{app}: Container created
+  Normal  Started    1s    kubelet            spec.containers{app}: Container started
+
+
+Name:             resource-demo-8575fdcfbd-5ntwf
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker/172.18.0.3
+Start Time:       Tue, 17 Feb 2026 08:51:04 +0000
+Labels:           app=resource-demo
+                  pod-template-hash=8575fdcfbd
+Annotations:      <none>
+Status:           Succeeded
+IP:               10.244.1.62
+IPs:
+  IP:           10.244.1.62
+Controlled By:  ReplicaSet/resource-demo-8575fdcfbd
+Containers:
+  app:
+    Container ID:   containerd://bbe71b75be815dd23c5c7addefe56e042f7d0b5ccf2ecd4a4846e9a9acc5e7f6
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Tue, 17 Feb 2026 08:51:05 +0000
+      Finished:     Tue, 17 Feb 2026 08:51:08 +0000
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-tdnkx (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-tdnkx:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  4s    default-scheduler  Successfully assigned dev/resource-demo-8575fdcfbd-5ntwf to test-k8s-worker
+  Normal  Pulling    4s    kubelet            spec.containers{app}: Pulling image "nginx"
+  Normal  Pulled     3s    kubelet            spec.containers{app}: Successfully pulled image "nginx" in 436ms (436ms including waiting). Image size: 62939286 bytes.
+  Normal  Created    3s    kubelet            spec.containers{app}: Container created
+  Normal  Started    3s    kubelet            spec.containers{app}: Container started
+  Normal  Killing    0s    kubelet            spec.containers{app}: Stopping container app
+
+
+Name:             toleration-demo
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker2/172.18.0.2
+Start Time:       Tue, 17 Feb 2026 08:37:44 +0000
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.2.10
+IPs:
+  IP:  10.244.2.10
+Containers:
+  app:
+    Container ID:   containerd://cde7935c53b3b1fc7f3b6f1a07443e46ab18c96fa445e056bbbee2adaedc23d8
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Tue, 17 Feb 2026 08:37:45 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8qm87 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-8qm87:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 dedicated=ops:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  13m   default-scheduler  Successfully assigned dev/toleration-demo to test-k8s-worker2
+  Normal  Pulling    13m   kubelet            spec.containers{app}: Pulling image "nginx"
+  Normal  Pulled     13m   kubelet            spec.containers{app}: Successfully pulled image "nginx" in 373ms (373ms including waiting). Image size: 62939286 bytes.
+  Normal  Created    13m   kubelet            spec.containers{app}: Container created
+  Normal  Started    13m   kubelet            spec.containers{app}: Container started
+
+=== Deleting deployment, then deploying OOMKilled scenario (oomkilled.yaml) ===
+deployment.apps "resource-demo" deleted from dev namespace
+deployment.apps/resource-demo created
+deployment.apps/resource-demo condition met
+
+=== Pods (OOMKilled scenario) ===
+NAME                             READY   STATUS        RESTARTS   AGE
+resource-demo-646f77465d-ddxlp   1/1     Terminating   0          4s
+resource-demo-646f77465d-mmfgw   1/1     Running       0          2s
+toleration-demo                  1/1     Running       0          13m
+
+=== Resource usage: top pods (OOM scenario) ===
+NAME              CPU(cores)   MEMORY(bytes)   
+toleration-demo   0m           3Mi             
+
+=== Pod details (OOM scenario) ===
+Name:             resource-demo-646f77465d-ddxlp
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker/172.18.0.3
+Start Time:       Tue, 17 Feb 2026 08:51:06 +0000
+Labels:           app=resource-demo
+                  pod-template-hash=646f77465d
+Annotations:      <none>
+Status:           Succeeded
+IP:               10.244.1.63
+IPs:
+  IP:           10.244.1.63
+Controlled By:  ReplicaSet/resource-demo-646f77465d
+Containers:
+  app:
+    Container ID:   containerd://5c28751bb90fec7828729aa1c5f77869e751ed3979bfce212f6cd70a2c1511f8
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Tue, 17 Feb 2026 08:51:07 +0000
+      Finished:     Tue, 17 Feb 2026 08:51:10 +0000
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     500m
+      memory:  256Mi
+    Requests:
+      cpu:        100m
+      memory:     128Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-ps8bb (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-ps8bb:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  4s    default-scheduler  Successfully assigned dev/resource-demo-646f77465d-ddxlp to test-k8s-worker
+  Normal  Pulling    4s    kubelet            spec.containers{app}: Pulling image "nginx"
+  Normal  Pulled     3s    kubelet            spec.containers{app}: Successfully pulled image "nginx" in 350ms (350ms including waiting). Image size: 62939286 bytes.
+  Normal  Created    3s    kubelet            spec.containers{app}: Container created
+  Normal  Started    3s    kubelet            spec.containers{app}: Container started
+  Normal  Killing    0s    kubelet            spec.containers{app}: Stopping container app
+
+
+Name:             resource-demo-646f77465d-mmfgw
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker/172.18.0.3
+Start Time:       Tue, 17 Feb 2026 08:51:08 +0000
+Labels:           app=resource-demo
+                  pod-template-hash=646f77465d
+Annotations:      <none>
+Status:           Running
+IP:               10.244.1.64
+IPs:
+  IP:           10.244.1.64
+Controlled By:  ReplicaSet/resource-demo-646f77465d
+Containers:
+  app:
+    Container ID:   containerd://883eb1f3a10d8d194e4b3f4fc9a90895deebb8cf8a5e016a959ba290f4aa5f98
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Tue, 17 Feb 2026 08:51:09 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     500m
+      memory:  256Mi
+    Requests:
+      cpu:        100m
+      memory:     128Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-z7994 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-z7994:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  2s    default-scheduler  Successfully assigned dev/resource-demo-646f77465d-mmfgw to test-k8s-worker
+  Normal  Pulling    2s    kubelet            spec.containers{app}: Pulling image "nginx"
+  Normal  Pulled     1s    kubelet            spec.containers{app}: Successfully pulled image "nginx" in 341ms (341ms including waiting). Image size: 62939286 bytes.
+  Normal  Created    1s    kubelet            spec.containers{app}: Container created
+  Normal  Started    1s    kubelet            spec.containers{app}: Container started
+
+
+Name:             toleration-demo
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker2/172.18.0.2
+Start Time:       Tue, 17 Feb 2026 08:37:44 +0000
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.2.10
+IPs:
+  IP:  10.244.2.10
+Containers:
+  app:
+    Container ID:   containerd://cde7935c53b3b1fc7f3b6f1a07443e46ab18c96fa445e056bbbee2adaedc23d8
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Tue, 17 Feb 2026 08:37:45 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8qm87 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-8qm87:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 dedicated=ops:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  13m   default-scheduler  Successfully assigned dev/toleration-demo to test-k8s-worker2
+  Normal  Pulling    13m   kubelet            spec.containers{app}: Pulling image "nginx"
+  Normal  Pulled     13m   kubelet            spec.containers{app}: Successfully pulled image "nginx" in 373ms (373ms including waiting). Image size: 62939286 bytes.
+  Normal  Created    13m   kubelet            spec.containers{app}: Container created
+  Normal  Started    13m   kubelet            spec.containers{app}: Container started
+
+=== Triggering OOM: running memory-heavy command in pod ===
+
+=== Pod YAML: OOM-related fields ===
+          reason: OOMKilled
