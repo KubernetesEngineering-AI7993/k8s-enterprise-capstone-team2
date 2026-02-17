@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: Pod
-metadata:
-  name: toleration-demo
-spec:
-  # The tolerations block is removed
-  containers:
-  - name: app
-    image: nginx
