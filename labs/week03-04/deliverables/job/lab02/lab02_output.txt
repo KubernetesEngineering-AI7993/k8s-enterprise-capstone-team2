@@ -1,0 +1,174 @@
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl get nodes
+NAME        STATUS   ROLES           AGE   VERSION
+jeking-vm   Ready    control-plane   20d   v1.34.3+k3s1
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl taint nodes jeking-vm dedicated=ops:NoSchedule
+node/jeking-vm tainted
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl apply -f taints-no-tolerance.yaml
+pod/toleration-demo created
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl get pods
+NAME              READY   STATUS    RESTARTS   AGE
+toleration-demo   0/1     Pending   0          75s
+sudo kubectl get pods
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl describe pods toleration-demo
+Name:             toleration-demo
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           <none>
+Annotations:      <none>
+Status:           Pending
+IP:
+IPs:              <none>
+Containers:
+  app:
+    Image:        nginx
+    Port:         <none>
+    Host Port:    <none>
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-rg8fj (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False
+Volumes:
+  kube-api-access-rg8fj:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age    From               Message
+  ----     ------            ----   ----               -------
+  Warning  FailedScheduling  2m30s  default-scheduler  0/1 nodes are available: 1 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl delete -f taints-no-tolerance.yaml
+pod "toleration-demo" deleted from default namespace
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl get pods
+No resources found in default namespace.
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl apply -f taints-tolerance.yaml
+pod/toleration-demo created
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl get pods
+NAME              READY   STATUS    RESTARTS   AGE
+toleration-demo   1/1     Running   0          8s
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl describe pods toleration-demo
+Name:             toleration-demo
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             jeking-vm/192.168.1.181
+Start Time:       Fri, 13 Feb 2026 22:13:48 -0500
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.42.0.95
+IPs:
+  IP:  10.42.0.95
+Containers:
+  app:
+    Container ID:   containerd://427d63a9cb8f8cb5219f190a6a92ede3d1cadc8b7209b5fa369bf557fe88b275
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 13 Feb 2026 22:13:50 -0500
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pkj5h (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-pkj5h:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 dedicated=ops:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  17s   default-scheduler  Successfully assigned default/toleration-demo to jeking-vm
+  Normal  Pulling    17s   kubelet            Pulling image "nginx"
+  Normal  Pulled     16s   kubelet            Successfully pulled image "nginx" in 814ms (814ms including waiting). Image size: 62939286 bytes.
+  Normal  Created    16s   kubelet            Created container: app
+  Normal  Started    16s   kubelet            Started container app
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl delete -f taints-no-tolerance.yaml
+pod "toleration-demo" deleted from default namespace
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl label nodes jeking-vm dedicated=ai7993
+node/jeking-vm labeled
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl apply -f taints-nodeselector.yaml
+pod/toleration-demo created
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl describe pods toleration-demo
+Name:             toleration-demo
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             jeking-vm/192.168.1.181
+Start Time:       Fri, 13 Feb 2026 23:09:27 -0500
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.42.0.97
+IPs:
+  IP:  10.42.0.97
+Containers:
+  app:
+    Container ID:   containerd://de1a93bf1d49de1389bde7df17be4b4ee751429d51c64836d73fe2f8a81f4a1b
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Fri, 13 Feb 2026 23:09:28 -0500
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-gwg6q (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-gwg6q:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              dedicated=ai7993
+Tolerations:                 dedicated=ops:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  54s   default-scheduler  Successfully assigned default/toleration-demo to jeking-vm
+  Normal  Pulling    54s   kubelet            Pulling image "nginx"
+  Normal  Pulled     53s   kubelet            Successfully pulled image "nginx" in 823ms (823ms including waiting). Image size: 62939286 bytes.
+  Normal  Created    53s   kubelet            Created container: app
+  Normal  Started    53s   kubelet            Started container app
+(main_env) jeking@jeking-vm:~/ai7993/local/week3and4/week03lab02$ sudo kubectl get pods
+NAME              READY   STATUS    RESTARTS   AGE
+toleration-demo   1/1     Running   0          107s
