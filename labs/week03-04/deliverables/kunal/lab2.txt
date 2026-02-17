@@ -1,0 +1,193 @@
+=== Current nodes ===
+NAME                     STATUS   ROLES           AGE   VERSION
+test-k8s-control-plane   Ready    control-plane   21d   v1.35.0
+test-k8s-worker          Ready    <none>          21d   v1.35.0
+test-k8s-worker2         Ready    <none>          21d   v1.35.0
+
+=== Tainting node test-k8s-worker2 (dedicated=ops:NoSchedule) ===
+
+=== Labeling node test-k8s-worker2 (tainttest=target) ===
+node/test-k8s-worker2 not labeled
+
+=== Node details: test-k8s-worker2 (taints and labels) ===
+Name:               test-k8s-worker2
+Roles:              <none>
+Labels:             beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/os=linux
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=test-k8s-worker2
+                    kubernetes.io/os=linux
+                    tainttest=target
+Annotations:        node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Mon, 26 Jan 2026 19:25:45 +0000
+Taints:             dedicated=ops:NoSchedule
+Unschedulable:      false
+Lease:
+  HolderIdentity:  test-k8s-worker2
+  AcquireTime:     <unset>
+  RenewTime:       Tue, 17 Feb 2026 08:52:18 +0000
+Conditions:
+  Type             Status  LastHeartbeatTime                 LastTransitionTime                Reason                       Message
+  ----             ------  -----------------                 ------------------                ------                       -------
+  MemoryPressure   False   Tue, 17 Feb 2026 08:47:44 +0000   Mon, 26 Jan 2026 19:25:45 +0000   KubeletHasSufficientMemory   kubelet has sufficient memory available
+  DiskPressure     False   Tue, 17 Feb 2026 08:47:44 +0000   Mon, 26 Jan 2026 19:25:45 +0000   KubeletHasNoDiskPressure     kubelet has no disk pressure
+  PIDPressure      False   Tue, 17 Feb 2026 08:47:44 +0000   Mon, 26 Jan 2026 19:25:45 +0000   KubeletHasSufficientPID      kubelet has sufficient PID available
+  Ready            True    Tue, 17 Feb 2026 08:47:44 +0000   Mon, 26 Jan 2026 19:25:58 +0000   KubeletReady                 kubelet is posting ready status
+Addresses:
+  InternalIP:  172.18.0.2
+  Hostname:    test-k8s-worker2
+Capacity:
+  cpu:                2
+  ephemeral-storage:  28719140Ki
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             16377756Ki
+  pods:               110
+Allocatable:
+  cpu:                2
+  ephemeral-storage:  28719140Ki
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             16377756Ki
+  pods:               110
+System Info:
+  Machine ID:                 4d1ecea634784a2a963b2a100414cbb1
+  System UUID:                a885c6df-b14a-41ee-b824-4925238fa00a
+  Boot ID:                    cd204419-3fd9-445d-9056-0fc8bd3bb082
+  Kernel Version:             6.8.0-90-generic
+  OS Image:                   Debian GNU/Linux 12 (bookworm)
+  Operating System:           linux
+  Architecture:               amd64
+  Container Runtime Version:  containerd://2.2.0
+  Kubelet Version:            v1.35.0
+  Kube-Proxy Version:         
+PodCIDR:                      10.244.2.0/24
+PodCIDRs:                     10.244.2.0/24
+ProviderID:                   kind://docker/test-k8s/test-k8s-worker2
+Non-terminated Pods:          (3 in total)
+  Namespace                   Name                CPU Requests  CPU Limits  Memory Requests  Memory Limits  Age
+  ---------                   ----                ------------  ----------  ---------------  -------------  ---
+  dev                         toleration-demo     0 (0%)        0 (0%)      0 (0%)           0 (0%)         14m
+  kube-system                 kindnet-xtn7l       100m (5%)     100m (5%)   50Mi (0%)        50Mi (0%)      21d
+  kube-system                 kube-proxy-hrcc2    0 (0%)        0 (0%)      0 (0%)           0 (0%)         21d
+Allocated resources:
+  (Total limits may be over 100 percent, i.e., overcommitted.)
+  Resource           Requests   Limits
+  --------           --------   ------
+  cpu                100m (5%)  100m (5%)
+  memory             50Mi (0%)  50Mi (0%)
+  ephemeral-storage  0 (0%)     0 (0%)
+  hugepages-1Gi      0 (0%)     0 (0%)
+  hugepages-2Mi      0 (0%)     0 (0%)
+Events:              <none>
+
+=== Deploying test-pod with nodeSelector (no toleration – observe scheduling) ===
+pod/test-pod created
+
+=== Pods ===
+NAME              READY   STATUS    RESTARTS   AGE
+test-pod          0/1     Pending   0          5s
+toleration-demo   1/1     Running   0          14m
+
+=== Pod details: test-pod ===
+Name:             test-pod
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           run=test-pod
+Annotations:      <none>
+Status:           Pending
+IP:               
+IPs:              <none>
+Containers:
+  test-pod:
+    Image:        nginx
+    Port:         <none>
+    Host Port:    <none>
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-7j2g6 (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  kube-api-access-7j2g6:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              test=target
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  5s    default-scheduler  0/3 nodes are available: 1 node(s) didn't match Pod's node affinity/selector, 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/3 nodes are available: 3 Preemption is not helpful for scheduling.
+
+=== Deploying workload with tolerations (taints-tolerations.yaml) ===
+pod/toleration-demo configured
+pod/toleration-demo condition met
+
+=== Pods with node placement (-o wide) ===
+NAME              READY   STATUS    RESTARTS   AGE   IP            NODE               NOMINATED NODE   READINESS GATES
+test-pod          0/1     Pending   0          6s    <none>        <none>             <none>           <none>
+toleration-demo   1/1     Running   0          14m   10.244.2.10   test-k8s-worker2   <none>           <none>
+
+=== Pod details: toleration-demo ===
+Name:             toleration-demo
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker2/172.18.0.2
+Start Time:       Tue, 17 Feb 2026 08:37:44 +0000
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.2.10
+IPs:
+  IP:  10.244.2.10
+Containers:
+  app:
+    Container ID:   containerd://cde7935c53b3b1fc7f3b6f1a07443e46ab18c96fa445e056bbbee2adaedc23d8
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Tue, 17 Feb 2026 08:37:45 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-8qm87 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-8qm87:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 dedicated=ops:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  14m   default-scheduler  Successfully assigned dev/toleration-demo to test-k8s-worker2
+  Normal  Pulling    14m   kubelet            spec.containers{app}: Pulling image "nginx"
+  Normal  Pulled     14m   kubelet            spec.containers{app}: Successfully pulled image "nginx" in 373ms (373ms including waiting). Image size: 62939286 bytes.
+  Normal  Created    14m   kubelet            spec.containers{app}: Container created
+  Normal  Started    14m   kubelet            spec.containers{app}: Container started
