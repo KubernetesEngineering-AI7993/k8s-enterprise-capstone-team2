@@ -1,0 +1,2 @@
+﻿NAME         READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS   IMAGES                        SELECTOR
+php-apache   0/1     1            0           4m55s   php-apache   registry.k8s.io/hpa-example   run=php-apache

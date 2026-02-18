@@ -1,0 +1,67 @@
+﻿Name:             oom-demo
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             cka-wk34-worker/172.19.0.4
+Start Time:       Mon, 16 Feb 2026 21:14:00 -0500
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.1.6
+IPs:
+  IP:  10.244.1.6
+Containers:
+  oom:
+    Container ID:  containerd://879158af4ad85a85a8937a0ac927fee74c93c4c5e48d76ad5218292abb2454a3
+    Image:         python:3.12-alpine
+    Image ID:      docker.io/library/python@sha256:2d91681153dd4b8cdb52d4fd34a17b9edbafa4dd3086143cfd4b6c3a84c1acb0
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      python
+      -c
+      a='x'*100000000; print(len(a))
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    137
+      Started:      Mon, 16 Feb 2026 21:18:22 -0500
+      Finished:     Mon, 16 Feb 2026 21:18:22 -0500
+    Ready:          False
+    Restart Count:  5
+    Limits:
+      memory:  30Mi
+    Requests:
+      memory:     30Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-hrzdw (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-hrzdw:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                   From               Message
+  ----     ------     ----                  ----               -------
+  Normal   Scheduled  4m49s                 default-scheduler  Successfully assigned dev/oom-demo to cka-wk34-worker
+  Normal   Pulling    4m48s                 kubelet            Pulling image "python:3.12-alpine"
+  Normal   Pulled     4m19s                 kubelet            Successfully pulled image "python:3.12-alpine" in 29.468s (29.468s including waiting). Image size: 18083985 bytes.
+  Normal   Created    29s (x6 over 4m17s)   kubelet            Created container: oom
+  Normal   Pulled     29s (x5 over 3m49s)   kubelet            Container image "python:3.12-alpine" already present on machine
+  Normal   Started    28s (x6 over 4m16s)   kubelet            Started container oom
+  Warning  BackOff    10s (x15 over 3m37s)  kubelet            Back-off restarting failed container oom in pod oom-demo_dev(14a2d436-fc69-4053-8d10-590db4afb6cc)

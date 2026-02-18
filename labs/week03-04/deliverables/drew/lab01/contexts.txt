@@ -1,0 +1,3 @@
+﻿CURRENT   NAME            CLUSTER         AUTHINFO        NAMESPACE
+          kind-cka-drew   kind-cka-drew   kind-cka-drew   
+*         kind-cka-wk34   kind-cka-wk34   kind-cka-wk34   
