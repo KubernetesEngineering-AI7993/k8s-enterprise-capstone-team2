@@ -1,0 +1,2 @@
+﻿NAME       READY   STATUS             RESTARTS      AGE     IP           NODE              NOMINATED NODE   READINESS GATES
+oom-demo   0/1     CrashLoopBackOff   5 (28s ago)   4m50s   10.244.1.6   cka-wk34-worker   <none>           <none>

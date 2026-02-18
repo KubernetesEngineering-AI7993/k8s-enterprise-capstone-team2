@@ -1,0 +1,2 @@
+﻿NAME       TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE   SELECTOR
+svc-demo   ClusterIP   10.96.115.33   <none>        80/TCP    2s    app=WRONG

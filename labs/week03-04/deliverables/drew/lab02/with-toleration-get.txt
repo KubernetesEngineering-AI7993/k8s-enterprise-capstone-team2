@@ -1,0 +1,2 @@
+﻿NAME             READY   STATUS    RESTARTS   AGE   IP       NODE              NOMINATED NODE   READINESS GATES
+taint-test-yes   0/1     Pending   0          1s    <none>   cka-wk34-worker   <none>           <none>

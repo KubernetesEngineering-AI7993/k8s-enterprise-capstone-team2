@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oom-demo
+  namespace: dev
+spec:
+  containers:
+  - name: oom
+    image: python:3.12-alpine
+    resources:
+      limits:
+        memory: "30Mi"
+    command: ["python","-c","a='x'*100000000; print(len(a))"]
+  restartPolicy: Always

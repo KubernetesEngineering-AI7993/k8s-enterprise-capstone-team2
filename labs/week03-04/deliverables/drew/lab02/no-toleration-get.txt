@@ -1,0 +1,2 @@
+﻿NAME            READY   STATUS    RESTARTS   AGE   IP       NODE     NOMINATED NODE   READINESS GATES
+taint-test-no   0/1     Pending   0          2s    <none>   <none>   <none>           <none>
