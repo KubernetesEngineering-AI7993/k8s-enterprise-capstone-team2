@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: node-selector
+spec:
+  nodeSelector:
+     role: single
+  tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "demo"
+    effect: "NoSchedule"
+  containers:
+  - name: app
+    image: nginx
