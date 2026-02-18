@@ -1,0 +1,275 @@
+LAB 01
+_________________________________________________________________________________
+> kubectl apply -f hpa.yaml
+
+horizontalpodautoscaler.autoscaling/sample-hpa created
+
+> kubectl get pods
+
+nginx-deployment-7c79c4bf97-lphr4   1/1     Running   3 (9m43s ago)   14d
+nginx-deployment-7c79c4bf97-p7rsw   1/1     Running   3 (9m43s ago)   14d
+nginx-pod                           1/1     Running   3 (9m43s ago)   14d
+sample-app-6c87f7bb8d-kv5lx         1/1     Running   1 (9m43s ago)   6d6h
+sample-app-6c87f7bb8d-svrwd         1/1     Running   1 (9m43s ago)   6d6h
+
+> kubectl top pods
+
+metrics not available
+
+> kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+serviceaccount/metrics-server created
+clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader created
+clusterrole.rbac.authorization.k8s.io/system:metrics-server created
+rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader created
+clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator created
+clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server created
+service/metrics-server created
+deployment.apps/metrics-server created
+apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io created
+
+> kubectl patch deployment metrics-server -n kube-system --type=json -p="[{'op':'add','path':'/spec/template/spec/containers/0/args/-','value':'--kubelet-insecure-tls'}]"
+
+deployment.apps/metrics-server patched
+
+>kubectl top pods
+
+nginx-deployment-7c79c4bf97-lphr4   0m           10Mi
+nginx-deployment-7c79c4bf97-p7rsw   0m           10Mi
+nginx-pod                           0m           15Mi
+sample-app-6c87f7bb8d-kv5lx         0m           13Mi
+sample-app-6c87f7bb8d-svrwd         0m           10Mi
+
+
+
+>kubectl get hpa 
+
+NAME         REFERENCE               TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+sample-hpa   Deployment/sample-app   <unknown>/50%   1         5         2          5m17s
+
+>kubectl apply -f resource-limits.yaml
+deployment.apps/resource-demo unchanged
+
+>kubectl describe pod resource-demo-79bf77c994-hkrg7
+
+Name:             resource-demo-79bf77c994-hkrg7
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             kind-control-plane/172.18.0.2
+Start Time:       Wed, 11 Feb 2026 16:43:52 -0500
+Labels:           app=resource-demo
+                  pod-template-hash=79bf77c994
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.14
+IPs:
+  IP:           10.244.0.14
+Controlled By:  ReplicaSet/resource-demo-79bf77c994
+Containers:
+  app:
+    Container ID:   containerd://75bafd67bf1e419cd495e301f807951735a84af8a9ff23dd265a73e45f2b402b
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Wed, 11 Feb 2026 16:43:53 -0500
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     500m
+      memory:  256Mi
+    Requests:
+      cpu:        100m
+      memory:     128Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-tj4pj (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-tj4pj:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age    From               Message
+  ----    ------     ----   ----               -------
+  Normal  Scheduled  4m58s  default-scheduler  Successfully assigned dev/resource-demo-79bf77c994-hkrg7 to kind-control-plane
+  Normal  Pulling    4m58s  kubelet            Pulling image "nginx"
+  Normal  Pulled     4m58s  kubelet            Successfully pulled image "nginx" in 297ms (297ms including waiting)
+  Normal  Created    4m58s  kubelet            Created container app
+  Normal  Started    4m58s  kubelet            Started container app
+
+
+EDIT SAMPLE_DEPLOYMENT.YAML
+_______________________________________________________________________________________________________________________________
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sample-app
+  template:
+    metadata:
+      labels:
+        app: sample-app
+    spec:
+      containers:
+      - name: app
+        image: nginx
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+
+
+LAB 02 CONTINUED
+_______________________________________________________________________________________________________________________________
+
+>kubectl get pods
+
+NAME                                READY   STATUS    RESTARTS      AGE
+nginx-deployment-7c79c4bf97-lphr4   1/1     Running   3 (46m ago)   14d
+nginx-deployment-7c79c4bf97-p7rsw   1/1     Running   3 (46m ago)   14d
+nginx-pod                           1/1     Running   3 (46m ago)   14d
+resource-demo-79bf77c994-hkrg7      1/1     Running   0             10m
+sample-app-657dcfb566-x96lh         1/1     Running   0             84s
+sample-app-657dcfb566-xtdqg         1/1     Running   0             8s
+
+
+> kubectl describe pod sample-app-657dcfb566-xtdqg
+
+
+Name:             sample-app-657dcfb566-xtdqg
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             kind-control-plane/172.18.0.2
+Start Time:       Wed, 11 Feb 2026 16:53:55 -0500
+Labels:           app=sample-app
+                  pod-template-hash=657dcfb566
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.17
+IPs:
+  IP:           10.244.0.17
+Controlled By:  ReplicaSet/sample-app-657dcfb566
+Containers:
+  app:
+    Container ID:   containerd://11dce7714e9cbf75ec248297e7b6b6c700e0a6e7f40897ed37d6c35847b49334
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Wed, 11 Feb 2026 16:53:56 -0500
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     500m
+      memory:  256Mi
+    Requests:
+      cpu:        100m
+      memory:     128Mi
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-99vqq (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-99vqq:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s	
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  41s   default-scheduler  Successfully assigned dev/sample-app-657dcfb566-xtdqg to kind-control-plane
+  Normal  Pulling    42s   kubelet            Pulling image "nginx"
+  Normal  Pulled     41s   kubelet            Successfully pulled image "nginx" in 283ms (283ms including waiting)
+  Normal  Created    41s   kubelet            Created container app
+  Normal  Started    41s   kubelet            Started container app
+
+>kubectl get hpa -n dev
+
+NAME         REFERENCE               TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+sample-hpa   Deployment/sample-app   0%/50%    1         5         2          38m
+
+EDIT RESOURCE-LIMITS.YAML
+______________________________________________________________________________________________________________________________
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resource-demo
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: resource-demo
+  template:
+    metadata:
+      labels:
+        app: resource-demo
+    spec:
+      containers:
+      - name: app
+        image: busybox
+        command:
+          - sh
+          - -c
+        args:
+          - >
+            echo "Allocating 256MB in RAM";
+            dd if=/dev/zero of=/dev/null bs=1M count=256
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "64Mi"
+          limits:
+            cpu: "500m"
+            memory: "128Mi"
+
+APPLY RESOURCE-LIMITS.YAML
+____________________________________________________________________________________________________________________________________
+> kubectl apply -f resource-limits.yaml
+
+deployment.apps/resource-demo configured
+
+> kubectl get pods -n dev -w
+
+NAME                                READY   STATUS      RESTARTS      AGE
+nginx-deployment-7c79c4bf97-hqg57   1/1     Running     0             40s
+nginx-deployment-7c79c4bf97-sf97h   1/1     Running     0             40s
+resource-demo-dd96769d5-vr5gx       0/1     OOMKilled   1 (11s ago)   12s
+sample-app-657dcfb566-8vgz5         1/1     Running     0             40s
