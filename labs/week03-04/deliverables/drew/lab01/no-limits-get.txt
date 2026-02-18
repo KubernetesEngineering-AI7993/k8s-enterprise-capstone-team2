@@ -1,0 +1,2 @@
+﻿NAME                            READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES         SELECTOR
+deployment.apps/resource-demo   0/1     0            0           1s    cpu-burn     busybox:1.36   app=resource-demo

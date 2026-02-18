@@ -1,0 +1,10 @@
+﻿NAME                            CPU(cores)   MEMORY(bytes)   
+load-generator                  15m          3Mi             
+php-apache-6f9b6b7987-6vj8c     93m          11Mi            
+php-apache-6f9b6b7987-c76xx     90m          11Mi            
+php-apache-6f9b6b7987-dlt76     83m          11Mi            
+php-apache-6f9b6b7987-fcrcs     71m          12Mi            
+php-apache-6f9b6b7987-rj8m4     92m          11Mi            
+php-apache-6f9b6b7987-vtgg6     81m          27Mi            
+php-apache-6f9b6b7987-w9vl5     101m         13Mi            
+resource-demo-784b6d5cc-gg64k   202m         0Mi             

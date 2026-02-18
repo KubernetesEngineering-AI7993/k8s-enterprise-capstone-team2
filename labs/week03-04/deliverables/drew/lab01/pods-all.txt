@@ -1,0 +1,12 @@
+﻿NAMESPACE            NAME                                             READY   STATUS              RESTARTS        AGE     IP           NODE                     NOMINATED NODE   READINESS GATES
+kube-system          coredns-66bc5c9577-hb22r                         0/1     ContainerCreating   0               2m21s   <none>       cka-wk34-control-plane   <none>           <none>
+kube-system          coredns-66bc5c9577-k94fg                         0/1     ContainerCreating   0               2m21s   <none>       cka-wk34-control-plane   <none>           <none>
+kube-system          etcd-cka-wk34-control-plane                      1/1     Running             0               2m31s   172.19.0.3   cka-wk34-control-plane   <none>           <none>
+kube-system          kindnet-8wb7c                                    1/1     Running             0               2m14s   172.19.0.3   cka-wk34-control-plane   <none>           <none>
+kube-system          kindnet-x8drm                                    0/1     Pending             0               12s     <none>       cka-wk34-worker          <none>           <none>
+kube-system          kube-apiserver-cka-wk34-control-plane            1/1     Running             1 (3m15s ago)   2m31s   172.19.0.3   cka-wk34-control-plane   <none>           <none>
+kube-system          kube-controller-manager-cka-wk34-control-plane   1/1     Running             1 (82s ago)     2m31s   172.19.0.3   cka-wk34-control-plane   <none>           <none>
+kube-system          kube-proxy-lvxqb                                 0/1     Pending             0               12s     <none>       cka-wk34-worker          <none>           <none>
+kube-system          kube-proxy-n5rwz                                 1/1     Running             0               2m23s   172.19.0.3   cka-wk34-control-plane   <none>           <none>
+kube-system          kube-scheduler-cka-wk34-control-plane            1/1     Running             1 (76s ago)     2m31s   172.19.0.3   cka-wk34-control-plane   <none>           <none>
+local-path-storage   local-path-provisioner-5c4cdb564f-czkmh          0/1     ContainerCreating   0               2m6s    <none>       cka-wk34-control-plane   <none>           <none>

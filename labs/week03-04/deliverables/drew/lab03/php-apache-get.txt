@@ -1,0 +1,6 @@
+﻿NAME                            READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES                        SELECTOR
+deployment.apps/php-apache      0/1     0            0           3s    php-apache   registry.k8s.io/hpa-example   run=php-apache
+deployment.apps/resource-demo   1/1     1            1           14m   cpu-burn     busybox:1.36                  app=resource-demo
+
+NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE   SELECTOR
+service/php-apache   ClusterIP   10.96.102.182   <none>        80/TCP    2s    run=php-apache
