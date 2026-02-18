@@ -1,0 +1,186 @@
+$ kubectl get nodes
+NAME                        STATUS   ROLES           AGE   VERSION
+testcluster-control-plane   Ready    control-plane   76m   v1.35.0
+$ kubectl taint nodes testcluster-control-plane dedicated=demo;NoSchedule
+error: invalid taint spec: dedicated=demo, name part must consist of alphanumeric characters, '-', '_' or '.', and must start and end with an alphanumeric character (e.g. 'MyName',  or 'my.name',  or '123-abc', regex used for validation is '([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]')
+See 'kubectl taint -h' for help and examples
+NoSchedule: command not found
+$ kubectl taint nodes testcluster-control-plane dedicated=demo:NoSchedule
+node/testcluster-control-plane tainted
+$ kubectl describe node testcluster-control-plane | grep -i taint -A2
+Taints:             dedicated=demo:NoSchedule
+Unschedulable:      false
+Lease:
+$ kubectl apply -f no-toleration.yaml
+pod/no-toleration created
+$ kubectl get pod no-toleration -w
+NAME            READY   STATUS    RESTARTS   AGE
+no-toleration   0/1     Pending   0          29s
+$ kubectl describe pod no-toleration
+Name:             no-toleration
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           <none>
+Annotations:      <none>
+Status:           Pending
+IP:
+IPs:              <none>
+Containers:
+  app:
+    Image:        nginx
+    Port:         <none>
+    Host Port:    <none>
+    Environment:  <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-jqmm4 (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False
+Volumes:
+  kube-api-access-jqmm4:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age   From               Message
+  ----     ------            ----  ----               -------
+  Warning  FailedScheduling  63s   default-scheduler  0/1 nodes are available: 1 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/1 nodes are available: 1 Preemption is not helpful for scheduling.
+$ kubectl apply -f with-toleration.yaml
+pod/with-toleration created
+$ kubectl get pod with-toleration -w
+NAME              READY   STATUS    RESTARTS   AGE
+with-toleration   1/1     Running   0          25s
+$ kubectl get pod with-toleration -o wide
+NAME              READY   STATUS    RESTARTS   AGE   IP            NODE                        NOMINATED NODE   READINESS GATES
+with-toleration   1/1     Running   0          60s   10.244.0.13   testcluster-control-plane   <none>           <none>
+$ kubectl describe pod with-toleration
+Name:             with-toleration
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             testcluster-control-plane/172.18.0.2
+Start Time:       Tue, 17 Feb 2026 16:28:19 -0500
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.13
+IPs:
+  IP:  10.244.0.13
+Containers:
+  app:
+    Container ID:   containerd://345b4b57e85639bb5d65887bfce7d3b69d68006501a9356d117fe8194aad7c09
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Tue, 17 Feb 2026 16:28:25 -0500
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-r52t6 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-r52t6:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 dedicated=demo:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  74s   default-scheduler  Successfully assigned dev/with-toleration to testcluster-control-plane
+  Normal  Pulling    73s   kubelet            Pulling image "nginx"
+  Normal  Pulled     68s   kubelet            Successfully pulled image "nginx" in 5.391s (5.392s including waiting). Image size: 62939286 bytes.
+  Normal  Created    68s   kubelet            Container created
+  Normal  Started    68s   kubelet            Container started
+$ kubectl get nodes
+NAME                        STATUS   ROLES           AGE   VERSION
+testcluster-control-plane   Ready    control-plane   98m   v1.35.0
+$ kubectl delete -f no-toleration.yaml
+pod "no-toleration" deleted from dev namespace
+$ kubectl get nodes
+NAME                        STATUS   ROLES           AGE    VERSION
+testcluster-control-plane   Ready    control-plane   115m   v1.35.0
+error: 'role' already has a value (test_node), and --overwrite is false
+$ kubectl label nodes testcluster-control-plane role=single --overwrite
+node/testcluster-control-plane labeled
+$ kubectl apply -f node-selector.yaml
+pod/node-selector created
+$ kubectl apply -f node-selector.yaml
+pod/node-selector created
+$ kubectl describe pods node-selector
+Name:             node-selector
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             testcluster-control-plane/172.18.0.2
+Start Time:       Tue, 17 Feb 2026 16:54:51 -0500
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.14
+IPs:
+  IP:  10.244.0.14
+Containers:
+  app:
+    Container ID:   containerd://e1e4ffb5faedb4af988920179dfc68dd95bc3a931f61fcb997a140c0798d3a0d
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:341bf0f3ce6c5277d6002cf6e1fb0319fa4252add24ab6a0e262e0056d313208
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Tue, 17 Feb 2026 16:54:52 -0500
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-pl4tt (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-pl4tt:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              role=single
+Tolerations:                 dedicated=demo:NoSchedule
+                             node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  25s   default-scheduler  Successfully assigned dev/node-selector to testcluster-control-plane
+  Normal  Pulling    24s   kubelet            Pulling image "nginx"
+  Normal  Pulled     24s   kubelet            Successfully pulled image "nginx" in 396ms (396ms including waiting). Image size: 62939286 bytes.
+  Normal  Created    24s   kubelet            Container created
+  Normal  Started    24s   kubelet            Container started
