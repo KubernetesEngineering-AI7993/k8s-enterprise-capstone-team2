@@ -1,0 +1,2 @@
+﻿NAME                             CPU(cores)   MEMORY(bytes)   
+resource-demo-556bfdd876-9m9bg   1013m        1Mi             

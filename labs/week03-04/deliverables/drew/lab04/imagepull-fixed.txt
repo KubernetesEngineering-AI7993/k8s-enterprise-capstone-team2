@@ -1,0 +1,2 @@
+﻿NAME             READY   STATUS    RESTARTS   AGE   IP            NODE              NOMINATED NODE   READINESS GATES
+imagepull-demo   1/1     Running   0          75s   10.244.1.20   cka-wk34-worker   <none>           <none>

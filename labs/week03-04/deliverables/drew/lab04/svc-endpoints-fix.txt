@@ -1,0 +1,2 @@
+﻿NAME       ENDPOINTS        AGE
+svc-demo   10.244.1.22:80   2m22s

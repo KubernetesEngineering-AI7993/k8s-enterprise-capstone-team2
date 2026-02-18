@@ -1,0 +1,7 @@
+﻿NAME                              READY   STATUS              RESTARTS      AGE    LABELS
+crashloop-demo-579dd5cddb-kntxt   0/1     CrashLoopBackOff    9 (87s ago)   23m    app=crashloop-demo,pod-template-hash=579dd5cddb
+imagepull-demo                    1/1     Running             0             7m4s   <none>
+pending-demo                      1/1     Running             0             85s    <none>
+php-apache-6f9b6b7987-dlt76       1/1     Running             0             32m    pod-template-hash=6f9b6b7987,run=php-apache
+resource-demo-784b6d5cc-gg64k     1/1     Running             0             54m    app=resource-demo,pod-template-hash=784b6d5cc
+svc-demo-64bc78978-w7v65          0/1     ContainerCreating   0             4s     app=myapp,pod-template-hash=64bc78978
