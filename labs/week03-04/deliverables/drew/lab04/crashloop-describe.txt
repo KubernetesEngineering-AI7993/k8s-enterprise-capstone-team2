@@ -1,0 +1,68 @@
+﻿Name:             crashloop-demo-579dd5cddb-kntxt
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             cka-wk34-worker/172.19.0.4
+Start Time:       Mon, 16 Feb 2026 21:43:33 -0500
+Labels:           app=crashloop-demo
+                  pod-template-hash=579dd5cddb
+Annotations:      <none>
+Status:           Running
+IP:               10.244.1.16
+IPs:
+  IP:           10.244.1.16
+Controlled By:  ReplicaSet/crashloop-demo-579dd5cddb
+Containers:
+  demo:
+    Container ID:  containerd://61447e0d7022c992224017a3b59d5ffc0ff7e96c8ad0ea348da039a1ed29fad8
+    Image:         busybox:1.36.1
+    Image ID:      docker.io/library/busybox@sha256:b9598f8c98e24d0ad42c1742c32516772c3aa2151011ebaf639089bd18c605b8
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      echo starting; sleep 2; exit 1
+    State:          Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Mon, 16 Feb 2026 21:44:18 -0500
+      Finished:     Mon, 16 Feb 2026 21:44:22 -0500
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Mon, 16 Feb 2026 21:43:55 -0500
+      Finished:     Mon, 16 Feb 2026 21:43:58 -0500
+    Ready:          False
+    Restart Count:  2
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-fw2mq (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-fw2mq:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  66s                default-scheduler  Successfully assigned dev/crashloop-demo-579dd5cddb-kntxt to cka-wk34-worker
+  Normal   Pulling    61s                kubelet            Pulling image "busybox:1.36.1"
+  Normal   Pulled     58s                kubelet            Successfully pulled image "busybox:1.36.1" in 2.908s (2.908s including waiting). Image size: 2217150 bytes.
+  Normal   Pulled     23s (x2 over 46s)  kubelet            Container image "busybox:1.36.1" already present on machine
+  Normal   Created    20s (x3 over 56s)  kubelet            Created container: demo
+  Normal   Started    19s (x3 over 53s)  kubelet            Started container demo
+  Warning  BackOff    1s (x3 over 38s)   kubelet            Back-off restarting failed container demo in pod crashloop-demo-579dd5cddb-kntxt_dev(84e90ef5-f494-425f-83ab-ff4587abfa61)

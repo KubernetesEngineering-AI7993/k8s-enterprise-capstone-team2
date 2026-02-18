@@ -1,0 +1,53 @@
+﻿Name:             imagepull-demo
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             cka-wk34-worker/172.19.0.4
+Start Time:       Mon, 16 Feb 2026 21:57:41 -0500
+Labels:           <none>
+Annotations:      <none>
+Status:           Pending
+IP:               10.244.1.19
+IPs:
+  IP:  10.244.1.19
+Containers:
+  badimage:
+    Container ID:   
+    Image:          nginx-not-real-image
+    Image ID:       
+    Port:           <none>
+    Host Port:      <none>
+    State:          Waiting
+      Reason:       ImagePullBackOff
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-cvpxg (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-cvpxg:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  92s                default-scheduler  Successfully assigned dev/imagepull-demo to cka-wk34-worker
+  Normal   Pulling    46s (x3 over 91s)  kubelet            Pulling image "nginx-not-real-image"
+  Warning  Failed     45s (x3 over 90s)  kubelet            Failed to pull image "nginx-not-real-image": failed to pull and unpack image "docker.io/library/nginx-not-real-image:latest": failed to resolve reference "docker.io/library/nginx-not-real-image:latest": pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+  Warning  Failed     45s (x3 over 90s)  kubelet            Error: ErrImagePull
+  Normal   BackOff    7s (x5 over 89s)   kubelet            Back-off pulling image "nginx-not-real-image"
+  Warning  Failed     7s (x5 over 89s)   kubelet            Error: ImagePullBackOff
