@@ -1,0 +1,111 @@
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab03$ sudo kubectl apply -f add_liveness.yaml
+deployment.apps/app-demo configured
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab03$ sudo kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab03$ sudo kubectl describe pod app-demo-6cd6856876-6xx98
+Name:             app-demo-6cd6856876-6xx98
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             jeking-vm/192.168.1.181
+Start Time:       Thu, 26 Feb 2026 10:33:08 -0500
+Labels:           app=app-demo
+                  pod-template-hash=6cd6856876
+Annotations:      <none>
+Status:           Running
+IP:               10.42.0.187
+IPs:
+  IP:           10.42.0.187
+Controlled By:  ReplicaSet/app-demo-6cd6856876
+Containers:
+  app:
+    Container ID:   containerd://fa98f9b9b2f4dc669f901267102b001ac0ae23d11536a0c27ac989c5b209102e
+    Image:          nginx:1.27
+    Image ID:       docker.io/library/nginx@sha256:6784fb0834aa7dbbe12e3d7471e69c290df3e6ba810dc38b34ae33d3c1c05f7d
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Thu, 26 Feb 2026 10:33:08 -0500
+    Ready:          True
+    Restart Count:  0
+    Liveness:       http-get http://:80/ delay=5s timeout=1s period=5s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /etc/config from config-volume (rw)
+      /etc/secrets from secret-volume (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-ts8ml (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  config-volume:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      app-config
+    Optional:  false
+  secret-volume:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  app-secret
+    Optional:    false
+  kube-api-access-ts8ml:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  57s   default-scheduler  Successfully assigned default/app-demo-6cd6856876-6xx98 to jeking-vm
+  Normal  Pulled     57s   kubelet            Container image "nginx:1.27" already present on machine
+  Normal  Created    57s   kubelet            Created container: app
+  Normal  Started    57s   kubelet            Started container app
+   1/1     Running   0          25s
+app-demo-6cd6856876-j4s5j   1/1     Running   0          24s
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab03$ sudo kubectl apply -f add_liveness_with_failure.yaml
+deployment.apps/app-demo configured
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab03$ sudo kubectl get pods -w
+NAME                        READY   STATUS    RESTARTS      AGE
+app-demo-6845f7cf66-664zs   1/1     Running   1 (12s ago)   28s
+app-demo-6845f7cf66-7lvrf   1/1     Running   1 (13s ago)   29s
+app-demo-6845f7cf66-7lvrf   1/1     Running   2 (0s ago)    31s
+app-demo-6845f7cf66-664zs   1/1     Running   2 (0s ago)    31s
+app-demo-6845f7cf66-7lvrf   1/1     Running   3 (0s ago)    46s
+app-demo-6845f7cf66-664zs   1/1     Running   3 (0s ago)    46s
+app-demo-6845f7cf66-7lvrf   0/1     CrashLoopBackOff   3 (1s ago)    62s
+app-demo-6845f7cf66-664zs   0/1     CrashLoopBackOff   3 (1s ago)    62s
+app-demo-6845f7cf66-664zs   1/1     Running            4 (29s ago)   90s
+app-demo-6845f7cf66-7lvrf   1/1     Running            4 (31s ago)   92s
+app-demo-6845f7cf66-7lvrf   1/1     Running            5 (1s ago)    107s
+app-demo-6845f7cf66-664zs   1/1     Running            5 (1s ago)    107s
+app-demo-6845f7cf66-7lvrf   0/1     CrashLoopBackOff   5 (1s ago)    2m2s
+app-demo-6845f7cf66-664zs   0/1     CrashLoopBackOff   5 (1s ago)    2m2s
+app-demo-6845f7cf66-7lvrf   1/1     Running            6 (82s ago)   3m23s
+app-demo-6845f7cf66-664zs   1/1     Running            6 (84s ago)   3m25s
+app-demo-6845f7cf66-7lvrf   0/1     CrashLoopBackOff   6 (1s ago)    3m42s
+app-demo-6845f7cf66-664zs   0/1     CrashLoopBackOff   6 (0s ago)    3m41s
+app-demo-6845f7cf66-7lvrf   1/1     Running            7 (2m43s ago)   6m24s
+app-demo-6845f7cf66-664zs   1/1     Running            7 (2m45s ago)   6m26s
+app-demo-6845f7cf66-7lvrf   0/1     CrashLoopBackOff   7 (0s ago)      6m41s
+app-demo-6845f7cf66-664zs   0/1     CrashLoopBackOff   7 (0s ago)      6m41s
+app-demo-6845f7cf66-7lvrf   1/1     Running            8 (5m7s ago)    11m
+app-demo-6845f7cf66-664zs   1/1     Running            8 (5m12s ago)   11m
+app-demo-6845f7cf66-7lvrf   1/1     Running            9 (0s ago)      12m
+app-demo-6845f7cf66-664zs   1/1     Running            9 (0s ago)      12m
+app-demo-6845f7cf66-7lvrf   0/1     CrashLoopBackOff   9 (0s ago)      12m
+app-demo-6845f7cf66-664zs   0/1     CrashLoopBackOff   9 (0s ago)      12m
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab03$ sudo kubectl apply -f add_liveness_fixed.yaml
+deployment.apps/app-demo configured
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab03$ sudo kubectl get pods -w
+NAME                        READY   STATUS    RESTARTS   AGE
+app-demo-6cd6856876-ghdtn   1/1     Running   0          5m39s
+app-demo-6cd6856876-h964k   1/1     Running   0          5m40s
+
+

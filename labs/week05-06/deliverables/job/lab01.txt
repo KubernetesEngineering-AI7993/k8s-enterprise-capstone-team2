@@ -1,0 +1,165 @@
+jeking@jeking-vm:~$ sudo kubectl get deployments
+No resources found in default namespace.
+jeking@jeking-vm:~$ sudo kubectl get pods
+No resources found in default namespace.
+jeking@jeking-vm:~$ sudo kubectl get services
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   31d
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo kubectl apply -f deployment.yaml
+deployment.apps/app-demo created
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo get deployments
+sudo: get: command not found
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo kubectl get deployments
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+app-demo   2/2     2            2           17s
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo kubectl describe deployment app-demo
+Name:                   app-demo
+Namespace:              default
+CreationTimestamp:      Wed, 25 Feb 2026 15:42:27 -0500
+Labels:                 <none>
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=app-demo
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=app-demo
+  Containers:
+   app:
+    Image:         nginx:1.27
+    Port:          80/TCP
+    Host Port:     0/TCP
+    Environment:   <none>
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   app-demo-689949785f (2/2 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  37s   deployment-controller  Scaled up replica set app-demo-689949785f from 0 to 2
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+app-demo-689949785f-6w7pg   1/1     Running   0          108s
+app-demo-689949785f-zdkfg   1/1     Running   0          108s
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo kubectl describe pod app-demo-689949785f-6w7pg
+Name:             app-demo-689949785f-6w7pg
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             jeking-vm/192.168.1.181
+Start Time:       Wed, 25 Feb 2026 15:42:27 -0500
+Labels:           app=app-demo
+                  pod-template-hash=689949785f
+Annotations:      <none>
+Status:           Running
+IP:               10.42.0.159
+IPs:
+  IP:           10.42.0.159
+Controlled By:  ReplicaSet/app-demo-689949785f
+Containers:
+  app:
+    Container ID:   containerd://208f2edf7dbe975072acdf7ddc788a3e1de8139f4f69c64e21d9bb75f782ee21
+    Image:          nginx:1.27
+    Image ID:       docker.io/library/nginx@sha256:6784fb0834aa7dbbe12e3d7471e69c290df3e6ba810dc38b34ae33d3c1c05f7d
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 25 Feb 2026 15:42:28 -0500
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-mr7bt (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  kube-api-access-mr7bt:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age    From               Message
+  ----    ------     ----   ----               -------
+  Normal  Scheduled  2m40s  default-scheduler  Successfully assigned default/app-demo-689949785f-6w7pg to jeking-vm
+  Normal  Pulled     2m40s  kubelet            Container image "nginx:1.27" already present on machine
+  Normal  Created    2m40s  kubelet            Created container: app
+  Normal  Started    2m40s  kubelet            Started container app
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo kubectl apply -f service.yaml
+service/app-demo created
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo kubectl get services
+NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+app-demo     ClusterIP   10.43.124.58   <none>        80/TCP    39s
+kubernetes   ClusterIP   10.43.0.1      <none>        443/TCP   32d
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo kubectl describe service app-demo
+Name:                     app-demo
+Namespace:                default
+Labels:                   <none>
+Annotations:              <none>
+Selector:                 app=app-demo
+Type:                     ClusterIP
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.43.124.58
+IPs:                      10.43.124.58
+Port:                     <unset>  80/TCP
+TargetPort:               80/TCP
+Endpoints:                10.42.0.159:80,10.42.0.160:80
+Session Affinity:         None
+Internal Traffic Policy:  Cluster
+Events:                   <none>
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo kubectl apply -f deployment-scaled.yaml
+deployment.apps/app-demo configured
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo kubectl get deployments
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+app-demo   4/4     4            4           19m
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+app-demo-689949785f-6w7pg   1/1     Running   0          19m
+app-demo-689949785f-mgz8q   1/1     Running   0          23s
+app-demo-689949785f-r5ggc   1/1     Running   0          23s
+app-demo-689949785f-zdkfg   1/1     Running   0          19m
+jeking@jeking-vm:~/ai7993/local/week5and6$ sudo kubectl run curl-test --image=curlimages/curl -it --rm --restart=Never -- http://app-demo
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+pod "curl-test" deleted from default namespace
