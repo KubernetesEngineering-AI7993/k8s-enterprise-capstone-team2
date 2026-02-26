@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-probes # Must match the existing deployment name
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-probes
+  template:
+    metadata:
+      labels:
+        app: app-probes
+    spec:
+      containers:
+      - name: app
+        image: nginx:non-existent-tag # This will cause an ErrImagePull
+        ports:
+        - containerPort: 80

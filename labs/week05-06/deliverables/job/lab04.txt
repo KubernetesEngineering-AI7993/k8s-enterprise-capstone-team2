@@ -1,0 +1,151 @@
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl apply -f probes-and-rolling.yaml
+deployment.apps/app-probes created
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl rollout status deployment/app-probes
+Waiting for deployment "app-probes" rollout to finish: 0 of 1 updated replicas are available...
+deployment "app-probes" successfully rolled out
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl rollout status deployment/app-probes
+deployment "app-probes" successfully rolled out
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl get pods
+NAME                         READY   STATUS    RESTARTS   AGE
+app-demo-6cd6856876-ghdtn    1/1     Running   0          72m
+app-demo-6cd6856876-h964k    1/1     Running   0          72m
+app-probes-6dfbf97b7-sczlc   1/1     Running   0          29s
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl logs -f app-probes-6dfbf97b7-sczlc
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2026/02/26 17:06:03 [notice] 1#1: using the "epoll" event method
+2026/02/26 17:06:03 [notice] 1#1: nginx/1.27.5
+2026/02/26 17:06:03 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14)
+2026/02/26 17:06:03 [notice] 1#1: OS: Linux 6.8.0-94-generic
+2026/02/26 17:06:03 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2026/02/26 17:06:03 [notice] 1#1: start worker processes
+2026/02/26 17:06:03 [notice] 1#1: start worker process 29
+2026/02/26 17:06:03 [notice] 1#1: start worker process 30
+2026/02/26 17:06:03 [notice] 1#1: start worker process 31
+2026/02/26 17:06:03 [notice] 1#1: start worker process 32
+10.42.0.1 - - [26/Feb/2026:17:06:13 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:06:15 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:06:23 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:06:25 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:06:33 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:06:35 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:06:43 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:06:45 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:06:53 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:06:55 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl get pods -l app=app-probes -w
+NAME                         READY   STATUS    RESTARTS   AGE
+app-probes-6dfbf97b7-sczlc   1/1     Running   0          4m8s
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl apply -f fail-rollout.yaml
+deployment.apps/app-probes configured
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl get pods
+NAME                          READY   STATUS             RESTARTS   AGE
+app-demo-6cd6856876-ghdtn     1/1     Running            0          77m
+app-demo-6cd6856876-h964k     1/1     Running            0          77m
+app-probes-6dfbf97b7-pscgl    1/1     Running            0          18s
+app-probes-6dfbf97b7-sczlc    1/1     Running            0          5m25s
+app-probes-76766445d6-k6g8n   0/1     ImagePullBackOff   0          18s
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl describe pod app-probes-76766445d6-k6g8n
+Name:             app-probes-76766445d6-k6g8n
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             jeking-vm/192.168.1.181
+Start Time:       Thu, 26 Feb 2026 12:11:09 -0500
+Labels:           app=app-probes
+                  pod-template-hash=76766445d6
+Annotations:      <none>
+Status:           Pending
+IP:               10.42.0.194
+IPs:
+  IP:           10.42.0.194
+Controlled By:  ReplicaSet/app-probes-76766445d6
+Containers:
+  app:
+    Container ID:
+    Image:          nginx:non-existent-tag
+    Image ID:
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Waiting
+      Reason:       ErrImagePull
+    Ready:          False
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-mng8p (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       False
+  ContainersReady             False
+  PodScheduled                True
+Volumes:
+  kube-api-access-mng8p:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  58s                default-scheduler  Successfully assigned default/app-probes-76766445d6-k6g8n to jeking-vm
+  Normal   Pulling    19s (x3 over 58s)  kubelet            Pulling image "nginx:non-existent-tag"
+  Warning  Failed     18s (x3 over 57s)  kubelet            Failed to pull image "nginx:non-existent-tag": rpc error: code = NotFound desc = failed to pull and unpack image "docker.io/library/nginx:non-existent-tag": failed to resolve reference "docker.io/library/nginx:non-existent-tag": docker.io/library/nginx:non-existent-tag: not found
+  Warning  Failed     18s (x3 over 57s)  kubelet            Error: ErrImagePull
+  Normal   BackOff    7s (x3 over 57s)   kubelet            Back-off pulling image "nginx:non-existent-tag"
+  Warning  Failed     7s (x3 over 57s)   kubelet            Error: ImagePullBackOff
+
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl rollout history deployment/app-probes
+deployment.apps/app-probes
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl rollout undo deployment/app-probes --to-revision=1
+deployment.apps/app-probes rolled back
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl get pods
+NAME                         READY   STATUS    RESTARTS   AGE
+app-demo-6cd6856876-ghdtn    1/1     Running   0          79m
+app-demo-6cd6856876-h964k    1/1     Running   0          79m
+app-probes-6dfbf97b7-pscgl   1/1     Running   0          3m2s
+app-probes-6dfbf97b7-sczlc   1/1     Running   0          8m9s
+(main_env) jeking@jeking-vm:~/ai7993/local/week5and6/lab04$ sudo kubectl logs -f app-probes-6dfbf97b7-pscgl
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Sourcing /docker-entrypoint.d/15-local-resolvers.envsh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2026/02/26 17:11:09 [notice] 1#1: using the "epoll" event method
+2026/02/26 17:11:09 [notice] 1#1: nginx/1.27.5
+2026/02/26 17:11:09 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14)
+2026/02/26 17:11:09 [notice] 1#1: OS: Linux 6.8.0-94-generic
+2026/02/26 17:11:09 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2026/02/26 17:11:09 [notice] 1#1: start worker processes
+2026/02/26 17:11:09 [notice] 1#1: start worker process 29
+2026/02/26 17:11:09 [notice] 1#1: start worker process 30
+2026/02/26 17:11:09 [notice] 1#1: start worker process 31
+2026/02/26 17:11:09 [notice] 1#1: start worker process 32
+10.42.0.1 - - [26/Feb/2026:17:11:19 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:11:21 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:11:29 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:11:31 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:11:39 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:11:41 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
+10.42.0.1 - - [26/Feb/2026:17:11:49 +0000] "GET / HTTP/1.1" 200 615 "-" "kube-probe/1.34" "-"
