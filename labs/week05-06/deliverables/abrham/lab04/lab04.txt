@@ -1,0 +1,31 @@
+$ kubectl rollout status deployment/nginx-deployment -n labs
+deployment "nginx-deployment" successfully rolled out
+$ kubectl set image deployment/nginx-deployment nginx=nginx:1.26 -n labs
+deployment.apps/nginx-deployment image updated
+$ kubectl annotate deployment/nginx-deployment -n labs \
+> kubernetes.io/change-cause="downgraded nginx from 1.27.4 to 1.26"
+deployment.apps/nginx-deployment annotated
+$ kubectl rollout history deployment/nginx-deployment -n labs
+deployment.apps/nginx-deployment
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+3         <none>
+4         <none>
+5         downgraded nginx from 1.27.4 to 1.26
+
+$ kubectl rollout undo deployment/nginx-deployment -n labs --to-revision=1
+deployment.apps/nginx-deployment rolled back
+$ kubectl get deployment nginx-deployment -n labs -o jsonpath='{.spec.template.spec.containers[0].image}'
+nginx:1.27$
+$ kubectl annotate deployment/nginx-deployment -n labs kubernetes.io/change-cause="rolled back to nginx:1.27"
+deployment.apps/nginx-deployment annotated
+$ kubectl rollout history deployment/nginx-deployment -n labs
+deployment.apps/nginx-deployment
+REVISION  CHANGE-CAUSE
+2         <none>
+3         <none>
+4         <none>
+5         downgraded nginx from 1.27.4 to 1.26
+6         rolled back to nginx:1.27
+

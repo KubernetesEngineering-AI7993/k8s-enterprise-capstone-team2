@@ -1,0 +1,317 @@
+$ kubectl describe pod nginx-deployment-7964df77dd-zmqgx -n labs
+Name:             nginx-deployment-7964df77dd-zmqgx
+Namespace:        labs
+Priority:         0
+Service Account:  default
+Node:             testcluster-control-plane/172.18.0.2
+Start Time:       Wed, 04 Mar 2026 16:03:39 -0500
+Labels:           app=nginx
+                  pod-template-hash=7964df77dd
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.14
+IPs:
+  IP:           10.244.0.14
+Controlled By:  ReplicaSet/nginx-deployment-7964df77dd
+Containers:
+  nginx:
+    Container ID:   containerd://0314be746a110aca8856d7e9d7e10a055d4eff716cf3c651c771cf3382f316d0
+    Image:          nginx:1.27
+    Image ID:       docker.io/library/nginx@sha256:6784fb0834aa7dbbe12e3d7471e69c290df3e6ba810dc38b34ae33d3c1c05f7d
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 04 Mar 2026 16:03:40 -0500
+    Ready:          True
+    Restart Count:  0
+    Liveness:       http-get http://:80/ delay=5s timeout=2s period=10s #success=1 #failure=3
+    Readiness:      http-get http://:80/ delay=3s timeout=2s period=5s #success=1 #failure=3
+    Environment Variables from:
+      app-config  ConfigMap  Optional: false
+      app-secret  Secret     Optional: false
+    Environment:  <none>
+    Mounts:
+      /etc/config from config-volume (rw)
+      /etc/secret from secret-volume (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-w8kcn (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  config-volume:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      app-config
+    Optional:  false
+  secret-volume:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  app-secret
+    Optional:    false
+  kube-api-access-w8kcn:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  5m9s  default-scheduler  Successfully assigned labs/nginx-deployment-7964df77dd-zmqgx to testcluster-control-plane
+  Normal  Pulled     5m9s  kubelet            Container image "nginx:1.27" already present on machine and can be accessed by the pod
+  Normal  Created    5m8s  kubelet            Container created
+  Normal  Started    5m8s  kubelet            Container started
+$ kubectl exec -it nginx-deployment-7964df77dd-zmqgx -n lab -- nginx -s stop
+Error from server (NotFound): namespaces "lab" not found
+$ kubectl exec -it nginx-deployment-7964df77dd-zmqgx -n la
+bs -- nginx -s stop
+2026/03/04 21:14:14 [notice] 53#53: signal process started
+$ kubectl get pods -n labs
+NAME                                READY   STATUS    RESTARTS      AGE
+nginx-deployment-7964df77dd-zmqgx   1/1     Running   1 (91s ago)   12m
+nginx-deployment-7964df77dd-zzcp8   1/1     Running   0             12m
+$ kubectl describe pod nginx-deployment-7964df77dd-zmqgx -n labs
+Name:             nginx-deployment-7964df77dd-zmqgx
+Namespace:        labs
+Priority:         0
+Service Account:  default
+Node:             testcluster-control-plane/172.18.0.2
+Start Time:       Wed, 04 Mar 2026 16:03:39 -0500
+Labels:           app=nginx
+                  pod-template-hash=7964df77dd
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.14
+IPs:
+  IP:           10.244.0.14
+Controlled By:  ReplicaSet/nginx-deployment-7964df77dd
+Containers:
+  nginx:
+    Container ID:   containerd://0e0c2cfe42af211e361435ae85a450209fc9e9b5b0bec76d1386a5ba8649a002
+    Image:          nginx:1.27
+    Image ID:       docker.io/library/nginx@sha256:6784fb0834aa7dbbe12e3d7471e69c290df3e6ba810dc38b34ae33d3c1c05f7d
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 04 Mar 2026 16:14:14 -0500
+    Last State:     Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Wed, 04 Mar 2026 16:03:40 -0500
+      Finished:     Wed, 04 Mar 2026 16:14:14 -0500
+    Ready:          True
+    Restart Count:  1
+    Liveness:       http-get http://:80/ delay=5s timeout=2s period=10s #success=1 #failure=3
+    Readiness:      http-get http://:80/ delay=3s timeout=2s period=5s #success=1 #failure=3
+    Environment Variables from:
+      app-config  ConfigMap  Optional: false
+      app-secret  Secret     Optional: false
+    Environment:  <none>
+    Mounts:
+      /etc/config from config-volume (rw)
+      /etc/secret from secret-volume (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-w8kcn (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  config-volume:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      app-config
+    Optional:  false
+  secret-volume:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  app-secret
+    Optional:    false
+  kube-api-access-w8kcn:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age                  From               Message
+  ----    ------     ----                 ----               -------
+  Normal  Scheduled  13m                  default-scheduler  Successfully assigned labs/nginx-deployment-7964df77dd-zmqgx to testcluster-control-plane
+  Normal  Pulled     2m29s (x2 over 13m)  kubelet            Container image "nginx:1.27" already present on machine and can be accessed by the pod
+  Normal  Created    2m29s (x2 over 13m)  kubelet            Container created
+  Normal  Started    2m29s (x2 over 13m)  kubelet            Container started
+$ kubectl exec -it nginx-deployment-7964df77dd-zmqgx -n labs -- rm /usr/share/nginx/html/index.html
+$ kubectl get endpoints nginx-service -n labs
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+NAME            ENDPOINTS                       AGE
+nginx-service   10.244.0.13:80,10.244.0.14:80   130m
+$ kubectl describe pod nginx-deployment-7964df77dd-zmqgx -n labs
+Name:             nginx-deployment-7964df77dd-zmqgx
+Namespace:        labs
+Priority:         0
+Service Account:  default
+Node:             testcluster-control-plane/172.18.0.2
+Start Time:       Wed, 04 Mar 2026 16:03:39 -0500
+Labels:           app=nginx
+                  pod-template-hash=7964df77dd
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.14
+IPs:
+  IP:           10.244.0.14
+Controlled By:  ReplicaSet/nginx-deployment-7964df77dd
+Containers:
+  nginx:
+    Container ID:   containerd://38dd05598eeaf8c1340457c7809ea6768da940d3549130228167e527d7fd3376
+    Image:          nginx:1.27
+    Image ID:       docker.io/library/nginx@sha256:6784fb0834aa7dbbe12e3d7471e69c290df3e6ba810dc38b34ae33d3c1c05f7d
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 04 Mar 2026 16:20:01 -0500
+    Last State:     Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Wed, 04 Mar 2026 16:14:14 -0500
+      Finished:     Wed, 04 Mar 2026 16:20:01 -0500
+    Ready:          True
+    Restart Count:  2
+    Liveness:       http-get http://:80/ delay=5s timeout=2s period=10s #success=1 #failure=3
+    Readiness:      http-get http://:80/ delay=3s timeout=2s period=5s #success=1 #failure=3
+    Environment Variables from:
+      app-config  ConfigMap  Optional: false
+      app-secret  Secret     Optional: false
+    Environment:  <none>
+    Mounts:
+      /etc/config from config-volume (rw)
+      /etc/secret from secret-volume (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-w8kcn (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  config-volume:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      app-config
+    Optional:  false
+  secret-volume:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  app-secret
+    Optional:    false
+  kube-api-access-w8kcn:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  18m                    default-scheduler  Successfully assigned labs/nginx-deployment-7964df77dd-zmqgx to testcluster-control-plane
+  Normal   Pulled     2m10s (x3 over 18m)    kubelet            Container image "nginx:1.27" already present on machine and can be accessed by the pod
+  Normal   Created    2m10s (x3 over 18m)    kubelet            Container created
+  Normal   Started    2m10s (x3 over 18m)    kubelet            Container started
+  Warning  Unhealthy  2m10s (x7 over 2m35s)  kubelet            Readiness probe failed: HTTP probe failed with statuscode: 403
+  Warning  Unhealthy  2m10s (x3 over 2m30s)  kubelet            Liveness probe failed: HTTP probe failed with statuscode: 403
+  Normal   Killing    2m10s                  kubelet            Container nginx failed liveness probe, will be restarted
+$ kubectl exec -it nginx-deployment-7964df77dd-zmqgx -n labs -- bash -c "echo 'nginx is running' > /usr/share/nginx/html/index.html"
+$ kubectl get endpoints nginx-service -n labs
+Warning: v1 Endpoints is deprecated in v1.33+; use discovery.k8s.io/v1 EndpointSlice
+NAME            ENDPOINTS                       AGE
+nginx-service   10.244.0.13:80,10.244.0.14:80   134m
+$ kubectl describe pod nginx-deployment-7964df77dd-zmqgx -n labs
+Name:             nginx-deployment-7964df77dd-zmqgx
+Namespace:        labs
+Priority:         0
+Service Account:  default
+Node:             testcluster-control-plane/172.18.0.2
+Start Time:       Wed, 04 Mar 2026 16:03:39 -0500
+Labels:           app=nginx
+                  pod-template-hash=7964df77dd
+Annotations:      <none>
+Status:           Running
+IP:               10.244.0.14
+IPs:
+  IP:           10.244.0.14
+Controlled By:  ReplicaSet/nginx-deployment-7964df77dd
+Containers:
+  nginx:
+    Container ID:   containerd://38dd05598eeaf8c1340457c7809ea6768da940d3549130228167e527d7fd3376
+    Image:          nginx:1.27
+    Image ID:       docker.io/library/nginx@sha256:6784fb0834aa7dbbe12e3d7471e69c290df3e6ba810dc38b34ae33d3c1c05f7d
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 04 Mar 2026 16:20:01 -0500
+    Last State:     Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Wed, 04 Mar 2026 16:14:14 -0500
+      Finished:     Wed, 04 Mar 2026 16:20:01 -0500
+    Ready:          True
+    Restart Count:  2
+    Liveness:       http-get http://:80/ delay=5s timeout=2s period=10s #success=1 #failure=3
+    Readiness:      http-get http://:80/ delay=3s timeout=2s period=5s #success=1 #failure=3
+    Environment Variables from:
+      app-config  ConfigMap  Optional: false
+      app-secret  Secret     Optional: false
+    Environment:  <none>
+    Mounts:
+      /etc/config from config-volume (rw)
+      /etc/secret from secret-volume (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-w8kcn (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       True
+  ContainersReady             True
+  PodScheduled                True
+Volumes:
+  config-volume:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      app-config
+    Optional:  false
+  secret-volume:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  app-secret
+    Optional:    false
+  kube-api-access-w8kcn:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  23m                    default-scheduler  Successfully assigned labs/nginx-deployment-7964df77dd-zmqgx to testcluster-control-plane
+  Normal   Pulled     7m12s (x3 over 23m)    kubelet            Container image "nginx:1.27" already present on machine and can be accessed by the pod
+  Normal   Created    7m12s (x3 over 23m)    kubelet            Container created
+  Normal   Started    7m12s (x3 over 23m)    kubelet            Container started
+  Warning  Unhealthy  7m12s (x7 over 7m37s)  kubelet            Readiness probe failed: HTTP probe failed with statuscode: 403
+  Warning  Unhealthy  7m12s (x3 over 7m32s)  kubelet            Liveness probe failed: HTTP probe failed with statuscode: 403
+  Normal   Killing    7m12s                  kubelet            Container nginx failed liveness probe, will be restarted
+$
