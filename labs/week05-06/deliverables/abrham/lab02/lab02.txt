@@ -1,0 +1,113 @@
+$ kubectl create configmap app-config \
+> --from-literal=APP_ENV=production \
+> --from-literal=APP_PORT=8080 \
+> --from-literal=LOG_LEVEL=info \
+> -n labs
+configmap/app-config created
+$ kubectl get configmaps -n labs
+NAME               DATA   AGE
+app-config         3      21s
+kube-root-ca.crt   1      66m
+$ kubectl describe configmap app-config -n labs
+Name:         app-config
+Namespace:    labs
+Labels:       <none>
+Annotations:  <none>
+
+Data
+====
+APP_ENV:
+----
+production
+
+APP_PORT:
+----
+8080
+
+LOG_LEVEL:
+----
+info
+
+
+BinaryData
+====
+
+Events:  <none>
+$ kubectl get configmap app-config -n labs -o yaml > configmap.yaml
+$ echo -n "test123" | base64
+dGVzdDEyMw==
+$ echo -n "secretapikey" | base64
+c2VjcmV0YXBpa2V5
+$ kubectl create secret generic app-secret \
+> --from-literal=DB_USERNAME=adejene2 \
+> --from-literal=DB_PASSWORD=Test123 \
+> --from-literal=API_KEY=mysecretapikey \
+> -n labs
+secret/app-secret created
+$ kubectl get secrets -n labs
+NAME         TYPE     DATA   AGE
+app-secret   Opaque   3      36s
+$ kubectl describe secret app-secret -n labs
+Name:         app-secret
+Namespace:    labs
+Labels:       <none>
+Annotations:  <none>
+
+Type:  Opaque
+
+Data
+====
+API_KEY:      14 bytes
+DB_PASSWORD:  7 bytes
+DB_USERNAME:  8 bytes
+$ kubectl get secret app-secret -n labs -o yaml > secret.yaml
+$ code .
+$ kubectl apply -f deployment.yaml
+deployment.apps/nginx-deployment configured
+$ kubectl get pods -n labs
+NAME                               READY   STATUS    RESTARTS   AGE
+nginx-deployment-b4589bd5b-7nfd9   1/1     Running   0          36s
+nginx-deployment-b4589bd5b-hlt92   1/1     Running   0          37s
+$ kubectl exec it nginx-deployment -n labs -- env
+Error from server (NotFound): pods "it" not found
+$ kubectl exec -it nginx-deployment -n labs -- env
+Error from server (NotFound): pods "nginx-deployment" not found
+$ kubectl exec -it nginx-deployment-b4589bd5b-7nfd9 -n labs -- env
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=nginx-deployment-b4589bd5b-7nfd9
+NGINX_VERSION=1.27.5
+NJS_VERSION=0.8.10
+NJS_RELEASE=1~bookworm
+PKG_RELEASE=1~bookworm
+DYNPKG_RELEASE=1~bookworm
+API_KEY=mysecretapikey
+DB_PASSWORD=Test123
+DB_USERNAME=adejene2
+APP_ENV=production
+APP_PORT=8080
+LOG_LEVEL=info
+KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443
+KUBERNETES_PORT_443_TCP_ADDR=10.96.0.1
+NGINX_SERVICE_PORT_80_TCP_PROTO=tcp
+NGINX_SERVICE_PORT_80_TCP_ADDR=10.96.228.115
+NGINX_SERVICE_SERVICE_HOST=10.96.228.115
+NGINX_SERVICE_SERVICE_PORT=80
+KUBERNETES_SERVICE_PORT_HTTPS=443
+KUBERNETES_PORT=tcp://10.96.0.1:443
+KUBERNETES_PORT_443_TCP_PORT=443
+NGINX_SERVICE_PORT=tcp://10.96.228.115:80
+NGINX_SERVICE_PORT_80_TCP=tcp://10.96.228.115:80
+KUBERNETES_SERVICE_PORT=443
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+NGINX_SERVICE_PORT_80_TCP_PORT=80
+KUBERNETES_SERVICE_HOST=10.96.0.1
+TERM=xterm
+HOME=/root
+$ kubectl exec -it nginx-deployment-b4589bd5b-7nfd9 -n labs -- ls /etc/config
+APP_ENV  APP_PORT  LOG_LEVEL
+$ kubectl exec -it nginx-deployment-b4589bd5b-7nfd9 -n labs -- ls /etc/secret
+API_KEY  DB_PASSWORD  DB_USERNAME
+$ kubectl exec -it nginx-deployment-b4589bd5b-7nfd9 -n labs -- cat /etc/config/APP_ENV
+production
+$ kubectl exec -it nginx-deployment-b4589bd5b-7nfd9 -n labs -- cat /etc/secret/DB_USERNAME
+adejene2
