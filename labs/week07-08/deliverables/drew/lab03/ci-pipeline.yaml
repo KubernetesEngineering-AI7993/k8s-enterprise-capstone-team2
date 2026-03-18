@@ -1,0 +1,33 @@
+name: CI Pipeline - Kubernetes Deployment
+
+on:
+  pull_request:
+    branches: [main, week07-08]
+
+jobs:
+  validate-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate YAML files
+        run: |
+          echo "Validating Kubernetes YAML files..."
+          for file in $(find . -name '*.yaml' -path '*/deliverables/*'); do
+            echo "Checking $file"
+            python3 -c "import yaml; yaml.safe_load(open('$file'))" && echo "  PASS" || echo "  FAIL"
+          done
+
+      - name: Build container image (mock)
+        run: |
+          echo "Building container image..."
+          echo "docker build -t sample-app:${{ github.sha }} ."
+          echo "Build complete (mock - no actual Docker build)"
+
+      - name: Deploy to Kubernetes (mock)
+        run: |
+          echo "Deploying to Kubernetes..."
+          echo "kubectl apply -f deployment.yaml"
+          echo "helm upgrade --install sample-app ./sample-app"
+          echo "Deployment complete (mock - no actual cluster)"
