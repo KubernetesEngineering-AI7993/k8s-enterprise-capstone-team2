@@ -1,0 +1,22 @@
+# Multi-container Pod: app + sidecar sharing emptyDir (per solutions/multi-container-pod.yaml)
+# Lab 02 – Multi-Container Pods
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sidecar-demo
+spec:
+  volumes:
+  - name: shared-data
+    emptyDir: {}
+  containers:
+  - name: app
+    image: nginx
+    volumeMounts:
+    - name: shared-data
+      mountPath: /usr/share/nginx/html
+  - name: sidecar
+    image: busybox
+    command: ["sh", "-c", "while true; do date >> /data/index.html; sleep 5; done"]
+    volumeMounts:
+    - name: shared-data
+      mountPath: /data

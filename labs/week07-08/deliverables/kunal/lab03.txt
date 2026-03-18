@@ -1,0 +1,18 @@
+=== Lab 03 – CI Pipeline ===
+
+--- Local YAML validation (simulating CI validate step) ---
+  OK /home/k8worker/week7-8/lab03/ci-pipeline.yaml
+  SKIP (Helm template): /home/k8worker/week7-8/lab01/sample-app/templates/deployment.yaml
+  SKIP (Helm template): /home/k8worker/week7-8/lab01/sample-app/templates/service.yaml
+  OK /home/k8worker/week7-8/lab01/sample-app/values.yaml
+  OK /home/k8worker/week7-8/lab01/sample-app/Chart.yaml
+  OK /home/k8worker/week7-8/lab02/multi-container.yaml
+  OK /home/k8worker/week7-8/lab04/bad-release.yaml
+  OK /home/k8worker/week7-8/lab04/deployment-strategy.yaml
+Validated 6 file(s); 0 failure(s).
+
+--- Pipeline definition ---
+See ci-pipeline.yaml (GitHub Actions). Trigger: on PR merge only (pull_request types: [closed], if merged == true).
+Stages: Checkout → Validate YAML → Build (mock) → Deploy (helm template).
+
+--- Done (full pipeline runs in GitHub on PR merge) ---

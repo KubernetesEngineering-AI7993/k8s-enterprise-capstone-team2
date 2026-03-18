@@ -1,0 +1,112 @@
+=== Lab 02 – Multi-Container Pods ===
+
+--- Applying multi-container Pod (multi-container.yaml) ---
+pod/sidecar-demo created
+
+--- Waiting for Pod to be Ready ---
+pod/sidecar-demo condition met
+
+--- Pod status ---
+NAME           READY   STATUS    RESTARTS   AGE   IP             NODE              NOMINATED NODE   READINESS GATES
+sidecar-demo   2/2     Running   0          3s    10.244.1.147   test-k8s-worker   <none>           <none>
+
+--- Pod details (containers and shared volume) ---
+Name:             sidecar-demo
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker/172.18.0.3
+Start Time:       Wed, 18 Mar 2026 20:34:23 +0000
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               10.244.1.147
+IPs:
+  IP:  10.244.1.147
+Containers:
+  app:
+    Container ID:   containerd://878c1503aec68aa74ad6d78edbff4c041336975027c6da0516e61acd1b795a9a
+    Image:          nginx
+    Image ID:       docker.io/library/nginx@sha256:dec7a90bd0973b076832dc56933fe876bc014929e14b4ec49923951405370112
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Wed, 18 Mar 2026 20:34:24 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /usr/share/nginx/html from shared-data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zmpwq (ro)
+  sidecar:
+    Container ID:  containerd://f13ea5e699bee81a8a7d562bff79ececc0ee11c324f31321e4acb0001ebfeb46
+    Image:         busybox
+    Image ID:      docker.io/library/busybox@sha256:b3255e7dfbcd10cb367af0d409747d511aeb66dfac98cf30e97e87e4207dd76f
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      while true; do date >> /data/index.html; sleep 5; done
+    State:          Running
+      Started:      Wed, 18 Mar 2026 20:34:25 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /data from shared-data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zmpwq (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  shared-data:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kube-api-access-zmpwq:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  3s    default-scheduler  Successfully assigned dev/sidecar-demo to test-k8s-worker
+  Normal  Pulling    2s    kubelet            spec.containers{app}: Pulling image "nginx"
+  Normal  Pulled     2s    kubelet            spec.containers{app}: Successfully pulled image "nginx" in 464ms (464ms including waiting). Image size: 62956815 bytes.
+  Normal  Created    2s    kubelet            spec.containers{app}: Container created
+  Normal  Started    2s    kubelet            spec.containers{app}: Container started
+  Normal  Pulling    2s    kubelet            spec.containers{sidecar}: Pulling image "busybox"
+  Normal  Pulled     1s    kubelet            spec.containers{sidecar}: Successfully pulled image "busybox" in 327ms (327ms including waiting). Image size: 2222260 bytes.
+  Normal  Created    1s    kubelet            spec.containers{sidecar}: Container created
+  Normal  Started    1s    kubelet            spec.containers{sidecar}: Container started
+
+--- Sidecar writes to shared volume; app serves it. Waiting a few seconds for sidecar to write ---
+
+--- Curl main app (nginx serves /usr/share/nginx/html = same volume as sidecar /data) ---
+Wed Mar 18 20:34:25 UTC 2026
+Wed Mar 18 20:34:30 UTC 2026
+
+--- Sidecar logs ---
+
+--- List shared volume from both containers ---
+app (nginx):
+total 12
+drwxrwxrwx 2 root root 4096 Mar 18 20:34 .
+drwxr-xr-x 3 root root 4096 Mar 16 22:23 ..
+-rw-r--r-- 1 root root   58 Mar 18 20:34 index.html
+sidecar:
+total 12
+drwxrwxrwx    2 root     root          4096 Mar 18 20:34 .
+drwxr-xr-x    1 root     root          4096 Mar 18 20:34 ..
+-rw-r--r--    1 root     root            58 Mar 18 20:34 index.html
