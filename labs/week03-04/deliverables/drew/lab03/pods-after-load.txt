@@ -1,0 +1,8 @@
+﻿NAME                          READY   STATUS    RESTARTS   AGE     IP            NODE              NOMINATED NODE   READINESS GATES
+php-apache-6f9b6b7987-6vj8c   1/1     Running   0          4m29s   10.244.1.12   cka-wk34-worker   <none>           <none>
+php-apache-6f9b6b7987-c76xx   1/1     Running   0          2m57s   10.244.1.14   cka-wk34-worker   <none>           <none>
+php-apache-6f9b6b7987-dlt76   1/1     Running   0          4m29s   10.244.1.11   cka-wk34-worker   <none>           <none>
+php-apache-6f9b6b7987-fcrcs   1/1     Running   0          4m14s   10.244.1.13   cka-wk34-worker   <none>           <none>
+php-apache-6f9b6b7987-rj8m4   1/1     Running   0          2m57s   10.244.1.15   cka-wk34-worker   <none>           <none>
+php-apache-6f9b6b7987-vtgg6   1/1     Running   0          13m     10.244.1.8    cka-wk34-worker   <none>           <none>
+php-apache-6f9b6b7987-w9vl5   1/1     Running   0          4m29s   10.244.1.10   cka-wk34-worker   <none>           <none>

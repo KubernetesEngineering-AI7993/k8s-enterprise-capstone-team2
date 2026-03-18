@@ -1,0 +1,3 @@
+﻿NAME                     CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+cka-wk34-control-plane   171m         2%       677Mi           18%         
+cka-wk34-worker          225m         2%       234Mi           6%          

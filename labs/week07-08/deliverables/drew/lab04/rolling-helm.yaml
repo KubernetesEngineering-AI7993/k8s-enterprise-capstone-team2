@@ -1,0 +1,16 @@
+replicaCount: 2
+
+image:
+  repository: nginx
+  tag: "1.26"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0

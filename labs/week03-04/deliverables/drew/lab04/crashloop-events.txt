@@ -1,0 +1,100 @@
+﻿LAST SEEN   TYPE      REASON                         OBJECT                                 MESSAGE
+9m43s       Normal    Scheduled                      pod/php-apache-6f9b6b7987-6vj8c        Successfully assigned dev/php-apache-6f9b6b7987-6vj8c to cka-wk34-worker
+67s         Normal    Scheduled                      pod/crashloop-demo-579dd5cddb-kntxt    Successfully assigned dev/crashloop-demo-579dd5cddb-kntxt to cka-wk34-worker
+8m11s       Normal    Scheduled                      pod/php-apache-6f9b6b7987-rj8m4        Successfully assigned dev/php-apache-6f9b6b7987-rj8m4 to cka-wk34-worker
+32m         Normal    Scheduled                      pod/resource-demo-556bfdd876-9m9bg     Successfully assigned dev/resource-demo-556bfdd876-9m9bg to cka-wk34-worker
+9m28s       Normal    Scheduled                      pod/php-apache-6f9b6b7987-fcrcs        Successfully assigned dev/php-apache-6f9b6b7987-fcrcs to cka-wk34-worker
+20m         Normal    Scheduled                      pod/taint-test-yes                     Successfully assigned dev/taint-test-yes to cka-wk34-worker
+21m         Warning   FailedScheduling               pod/taint-test-no                      0/2 nodes are available: 2 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/2 nodes are available: 2 Preemption is not helpful for scheduling.
+9m44s       Normal    Scheduled                      pod/php-apache-6f9b6b7987-dlt76        Successfully assigned dev/php-apache-6f9b6b7987-dlt76 to cka-wk34-worker
+18m         Normal    Scheduled                      pod/php-apache-6f9b6b7987-vtgg6        Successfully assigned dev/php-apache-6f9b6b7987-vtgg6 to cka-wk34-worker
+10m         Normal    Scheduled                      pod/load-generator                     Successfully assigned dev/load-generator to cka-wk34-worker
+31m         Normal    Scheduled                      pod/resource-demo-784b6d5cc-gg64k      Successfully assigned dev/resource-demo-784b6d5cc-gg64k to cka-wk34-worker
+8m11s       Normal    Scheduled                      pod/php-apache-6f9b6b7987-c76xx        Successfully assigned dev/php-apache-6f9b6b7987-c76xx to cka-wk34-worker
+9m43s       Normal    Scheduled                      pod/php-apache-6f9b6b7987-w9vl5        Successfully assigned dev/php-apache-6f9b6b7987-w9vl5 to cka-wk34-worker
+30m         Normal    Scheduled                      pod/oom-demo                           Successfully assigned dev/oom-demo to cka-wk34-worker
+32m         Normal    SuccessfulCreate               replicaset/resource-demo-556bfdd876    Created pod: resource-demo-556bfdd876-9m9bg
+32m         Normal    ScalingReplicaSet              deployment/resource-demo               Scaled up replica set resource-demo-556bfdd876 from 0 to 1
+32m         Normal    Pulling                        pod/resource-demo-556bfdd876-9m9bg     Pulling image "busybox:1.36"
+32m         Normal    Pulled                         pod/resource-demo-556bfdd876-9m9bg     Successfully pulled image "busybox:1.36" in 9.489s (9.489s including waiting). Image size: 2217150 bytes.
+32m         Normal    Created                        pod/resource-demo-556bfdd876-9m9bg     Created container: cpu-burn
+32m         Normal    Started                        pod/resource-demo-556bfdd876-9m9bg     Started container cpu-burn
+31m         Normal    ScalingReplicaSet              deployment/resource-demo               Scaled up replica set resource-demo-784b6d5cc from 0 to 1
+31m         Normal    SuccessfulCreate               replicaset/resource-demo-784b6d5cc     Created pod: resource-demo-784b6d5cc-gg64k
+31m         Normal    Pulled                         pod/resource-demo-784b6d5cc-gg64k      Container image "busybox:1.36" already present on machine
+31m         Normal    Created                        pod/resource-demo-784b6d5cc-gg64k      Created container: cpu-burn
+31m         Normal    Started                        pod/resource-demo-784b6d5cc-gg64k      Started container cpu-burn
+31m         Normal    SuccessfulDelete               replicaset/resource-demo-556bfdd876    Deleted pod: resource-demo-556bfdd876-9m9bg
+31m         Normal    ScalingReplicaSet              deployment/resource-demo               Scaled down replica set resource-demo-556bfdd876 from 1 to 0
+31m         Normal    Killing                        pod/resource-demo-556bfdd876-9m9bg     Stopping container cpu-burn
+30m         Normal    Pulling                        pod/oom-demo                           Pulling image "python:3.12-alpine"
+30m         Normal    Pulled                         pod/oom-demo                           Successfully pulled image "python:3.12-alpine" in 29.468s (29.468s including waiting). Image size: 18083985 bytes.
+26m         Normal    Created                        pod/oom-demo                           Created container: oom
+26m         Normal    Pulled                         pod/oom-demo                           Container image "python:3.12-alpine" already present on machine
+26m         Normal    Started                        pod/oom-demo                           Started container oom
+25m         Warning   BackOff                        pod/oom-demo                           Back-off restarting failed container oom in pod oom-demo_dev(14a2d436-fc69-4053-8d10-590db4afb6cc)
+20m         Normal    Pulled                         pod/taint-test-yes                     Container image "registry.k8s.io/pause:3.10" already present on machine
+20m         Normal    Created                        pod/taint-test-yes                     Created container: pause
+20m         Normal    Started                        pod/taint-test-yes                     Started container pause
+20m         Normal    Killing                        pod/taint-test-yes                     Stopping container pause
+18m         Normal    ScalingReplicaSet              deployment/php-apache                  Scaled up replica set php-apache-6f9b6b7987 from 0 to 1
+18m         Normal    SuccessfulCreate               replicaset/php-apache-6f9b6b7987       Created pod: php-apache-6f9b6b7987-vtgg6
+18m         Normal    Pulling                        pod/php-apache-6f9b6b7987-vtgg6        Pulling image "registry.k8s.io/hpa-example"
+16m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/php-apache     failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+16m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/php-apache     invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+12m         Normal    Pulled                         pod/php-apache-6f9b6b7987-vtgg6        Successfully pulled image "registry.k8s.io/hpa-example" in 5m30.716s (5m30.716s including waiting). Image size: 164030864 bytes.
+12m         Normal    Created                        pod/php-apache-6f9b6b7987-vtgg6        Created container: php-apache
+12m         Normal    Started                        pod/php-apache-6f9b6b7987-vtgg6        Started container php-apache
+12m         Warning   FailedGetResourceMetric        horizontalpodautoscaler/php-apache     failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+12m         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/php-apache     invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+10m         Normal    Pulled                         pod/load-generator                     Container image "busybox:1.36" already present on machine
+10m         Normal    Created                        pod/load-generator                     Created container: load-generator
+10m         Normal    Started                        pod/load-generator                     Started container load-generator
+9m45s       Normal    SuccessfulRescale              horizontalpodautoscaler/php-apache     New size: 4; reason: cpu resource utilization (percentage of request) above target
+9m45s       Normal    ScalingReplicaSet              deployment/php-apache                  Scaled up replica set php-apache-6f9b6b7987 from 1 to 4
+9m44s       Normal    SuccessfulCreate               replicaset/php-apache-6f9b6b7987       Created pod: php-apache-6f9b6b7987-6vj8c
+9m44s       Normal    SuccessfulCreate               replicaset/php-apache-6f9b6b7987       Created pod: php-apache-6f9b6b7987-dlt76
+9m44s       Normal    SuccessfulCreate               replicaset/php-apache-6f9b6b7987       Created pod: php-apache-6f9b6b7987-w9vl5
+9m41s       Normal    Pulling                        pod/php-apache-6f9b6b7987-w9vl5        Pulling image "registry.k8s.io/hpa-example"
+9m40s       Normal    Pulling                        pod/php-apache-6f9b6b7987-6vj8c        Pulling image "registry.k8s.io/hpa-example"
+9m40s       Normal    Pulling                        pod/php-apache-6f9b6b7987-dlt76        Pulling image "registry.k8s.io/hpa-example"
+9m36s       Normal    Pulled                         pod/php-apache-6f9b6b7987-w9vl5        Successfully pulled image "registry.k8s.io/hpa-example" in 5.622s (5.623s including waiting). Image size: 164030864 bytes.
+9m34s       Normal    Created                        pod/php-apache-6f9b6b7987-w9vl5        Created container: php-apache
+9m33s       Normal    Started                        pod/php-apache-6f9b6b7987-w9vl5        Started container php-apache
+9m30s       Normal    Pulled                         pod/php-apache-6f9b6b7987-dlt76        Successfully pulled image "registry.k8s.io/hpa-example" in 5.672s (10.072s including waiting). Image size: 164030864 bytes.
+9m30s       Normal    SuccessfulRescale              horizontalpodautoscaler/php-apache     New size: 5; reason: cpu resource utilization (percentage of request) above target
+9m29s       Normal    ScalingReplicaSet              deployment/php-apache                  Scaled up replica set php-apache-6f9b6b7987 from 4 to 5
+9m29s       Normal    SuccessfulCreate               replicaset/php-apache-6f9b6b7987       Created pod: php-apache-6f9b6b7987-fcrcs
+9m27s       Normal    Created                        pod/php-apache-6f9b6b7987-dlt76        Created container: php-apache
+9m26s       Normal    Started                        pod/php-apache-6f9b6b7987-dlt76        Started container php-apache
+9m23s       Normal    Pulling                        pod/php-apache-6f9b6b7987-fcrcs        Pulling image "registry.k8s.io/hpa-example"
+9m22s       Normal    Pulled                         pod/php-apache-6f9b6b7987-6vj8c        Successfully pulled image "registry.k8s.io/hpa-example" in 7.453s (17.359s including waiting). Image size: 164030864 bytes.
+9m21s       Normal    Created                        pod/php-apache-6f9b6b7987-6vj8c        Created container: php-apache
+9m21s       Normal    Started                        pod/php-apache-6f9b6b7987-6vj8c        Started container php-apache
+9m19s       Normal    Pulled                         pod/php-apache-6f9b6b7987-fcrcs        Successfully pulled image "registry.k8s.io/hpa-example" in 3.723s (4.218s including waiting). Image size: 164030864 bytes.
+9m17s       Normal    Created                        pod/php-apache-6f9b6b7987-fcrcs        Created container: php-apache
+9m16s       Normal    Started                        pod/php-apache-6f9b6b7987-fcrcs        Started container php-apache
+8m12s       Normal    SuccessfulCreate               replicaset/php-apache-6f9b6b7987       Created pod: php-apache-6f9b6b7987-rj8m4
+8m12s       Normal    SuccessfulRescale              horizontalpodautoscaler/php-apache     New size: 7; reason: cpu resource utilization (percentage of request) above target
+8m12s       Normal    ScalingReplicaSet              deployment/php-apache                  Scaled up replica set php-apache-6f9b6b7987 from 5 to 7
+8m11s       Normal    SuccessfulCreate               replicaset/php-apache-6f9b6b7987       Created pod: php-apache-6f9b6b7987-c76xx
+8m8s        Normal    Pulling                        pod/php-apache-6f9b6b7987-rj8m4        Pulling image "registry.k8s.io/hpa-example"
+8m8s        Normal    Pulling                        pod/php-apache-6f9b6b7987-c76xx        Pulling image "registry.k8s.io/hpa-example"
+8m5s        Normal    Pulled                         pod/php-apache-6f9b6b7987-c76xx        Successfully pulled image "registry.k8s.io/hpa-example" in 2.723s (2.723s including waiting). Image size: 164030864 bytes.
+8m4s        Normal    Created                        pod/php-apache-6f9b6b7987-c76xx        Created container: php-apache
+8m4s        Normal    Started                        pod/php-apache-6f9b6b7987-c76xx        Started container php-apache
+8m2s        Normal    Pulled                         pod/php-apache-6f9b6b7987-rj8m4        Successfully pulled image "registry.k8s.io/hpa-example" in 3.378s (6.001s including waiting). Image size: 164030864 bytes.
+8m1s        Normal    Created                        pod/php-apache-6f9b6b7987-rj8m4        Created container: php-apache
+8m1s        Normal    Started                        pod/php-apache-6f9b6b7987-rj8m4        Started container php-apache
+69s         Normal    ScalingReplicaSet              deployment/crashloop-demo              Scaled up replica set crashloop-demo-579dd5cddb from 0 to 1
+69s         Normal    SuccessfulCreate               replicaset/crashloop-demo-579dd5cddb   Created pod: crashloop-demo-579dd5cddb-kntxt
+63s         Normal    Pulling                        pod/crashloop-demo-579dd5cddb-kntxt    Pulling image "busybox:1.36.1"
+60s         Normal    Pulled                         pod/crashloop-demo-579dd5cddb-kntxt    Successfully pulled image "busybox:1.36.1" in 2.908s (2.908s including waiting). Image size: 2217150 bytes.
+25s         Normal    Pulled                         pod/crashloop-demo-579dd5cddb-kntxt    Container image "busybox:1.36.1" already present on machine
+22s         Normal    Created                        pod/crashloop-demo-579dd5cddb-kntxt    Created container: demo
+21s         Normal    Started                        pod/crashloop-demo-579dd5cddb-kntxt    Started container demo
+3s          Warning   BackOff                        pod/crashloop-demo-579dd5cddb-kntxt    Back-off restarting failed container demo in pod crashloop-demo-579dd5cddb-kntxt_dev(84e90ef5-f494-425f-83ab-ff4587abfa61)
+2s          Normal    ScalingReplicaSet              deployment/php-apache                  Scaled down replica set php-apache-6f9b6b7987 from 7 to 6
+2s          Normal    SuccessfulDelete               replicaset/php-apache-6f9b6b7987       Deleted pod: php-apache-6f9b6b7987-c76xx
+2s          Normal    SuccessfulRescale              horizontalpodautoscaler/php-apache     New size: 6; reason: All metrics below target
+2s          Normal    Killing                        pod/php-apache-6f9b6b7987-c76xx        Stopping container php-apache
