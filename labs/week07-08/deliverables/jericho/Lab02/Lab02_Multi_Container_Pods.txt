@@ -1,0 +1,48 @@
+> kubectl apply -f multi-container-pod.yaml
+
+pod/sidecar-demo created
+
+>kubectl exec -it sidecar-demo -n dev -c app -- cat /usr/share/nginx/html/index.html
+
+Tue Mar 17 18:03:24 UTC 2026 
+Tue Mar 17 18:03:29 UTC 2026
+Tue Mar 17 18:03:34 UTC 2026
+Tue Mar 17 18:03:39 UTC 2026
+Tue Mar 17 18:03:46 UTC 2026
+Tue Mar 17 18:03:51 UTC 2026
+Tue Mar 17 18:03:56 UTC 2026
+Tue Mar 17 18:04:01 UTC 2026
+Tue Mar 17 18:04:06 UTC 2026
+Tue Mar 17 18:04:11 UTC 2026
+Tue Mar 17 18:04:18 UTC 2026
+Tue Mar 17 18:04:23 UTC 2026
+Tue Mar 17 18:04:28 UTC 2026
+Tue Mar 17 18:04:33 UTC 2026
+Tue Mar 17 18:04:38 UTC 2026
+Tue Mar 17 18:04:43 UTC 2026
+Tue Mar 17 18:04:50 UTC 2026
+Tue Mar 17 18:04:55 UTC 2026
+Tue Mar 17 18:05:00 UTC 2026
+Tue Mar 17 18:05:05 UTC 2026
+Tue Mar 17 18:05:10 UTC 2026 
+Tue Mar 17 18:05:15 UTC 2026
+
+> kubectl get pod -n dev -w
+NAME READY STATUS RESTARTS AGE 
+app-demo-bd4cdb4c6-2tb6g 1/1 Running 2 (26m ago) 15d 
+app-demo-bd4cdb4c6-6vltv 1/1 Running 2 (26m ago) 15d
+app-demo-bd4cdb4c6-g8jh5 1/1 Running 2 (26m ago) 15d
+app-demo-bd4cdb4c6-znd8w 1/1 Running 2 (26m ago) 15d
+app-probes-748c6b5758-4gnx8 0/1 Running 1 (26m ago) 13d
+app-probes-bb4b56bdf-q2zgl 1/1 Running 1 (26m ago) 13d nginx-deployment-7c79c4bf97-dmqbg 1/1 Running 2 (26m ago) 15d 
+nginx-deployment-7c79c4bf97-jhclh 1/1 Running 2 (26m ago) 15d resource-demo-647b7bc4c5-crwm7 1/1 Running 6 (26m ago) 15d sample-app-8446c7c678-hsxrh 1/1 Running 0 11m 
+sample-app-8446c7c678-x8w5c 1/1 Running 0 11m
+sidecar-demo 2/2 Terminating 0 3m9s 
+sidecar-demo 0/2 Terminating 0 3m14s 
+sidecar-demo 0/2 Terminating 0 3m14s 
+sidecar-demo 0/2 Terminating 0 3m14s
+
+>kubectl apply -f multi-container-pod.yaml -n dev
+
+
+

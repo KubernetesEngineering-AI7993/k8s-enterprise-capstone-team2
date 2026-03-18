@@ -1,0 +1,94 @@
+// in administrative mode install helm with: choco install kubernetes-helm
+
+> helm install sample-app .\sample-app -n dev
+
+NAME: sample-app
+LAST DEPLOYED: Tue Mar 17 13:54:43 2026
+NAMESPACE: dev
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+> helm list -n dev
+
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+sample-app      dev             1               2026-03-17 13:54:43.1764574 -0400 EDT   deployed        sample-app-0.1.01.0
+PS C:\Users\jeric> kubectl get pods -n dev
+NAME                                READY   STATUS    RESTARTS      AGE
+app-demo-bd4cdb4c6-2tb6g            1/1     Running   2 (14m ago)   15d
+app-demo-bd4cdb4c6-6vltv            1/1     Running   2 (14m ago)   15d
+app-demo-bd4cdb4c6-g8jh5            1/1     Running   2 (14m ago)   15d
+app-demo-bd4cdb4c6-znd8w            1/1     Running   2 (14m ago)   15d
+app-probes-748c6b5758-4gnx8         0/1     Running   1 (14m ago)   13d
+app-probes-bb4b56bdf-q2zgl          1/1     Running   1 (14m ago)   13d
+nginx-deployment-7c79c4bf97-dmqbg   1/1     Running   2 (14m ago)   15d
+nginx-deployment-7c79c4bf97-jhclh   1/1     Running   2 (14m ago)   15d
+resource-demo-647b7bc4c5-crwm7      1/1     Running   6 (14m ago)   15d
+sample-app-8446c7c678-hsxrh         1/1     Running   0             29s
+sample-app-8446c7c678-x8w5c         1/1     Running   0             29s
+
+> kubectl get svc -n dev
+
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+app-demo         ClusterIP   10.96.123.245   <none>        80/TCP    15d
+app-probes       ClusterIP   10.96.237.76    <none>        80/TCP    13d
+app-probes-svc   ClusterIP   10.96.93.13     <none>        80/TCP    15d
+nginx-service    ClusterIP   10.96.3.225     <none>        80/TCP    47d
+sample-app       ClusterIP   10.96.187.46    <none>        80/TCP    36s
+PS C:\Users\jeric> helm upgrade sample-app .\sample-app -n dev --set replicaCount=3
+Release "sample-app" has been upgraded. Happy Helming!
+NAME: sample-app
+LAST DEPLOYED: Tue Mar 17 13:55:43 2026
+NAMESPACE: dev
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+
+> kubectl get pods -n dev
+NAME                                READY   STATUS    RESTARTS      AGE
+app-demo-bd4cdb4c6-2tb6g            1/1     Running   2 (15m ago)   15d
+app-demo-bd4cdb4c6-6vltv            1/1     Running   2 (15m ago)   15d
+app-demo-bd4cdb4c6-g8jh5            1/1     Running   2 (15m ago)   15d
+app-demo-bd4cdb4c6-znd8w            1/1     Running   2 (15m ago)   15d
+app-probes-748c6b5758-4gnx8         0/1     Running   1 (15m ago)   13d
+app-probes-bb4b56bdf-q2zgl          1/1     Running   1 (15m ago)   13d
+nginx-deployment-7c79c4bf97-dmqbg   1/1     Running   2 (15m ago)   15d
+nginx-deployment-7c79c4bf97-jhclh   1/1     Running   2 (15m ago)   15d
+resource-demo-647b7bc4c5-crwm7      1/1     Running   6 (15m ago)   15d
+sample-app-8446c7c678-27zl4         1/1     Running   0             6s
+sample-app-8446c7c678-hsxrh         1/1     Running   0             66s
+sample-app-8446c7c678-x8w5c         1/1     Running   0             66s
+
+> helm history sample-app -n dev
+
+REVISION        UPDATED                         STATUS          CHART                   APP VERSION     DESCRIPTION
+1               Tue Mar 17 13:54:43 2026        superseded      sample-app-0.1.0        1.0             Install complete
+2               Tue Mar 17 13:55:43 2026        deployed        sample-app-0.1.0        1.0             Upgrade complete
+
+> helm rollback sample-app 1 -n dev
+
+Rollback was a success! Happy Helming!
+
+> kubectl get pods -n dev
+
+NAME                                READY   STATUS    RESTARTS      AGE
+app-demo-bd4cdb4c6-2tb6g            1/1     Running   2 (15m ago)   15d
+app-demo-bd4cdb4c6-6vltv            1/1     Running   2 (15m ago)   15d
+app-demo-bd4cdb4c6-g8jh5            1/1     Running   2 (15m ago)   15d
+app-demo-bd4cdb4c6-znd8w            1/1     Running   2 (15m ago)   15d
+app-probes-748c6b5758-4gnx8         0/1     Running   1 (15m ago)   13d
+app-probes-bb4b56bdf-q2zgl          1/1     Running   1 (15m ago)   13d
+nginx-deployment-7c79c4bf97-dmqbg   1/1     Running   2 (15m ago)   15d
+nginx-deployment-7c79c4bf97-jhclh   1/1     Running   2 (15m ago)   15d
+resource-demo-647b7bc4c5-crwm7      1/1     Running   6 (15m ago)   15d
+sample-app-8446c7c678-hsxrh         1/1     Running   0             96s
+sample-app-8446c7c678-x8w5c         1/1     Running   0             96s
+>
+
+NOTES: 
+_____________________________________________________________________________________________________________________________
+values.yaml: A configuration file used to parameterize a Helm chart. It allows customization of Kubernetes resources without modyfing template files. This file controls the number of replicas, container images, and the service configuration type. 
+Template vs raw yaml: Raw Kubernetes YAML files are static and require manual updates for any configuration changes. Helm templates, on the other hand, use placeholder to add values during deployment. 
+Rollback behavior: Helm maintains a revision history for each release. Every install or upgrade creates a new revision. If a deployment fails or needs to be reverted, Helm allows rolling back to a previous revision with the command 'helm rollback <name> <revision>. Rollback restores the previous configuration and state of Kubernetes resources while preserving the history for recovery. 
