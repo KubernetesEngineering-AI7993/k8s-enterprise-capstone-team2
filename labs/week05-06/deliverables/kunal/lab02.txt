@@ -1,0 +1,27 @@
+=== Lab 02 – ConfigMaps & Secrets ===
+
+--- Applying ConfigMap (configmap.yaml) ---
+configmap/app-config created
+
+--- Applying Secret (secret.yaml) ---
+secret/app-secret created
+
+--- Verifying ConfigMaps ---
+NAME               DATA   AGE
+app-config         1      0s
+kube-root-ca.crt   1      50d
+nginx-html         1      50d
+
+--- Verifying Secrets ---
+NAME         TYPE     DATA   AGE
+app-secret   Opaque   1      0s
+
+--- Applying Deployment that uses ConfigMap & Secret (deploy-env.yaml / deploy_vol.yaml) ---
+deployment.apps/app-env-demo created
+deployment.apps/app-vol-demo created
+
+--- Pods ---
+NAME                           READY   STATUS              RESTARTS   AGE
+app-env-demo-88ddf94f-zd554    0/1     ContainerCreating   0          0s
+app-vol-demo-95458f567-sdqq2   0/1     ContainerCreating   0          0s
+toleration-demo                1/1     Running             0          29d
