@@ -1,0 +1,46 @@
+=== Lab 04 – Deployment Strategies ===
+
+--- Applying baseline Deployment (rolling update strategy) ---
+deployment.apps/rolling-demo created
+
+--- Waiting for rollout ---
+Waiting for deployment "rolling-demo" rollout to finish: 0 of 1 updated replicas are available...
+deployment "rolling-demo" successfully rolled out
+
+--- Current state ---
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+rolling-demo   1/1     1            1           1s
+NAME                            READY   STATUS    RESTARTS   AGE   IP             NODE              NOMINATED NODE   READINESS GATES
+rolling-demo-6847575bb7-nplz9   1/1     Running   0          1s    10.244.1.148   test-k8s-worker   <none>           <none>
+
+--- Simulating bad release (apply bad-release.yaml – invalid image) ---
+deployment.apps/rolling-demo configured
+
+--- Rollout status (may block or show progress; old pods stay until new are Ready) ---
+Waiting for deployment "rolling-demo" rollout to finish: 1 old replicas are pending termination...
+
+--- Pods (new replicas may be ImagePullBackOff) ---
+NAME                            READY   STATUS         RESTARTS   AGE   IP             NODE              NOMINATED NODE   READINESS GATES
+rolling-demo-5cc4b844d9-h2tc2   0/1     ErrImagePull   0          30s   10.244.1.149   test-k8s-worker   <none>           <none>
+rolling-demo-6847575bb7-nplz9   1/1     Running        0          31s   10.244.1.148   test-k8s-worker   <none>           <none>
+
+--- Roll back to previous revision ---
+deployment.apps/rolling-demo rolled back
+
+--- Wait for rollback rollout ---
+Waiting for deployment "rolling-demo" rollout to finish: 1 old replicas are pending termination...
+deployment "rolling-demo" successfully rolled out
+
+--- Deployment history ---
+deployment.apps/rolling-demo 
+REVISION  CHANGE-CAUSE
+2         <none>
+3         <none>
+
+
+--- Final state ---
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+rolling-demo   1/1     1            1           31s
+NAME                            READY   STATUS        RESTARTS   AGE
+rolling-demo-5cc4b844d9-h2tc2   0/1     Terminating   0          30s
+rolling-demo-6847575bb7-nplz9   1/1     Running       0          31s
