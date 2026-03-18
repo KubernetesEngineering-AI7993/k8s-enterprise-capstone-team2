@@ -1,0 +1,12 @@
+Pipeline Stages: 
+
+Checkout Repository: Fetches the latest code and Kubernetes manifests from the GitHub repo.
+
+Validate Kubernetes YAML: Checks all .yaml files with kubectl apply --dry-run=client to ensure valid syntax.
+
+Build Docker Image: Builds the container image for your application
+
+Deploy To Kubernetes: Applies manifests using kubectl apply and waits for deployments to finish.
+
+Deploy Using Helm: Alternative to deploy via Helm chart; manages releases and upgrade/rollback.
+
