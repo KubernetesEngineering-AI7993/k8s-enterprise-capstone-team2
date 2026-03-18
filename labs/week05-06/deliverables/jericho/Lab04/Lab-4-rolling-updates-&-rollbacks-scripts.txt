@@ -1,0 +1,69 @@
+> kubectl edit deployment app-probes # reverse the breaking of app-probes from last lab
+
+deployment.apps/app-probes edited
+
+> kubectl rollout undo deployment/app-probes
+
+> kubectl rollout status deployment/app-probes
+
+Waiting for deployment "app-probes" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "app-probes" rollout to finish: 1 old replicas are pending termination...
+deployment "app-probes" successfully rolled out
+
+> kubectl get pods -l app=app-probes 
+
+NAME                         READY   STATUS    RESTARTS   AGE
+app-probes-bb4b56bdf-q2zgl   1/1     Running   0          14s
+
+> kubectl rollout history deployment/app-probes
+
+deployment.apps/app-probes
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+4         <none>
+5         <none>
+
+> kubectl describe deployment app-probes
+
+Name:                   app-probes
+Namespace:              dev
+CreationTimestamp:      Mon, 02 Mar 2026 09:57:18 -0500
+Labels:                 <none>
+Annotations:            deployment.kubernetes.io/revision: 5
+Selector:               app=app-probes
+Replicas:               1 desired | 1 updated | 2 total | 1 available | 1 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  0 max unavailable, 1 max surge
+Pod Template:
+  Labels:  app=app-probes
+  Containers:
+   app:
+    Image:         nginx:1.26
+    Port:          80/TCP
+    Host Port:     0/TCP
+    Liveness:      http-get http://:80/ delay=10s timeout=1s period=10s #success=1 #failure=3
+    Readiness:     http-get http://:80/does-not-exist delay=5s timeout=1s period=10s #success=1 #failure=3
+    Environment:   <none>
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    ReplicaSetUpdated
+OldReplicaSets:  app-probes-5484b5947d (0/0 replicas created), app-probes-5f995b744f (0/0 replicas created), app-probes-bb4b56bdf (1/1 replicas created)
+NewReplicaSet:   app-probes-748c6b5758 (1/1 replicas created)
+Events:
+  Type    Reason             Age                  From                   Message
+  ----    ------             ----                 ----                   -------
+  Normal  ScalingReplicaSet  32h                  deployment-controller  Scaled up replica set app-probes-5484b5947d to 1
+  Normal  ScalingReplicaSet  14m                  deployment-controller  Scaled up replica set app-probes-5f995b744f to 1
+  Normal  ScalingReplicaSet  6m4s                 deployment-controller  Scaled down replica set app-probes-5f995b744f to 0 from 1
+  Normal  ScalingReplicaSet  3m14s                deployment-controller  Scaled down replica set app-probes-748c6b5758 to 0 from 1
+  Normal  ScalingReplicaSet  3m14s                deployment-controller  Scaled up replica set app-probes-bb4b56bdf to 1 from 0
+  Normal  ScalingReplicaSet  3m4s                 deployment-controller  Scaled down replica set app-probes-5484b5947d to 0 from 1
+  Normal  ScalingReplicaSet  103s (x2 over 6m4s)  deployment-controller  Scaled up replica set app-probes-748c6b5758 to 1 from 0
