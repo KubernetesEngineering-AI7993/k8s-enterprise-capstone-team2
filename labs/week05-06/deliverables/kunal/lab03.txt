@@ -1,0 +1,325 @@
+=== Lab 03 – Liveness & Readiness Probes ===
+
+--- Step 1: Start deployment with NO probes (deployment-no-probes.yaml) ---
+deployment.apps/app-probes created
+
+--- Waiting for pods to start ---
+NAME                          READY   STATUS    RESTARTS   AGE   IP             NODE              NOMINATED NODE   READINESS GATES
+app-probes-566df89c76-ksz9c   1/1     Running   0          15s   10.244.1.104   test-k8s-worker   <none>           <none>
+
+--- Pod details (no probe configuration yet) ---
+Name:             app-probes-566df89c76-ksz9c
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker/172.18.0.3
+Start Time:       Wed, 18 Mar 2026 17:58:43 +0000
+Labels:           app=app-probes
+                  pod-template-hash=566df89c76
+Annotations:      <none>
+Status:           Running
+IP:               10.244.1.104
+IPs:
+  IP:           10.244.1.104
+Controlled By:  ReplicaSet/app-probes-566df89c76
+Containers:
+  app:
+    Container ID:   containerd://9ee0c7754ce1c43c03bca95fcd4c24d097c1285e270e53951685618e41f82394
+    Image:          nginx:1.27
+    Image ID:       docker.io/library/nginx@sha256:6784fb0834aa7dbbe12e3d7471e69c290df3e6ba810dc38b34ae33d3c1c05f7d
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 18 Mar 2026 17:58:43 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-gj6kr (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-gj6kr:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  15s   default-scheduler  Successfully assigned dev/app-probes-566df89c76-ksz9c to test-k8s-worker
+  Normal  Pulled     15s   kubelet            spec.containers{app}: Container image "nginx:1.27" already present on machine and can be accessed by the pod
+  Normal  Created    15s   kubelet            spec.containers{app}: Container created
+  Normal  Started    15s   kubelet            spec.containers{app}: Container started
+
+--- Step 2: Add liveness probe (add_liveness.yaml) ---
+deployment.apps/app-probes configured
+
+--- Waiting for liveness probe to take effect ---
+NAME                          READY   STATUS    RESTARTS   AGE   IP             NODE              NOMINATED NODE   READINESS GATES
+app-probes-7b94bf8bcf-t674s   1/1     Running   0          15s   10.244.1.105   test-k8s-worker   <none>           <none>
+
+--- Pod details (liveness probe configured) ---
+Name:             app-probes-7b94bf8bcf-t674s
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker/172.18.0.3
+Start Time:       Wed, 18 Mar 2026 17:58:58 +0000
+Labels:           app=app-probes
+                  pod-template-hash=7b94bf8bcf
+Annotations:      <none>
+Status:           Running
+IP:               10.244.1.105
+IPs:
+  IP:           10.244.1.105
+Controlled By:  ReplicaSet/app-probes-7b94bf8bcf
+Containers:
+  app:
+    Container ID:   containerd://95b3d8948aba667e15b1ff2a50b2d874f99e2b14f4a0f9981c68c5e3956104e5
+    Image:          nginx:1.27
+    Image ID:       docker.io/library/nginx@sha256:6784fb0834aa7dbbe12e3d7471e69c290df3e6ba810dc38b34ae33d3c1c05f7d
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 18 Mar 2026 17:58:58 +0000
+    Ready:          True
+    Restart Count:  0
+    Liveness:       http-get http://:80/ delay=10s timeout=1s period=10s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-fzvzd (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-fzvzd:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  15s   default-scheduler  Successfully assigned dev/app-probes-7b94bf8bcf-t674s to test-k8s-worker
+  Normal  Pulled     15s   kubelet            spec.containers{app}: Container image "nginx:1.27" already present on machine and can be accessed by the pod
+  Normal  Created    15s   kubelet            spec.containers{app}: Container created
+  Normal  Started    15s   kubelet            spec.containers{app}: Container started
+
+--- Step 3: Add readiness probe (add_readiness.yaml) ---
+deployment.apps/app-probes configured
+
+--- Waiting for readiness probe to take effect ---
+NAME                          READY   STATUS    RESTARTS   AGE   IP             NODE              NOMINATED NODE   READINESS GATES
+app-probes-6cd55b66c6-j59ln   1/1     Running   0          15s   10.244.1.106   test-k8s-worker   <none>           <none>
+
+--- Pod details (liveness+readiness configured) ---
+Name:             app-probes-6cd55b66c6-j59ln
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker/172.18.0.3
+Start Time:       Wed, 18 Mar 2026 17:59:13 +0000
+Labels:           app=app-probes
+                  pod-template-hash=6cd55b66c6
+Annotations:      <none>
+Status:           Running
+IP:               10.244.1.106
+IPs:
+  IP:           10.244.1.106
+Controlled By:  ReplicaSet/app-probes-6cd55b66c6
+Containers:
+  app:
+    Container ID:   containerd://dbd7e2557a219d2f985234995ebbe8d40063f407202b938b8f55080839efed6d
+    Image:          nginx:1.27
+    Image ID:       docker.io/library/nginx@sha256:6784fb0834aa7dbbe12e3d7471e69c290df3e6ba810dc38b34ae33d3c1c05f7d
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 18 Mar 2026 17:59:13 +0000
+    Ready:          True
+    Restart Count:  0
+    Liveness:       http-get http://:80/ delay=10s timeout=1s period=10s #success=1 #failure=3
+    Readiness:      http-get http://:80/ delay=5s timeout=1s period=10s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-qcw2k (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-qcw2k:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  15s   default-scheduler  Successfully assigned dev/app-probes-6cd55b66c6-j59ln to test-k8s-worker
+  Normal  Pulled     15s   kubelet            spec.containers{app}: Container image "nginx:1.27" already present on machine and can be accessed by the pod
+  Normal  Created    15s   kubelet            spec.containers{app}: Container created
+  Normal  Started    15s   kubelet            spec.containers{app}: Container started
+
+--- Step 4: Break liveness+readiness probes (add_liveness_with_failure.yaml) ---
+deployment.apps/app-probes configured
+
+--- Waiting for liveness-driven restarts ---
+NAME                          READY   STATUS    RESTARTS   AGE   IP             NODE              NOMINATED NODE   READINESS GATES
+app-probes-6cd55b66c6-j59ln   1/1     Running   0          55s   10.244.1.106   test-k8s-worker   <none>           <none>
+app-probes-74b959d78-szvhv    0/1     Running   0          40s   10.244.1.107   test-k8s-worker   <none>           <none>
+
+--- Pod details (probe failures should appear) ---
+Name:             app-probes-6cd55b66c6-j59ln
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker/172.18.0.3
+Start Time:       Wed, 18 Mar 2026 17:59:13 +0000
+Labels:           app=app-probes
+                  pod-template-hash=6cd55b66c6
+Annotations:      <none>
+Status:           Running
+IP:               10.244.1.106
+IPs:
+  IP:           10.244.1.106
+Controlled By:  ReplicaSet/app-probes-6cd55b66c6
+Containers:
+  app:
+    Container ID:   containerd://dbd7e2557a219d2f985234995ebbe8d40063f407202b938b8f55080839efed6d
+    Image:          nginx:1.27
+    Image ID:       docker.io/library/nginx@sha256:6784fb0834aa7dbbe12e3d7471e69c290df3e6ba810dc38b34ae33d3c1c05f7d
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 18 Mar 2026 17:59:13 +0000
+    Ready:          True
+    Restart Count:  0
+    Liveness:       http-get http://:80/ delay=10s timeout=1s period=10s #success=1 #failure=3
+    Readiness:      http-get http://:80/ delay=5s timeout=1s period=10s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-qcw2k (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-qcw2k:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  55s   default-scheduler  Successfully assigned dev/app-probes-6cd55b66c6-j59ln to test-k8s-worker
+  Normal  Pulled     55s   kubelet            spec.containers{app}: Container image "nginx:1.27" already present on machine and can be accessed by the pod
+  Normal  Created    55s   kubelet            spec.containers{app}: Container created
+  Normal  Started    55s   kubelet            spec.containers{app}: Container started
+
+
+Name:             app-probes-74b959d78-szvhv
+Namespace:        dev
+Priority:         0
+Service Account:  default
+Node:             test-k8s-worker/172.18.0.3
+Start Time:       Wed, 18 Mar 2026 17:59:28 +0000
+Labels:           app=app-probes
+                  pod-template-hash=74b959d78
+Annotations:      <none>
+Status:           Running
+IP:               10.244.1.107
+IPs:
+  IP:           10.244.1.107
+Controlled By:  ReplicaSet/app-probes-74b959d78
+Containers:
+  app:
+    Container ID:   containerd://14322e8a19e95bb207895dddb3f6ebe43d236c18fd3573c6e99f095af888f0a9
+    Image:          nginx:1.27
+    Image ID:       docker.io/library/nginx@sha256:6784fb0834aa7dbbe12e3d7471e69c290df3e6ba810dc38b34ae33d3c1c05f7d
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 18 Mar 2026 17:59:29 +0000
+    Ready:          False
+    Restart Count:  0
+    Liveness:       http-get http://:80/nonexistent delay=10s timeout=1s period=10s #success=1 #failure=3
+    Readiness:      http-get http://:80/nonexistent delay=5s timeout=1s period=10s #success=1 #failure=3
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-grn78 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-grn78:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  40s                default-scheduler  Successfully assigned dev/app-probes-74b959d78-szvhv to test-k8s-worker
+  Normal   Pulled     40s                kubelet            spec.containers{app}: Container image "nginx:1.27" already present on machine and can be accessed by the pod
+  Normal   Created    40s                kubelet            spec.containers{app}: Container created
+  Normal   Started    39s                kubelet            spec.containers{app}: Container started
+  Warning  Unhealthy  10s (x2 over 20s)  kubelet            spec.containers{app}: Liveness probe failed: HTTP probe failed with statuscode: 404
+  Warning  Unhealthy  8s (x3 over 28s)   kubelet            spec.containers{app}: Readiness probe failed: HTTP probe failed with statuscode: 404
+
+--- Step 5: Fix probes (re-apply add_readiness.yaml for healthy liveness+readiness) ---
+deployment.apps/app-probes configured
+
+--- Waiting for probes to recover ---
+NAME                          READY   STATUS    RESTARTS   AGE   IP             NODE              NOMINATED NODE   READINESS GATES
+app-probes-6cd55b66c6-j59ln   1/1     Running   0          70s   10.244.1.106   test-k8s-worker   <none>           <none>
+
+--- Final pod status ---
+NAME                          READY   STATUS    RESTARTS   AGE
+app-probes-6cd55b66c6-j59ln   1/1     Running   0          70s
