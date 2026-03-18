@@ -1,0 +1,176 @@
+> kubectl apply -f deployment.yaml
+
+deployment.apps/app-demo created
+
+> kubectl apply -f service.yaml
+
+service/app-demo created
+
+> kubectl get pods
+
+NAME                                READY   STATUS    RESTARTS   AGE
+app-demo-745f7b48b8-9dxrp           1/1     Running   0          11s
+app-demo-745f7b48b8-xf88r           1/1     Running   0          11s
+nginx-deployment-7c79c4bf97-dmqbg   1/1     Running   0          2m52s
+nginx-deployment-7c79c4bf97-jhclh   1/1     Running   0          2m52s
+resource-demo-647b7bc4c5-crwm7      1/1     Running   0          2m52s
+sample-app-697b6f8995-st4s5         1/1     Running   0          2m52s
+sample-app-697b6f8995-vswb7         1/1     Running   0          2m52s
+sample-app-697b6f8995-xtxx4         1/1     Running   0          2m52s
+sample-app-697b6f8995-xvlmh         1/1     Running   0          2m52s
+sample-app-697b6f8995-zvhjg         1/1     Running   0          2m52s
+
+> kubectl get svs app-demo
+
+NAME       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+app-demo   ClusterIP   10.96.123.245   <none>        80/TCP    34s
+
+> kubectl get pods
+
+NAME                                READY   STATUS    RESTARTS   AGE
+app-demo-745f7b48b8-9dxrp           1/1     Running   0          21m
+app-demo-745f7b48b8-9m4lt           1/1     Running   0          18m
+app-demo-745f7b48b8-xf88r           1/1     Running   0          21m
+app-demo-745f7b48b8-xlmj5           1/1     Running   0          18m
+nginx-deployment-7c79c4bf97-dmqbg   1/1     Running   0          24m
+nginx-deployment-7c79c4bf97-jhclh   1/1     Running   0          24m
+resource-demo-647b7bc4c5-crwm7      1/1     Running   0          24m
+sample-app-697b6f8995-st4s5         1/1     Running   0          24m
+sample-app-697b6f8995-vswb7         1/1     Running   0          24m
+sample-app-697b6f8995-xtxx4         1/1     Running   0          24m
+sample-app-697b6f8995-xvlmh         1/1     Running   0          24m
+sample-app-697b6f8995-zvhjg         1/1     Running   0          24m
+
+> kubectl port-forward service/app-demo 8080:80
+
+Forwarding from 127.0.0.1:8080 -> 80
+Forwarding from [::1]:8080 -> 80
+
+
+> kubectl run curl-test --image=curlimages/curl --restart=Never -it --rm -- sh
+~ $ for i in 1 2 3 4 5; do curl app-demo; echo; done
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+
+~ $
+
+
+
