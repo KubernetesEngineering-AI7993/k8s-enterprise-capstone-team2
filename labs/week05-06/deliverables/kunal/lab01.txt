@@ -1,0 +1,45 @@
+=== Lab 01 – Deployments & Services ===
+
+--- Applying Deployment (deployment.yaml) ---
+deployment.apps/app-demo created
+
+--- Applying Service (service.yaml) ---
+service/app-demo unchanged
+
+--- Waiting for Deployment to be available ---
+deployment.apps/app-demo condition met
+
+--- Deployments ---
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+app-demo   2/2     2            2           2s
+
+--- Services ---
+NAME       TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+app-demo   ClusterIP   10.96.178.179   <none>        80/TCP    45m
+
+--- Checking Service endpoints (traffic routing) ---
+NAME       ENDPOINTS                        AGE
+app-demo   10.244.1.100:80,10.244.1.99:80   45m
+
+--- Testing traffic flow via Service (curl) ---
+pod/curl-client condition met
+<!DOCTYPE html>
+<html>
+<head>
+
+--- Scaling Deployment to 3 replicas ---
+deployment.apps/app-demo scaled
+Waiting for deployment "app-demo" rollout to finish: 2 of 3 updated replicas are available...
+deployment "app-demo" successfully rolled out
+
+--- Deployments after scale ---
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+app-demo   3/3     3            3           4s
+
+--- Re-testing traffic flow via Service after scale (curl) ---
+<!DOCTYPE html>
+<html>
+<head>
+
+--- Cleanup temporary curl client pod ---
+pod "curl-client" deleted from dev namespace

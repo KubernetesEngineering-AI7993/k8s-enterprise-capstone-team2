@@ -1,0 +1,22 @@
+=== Lab 04 – Rolling Updates & Rollbacks ===
+
+--- Applying baseline Deployment (probes-and-rolling.yaml) ---
+deployment.apps/app-probes created
+
+--- Waiting for rollout to complete ---
+Waiting for deployment "app-probes" rollout to finish: 0 out of 1 new replicas have been updated...
+Waiting for deployment "app-probes" rollout to finish: 0 of 1 updated replicas are available...
+deployment "app-probes" successfully rolled out
+
+--- Updating image / applying failing rollout (fail-rollout.yaml) ---
+deployment.apps/app-probes configured
+
+--- Watching rollout status ---
+Waiting for deployment "app-probes" rollout to finish: 1 old replicas are pending termination...
+
+--- Rolling back failed rollout ---
+deployment.apps/app-probes rolled back
+
+--- Final Deployment state ---
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+app-probes   1/1     1            1           72s
