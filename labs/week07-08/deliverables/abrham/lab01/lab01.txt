@@ -1,0 +1,248 @@
+$ helm create sample-app
+Creating sample-app
+$ helm template sample-release ./sample-app
+---
+# Source: sample-app/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sample-release-sample-app
+  labels:
+    helm.sh/chart: sample-app-0.1.0
+    app.kubernetes.io/name: sample-app
+    app.kubernetes.io/instance: sample-release
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: sample-app/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-release-sample-app
+  labels:
+    helm.sh/chart: sample-app-0.1.0
+    app.kubernetes.io/name: sample-app
+    app.kubernetes.io/instance: sample-release
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: sample-app
+    app.kubernetes.io/instance: sample-release
+---
+# Source: sample-app/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-release-sample-app
+  labels:
+    helm.sh/chart: sample-app-0.1.0
+    app.kubernetes.io/name: sample-app
+    app.kubernetes.io/instance: sample-release
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sample-app
+      app.kubernetes.io/instance: sample-release
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sample-app-0.1.0
+        app.kubernetes.io/name: sample-app
+        app.kubernetes.io/instance: sample-release
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: sample-release-sample-app
+      containers:
+        - name: sample-app
+          image: "nginx:1.16.0"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+---
+# Source: sample-app/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "sample-release-sample-app-test-connection"
+  labels:
+    helm.sh/chart: sample-app-0.1.0
+    app.kubernetes.io/name: sample-app
+    app.kubernetes.io/instance: sample-release
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['sample-release-sample-app:80']
+  restartPolicy: Never
+$ helm template sample-release ./sample-app --set replicaCount=3 --set service.type=NodePort --set image.tag=1.27
+---
+# Source: sample-app/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sample-release-sample-app
+  labels:
+    helm.sh/chart: sample-app-0.1.0
+    app.kubernetes.io/name: sample-app
+    app.kubernetes.io/instance: sample-release
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+---
+# Source: sample-app/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-release-sample-app
+  labels:
+    helm.sh/chart: sample-app-0.1.0
+    app.kubernetes.io/name: sample-app
+    app.kubernetes.io/instance: sample-release
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: sample-app
+    app.kubernetes.io/instance: sample-release
+---
+# Source: sample-app/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-release-sample-app
+  labels:
+    helm.sh/chart: sample-app-0.1.0
+    app.kubernetes.io/name: sample-app
+    app.kubernetes.io/instance: sample-release
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sample-app
+      app.kubernetes.io/instance: sample-release
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sample-app-0.1.0
+        app.kubernetes.io/name: sample-app
+        app.kubernetes.io/instance: sample-release
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: sample-release-sample-app
+      containers:
+        - name: sample-app
+          image: "nginx:1.27"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+---
+# Source: sample-app/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "sample-release-sample-app-test-connection"
+  labels:
+    helm.sh/chart: sample-app-0.1.0
+    app.kubernetes.io/name: sample-app
+    app.kubernetes.io/instance: sample-release
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['sample-release-sample-app:80']
+  restartPolicy: Never
+$ helm install sample-app ./sample-app
+NAME: sample-app
+LAST DEPLOYED: Fri Mar 20 00:38:34 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Get the application URL by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=sample-app,app.kubernetes.io/instance=sample-app" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace default $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace default port-forward $POD_NAME 8080:$CONTAINER_PORT
+$ helm list
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS       CHART            APP VERSION
+sample-app      default         1               2026-03-20 00:38:34.912406229 -0400 EDT deployed     sample-app-0.1.0 1.16.0
+$ helm upgrade sample-app ./sample-app --set replicaCount=2
+Release "sample-app" has been upgraded. Happy Helming!
+NAME: sample-app
+LAST DEPLOYED: Fri Mar 20 00:39:38 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 2
+NOTES:
+1. Get the application URL by running these commands:
+  export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=sample-app,app.kubernetes.io/instance=sample-app" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace default $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace default port-forward $POD_NAME 8080:$CONTAINER_PORT
+$ helm list
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS       CHART            APP VERSION
+sample-app      default         2               2026-03-20 00:39:38.751821508 -0400 EDT deployed     sample-app-0.1.0 1.16.0
+$ helm rollback sample-app 1
+Rollback was a success! Happy Helming!
+$ helm list
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS       CHART            APP VERSION
+sample-app      default         3               2026-03-20 00:40:11.074184627 -0400 EDT deployed     sample-app-0.1.0 1.16.0
+$ helm history sample-app
+REVISION        UPDATED                         STATUS          CHART                   APP VERSION  DESCRIPTION
+1               Fri Mar 20 00:38:34 2026        superseded      sample-app-0.1.0        1.16.0       Install complete
+2               Fri Mar 20 00:39:38 2026        superseded      sample-app-0.1.0        1.16.0       Upgrade complete
+3               Fri Mar 20 00:40:11 2026        deployed        sample-app-0.1.0        1.16.0       Rollback to 1
+$ kubectl get pods
+NAME                         READY   STATUS    RESTARTS   AGE
+sample-app-b4d65778d-brdpf   1/1     Running   0          3m49s

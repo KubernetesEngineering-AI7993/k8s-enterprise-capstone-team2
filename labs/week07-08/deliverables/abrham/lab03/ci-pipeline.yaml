@@ -1,0 +1,83 @@
+name: CI Pipeline - Kubernetes Deployment
+
+on:
+  pull_request:
+    branches: [main, week07-08]
+  push:
+    branches: [main]
+
+env:
+  IMAGE_NAME: sample-app
+  HELM_CHART_PATH: ./solutions/helm/sample-app
+  RELEASE_NAME: sample-app
+  NAMESPACE: default
+
+jobs:
+  validate-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate YAML files
+        run: |
+          echo "Validating YAML files..."
+          for file in $(find . -name '*.yaml' -o -name '*.yml' | grep -v node_modules | grep -v .git); do
+            echo "Checking $file"
+            python3 -c "import yaml; yaml.safe_load(open('$file'))" && echo "  PASS" || echo "  FAIL"
+          done
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Helm lint
+        run: |
+          echo "Linting Helm chart..."
+          helm lint ${{ env.HELM_CHART_PATH }}
+          helm lint ${{ env.HELM_CHART_PATH }} -f ${{ env.HELM_CHART_PATH }}/values-prod.yaml
+          echo "Helm lint passed"
+
+      - name: Helm dry-run
+        run: |
+          echo "Running Helm template dry-run..."
+          helm template ${{ env.RELEASE_NAME }} ${{ env.HELM_CHART_PATH }} \
+            --set image.tag=${{ github.sha }}
+          echo "Dry-run complete"
+
+      - name: Build container image (mock)
+        run: |
+          echo "Building container image..."
+          echo "docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} ."
+          echo "docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.IMAGE_NAME }}:latest"
+          echo "Build complete (mock - no actual Docker build)"
+
+      - name: Push container image (mock)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "Pushing image to registry..."
+          echo "docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          echo "docker push ${{ env.IMAGE_NAME }}:latest"
+          echo "Push complete (mock - no actual registry)"
+
+      - name: Deploy to Kubernetes (mock)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "Deploying to Kubernetes..."
+          echo "kubectl config use-context production"
+          echo "helm upgrade --install ${{ env.RELEASE_NAME }} ${{ env.HELM_CHART_PATH }} \
+            --namespace ${{ env.NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --atomic \
+            --timeout 5m \
+            --wait"
+          echo "kubectl rollout status deployment/${{ env.RELEASE_NAME }}"
+          echo "Deployment complete (mock - no actual cluster)"
+
+      - name: Rollback on failure (mock)
+        if: failure()
+        run: |
+          echo "Deployment failed - initiating rollback..."
+          echo "helm rollback ${{ env.RELEASE_NAME }} --namespace ${{ env.NAMESPACE }}"
+          echo "Rollback complete (mock)"
