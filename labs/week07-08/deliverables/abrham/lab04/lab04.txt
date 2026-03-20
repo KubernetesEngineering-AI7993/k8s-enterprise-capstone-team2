@@ -1,0 +1,34 @@
+$ kubectl apply -f ./deployment-strategy.yaml
+deployment.apps/rolling-demo created
+$ kubectl rollout status deployment/rolling-demo --timeout=120s
+deployment "rolling-demo" successfully rolled out
+$ kubectl get deployment rolling-demo
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+rolling-demo   1/1     1            1           2m44s
+$ kubectl get pods -l app=rolling-demo -o wide
+NAME                            READY   STATUS    RESTARTS   AGE     IP            NODE                        NOMINATED NODE   READINESS GATES
+rolling-demo-6847575bb7-2j7lv   1/1     Running   0          5m32s   10.244.0.13   testcluster-control-plane   <none>           <none>
+$ kubectl apply -f ./test-deployment.yaml
+deployment.apps/rolling-demo configured
+$ kubectl rollout status deployment/rolling-demo --timeout=30s 2>/dev/null || true
+Waiting for deployment "rolling-demo" rollout to finish: 1 old replicas are pending termination...
+$ kubectl get pods -l app=rolling-demo -o wide
+NAME                            READY   STATUS             RESTARTS   AGE     IP            NODE                        NOMINATED NODE   READINESS GATES
+rolling-demo-5cc4b844d9-f7sjx   0/1     ImagePullBackOff   0          2m11s   10.244.0.14   testcluster-control-plane   <none>           <none>
+rolling-demo-6847575bb7-2j7lv   1/1     Running            0          10m     10.244.0.13   testcluster-control-plane   <none>           <none>
+$ kubectl rollout undo deployment/rolling-demo
+deployment.apps/rolling-demo rolled back
+$ kubectl rollout status deployment/rolling-demo --timeout=120s
+deployment "rolling-demo" successfully rolled out
+$ kubectl rollout history deployment/rolling-demo
+deployment.apps/rolling-demo
+REVISION  CHANGE-CAUSE
+2         <none>
+3         <none>
+
+$ kubectl get deployment rolling-demo
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+rolling-demo   1/1     1            1           13m
+$ kubectl get pods -l app=rolling-demo
+NAME                            READY   STATUS    RESTARTS   AGE
+rolling-demo-6847575bb7-2j7lv   1/1     Running   0          13m
