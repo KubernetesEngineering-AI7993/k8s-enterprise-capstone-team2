@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops-demo
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/KubernetesEngineering-AI7993/k8s-enterprise-capstone-team2.git
+    targetRevision: drew/week09-10
+    path: labs/week09-10/Deliverables/drew/lab01
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
