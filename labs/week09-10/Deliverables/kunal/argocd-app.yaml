@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: adguard-home
+  namespace: argocd
+  # Finalizer ensures ArgoCD cleans up resources when the Application is deleted
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/KubernetesEngineering-AI7993/k8s-enterprise-capstone-team2.git
+    targetRevision: kunal/week09-10
+    # Path to Helm chart in the repo
+    path: labs/week09-10/Deliverables/kunal/lab01/helm/adguard-home
+    helm:
+      valueFiles:
+        - values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: adguard-home
+
+  syncPolicy:
+    # --- AUTO-SYNC: ArgoCD will automatically apply changes from Git ---
+    automated:
+      prune: true       # Remove resources deleted from Git
+      selfHeal: true    # Reconcile drift (manual changes get reverted)
+    syncOptions:
+      - CreateNamespace=true   # Auto-create the namespace if missing
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 1m

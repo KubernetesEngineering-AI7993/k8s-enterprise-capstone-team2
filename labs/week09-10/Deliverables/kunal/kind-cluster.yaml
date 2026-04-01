@@ -1,0 +1,20 @@
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+name: gitops-lab
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # ArgoCD UI (NodePort)
+      - containerPort: 30080
+        hostPort: 30080
+        protocol: TCP
+      # AdGuard Home Web UI (NodePort)
+      - containerPort: 30300
+        hostPort: 30300
+        protocol: TCP
+      # AdGuard Home DNS (UDP)
+      - containerPort: 30053
+        hostPort: 30053
+        protocol: UDP
+  - role: worker
+  - role: worker
