@@ -1,0 +1,65 @@
+# =============================================================================
+# good-deployment.yaml – Passes all 4 validation checks
+# =============================================================================
+# Passing:
+#   1. Resource limits defined (cpu + memory)
+#   2. Pinned image tag (v0.107.53)
+#   3. Liveness probe defined
+#   4. Readiness probe defined
+#
+# Used to demonstrate: bash validate.sh good-deployment.yaml → exit code 0
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adguard-good
+  namespace: adguard-home
+  labels:
+    app: adguard-home
+    lab: week09-10-lab04
+    validation: "good"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adguard-good
+  template:
+    metadata:
+      labels:
+        app: adguard-good
+    spec:
+      containers:
+        - name: adguard
+          # PASS 2: pinned to a specific version tag
+          image: adguard/adguardhome:v0.107.53
+          ports:
+            - containerPort: 3000
+            - containerPort: 53
+              protocol: UDP
+
+          # PASS 1: resource limits defined for both cpu and memory
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+
+          # PASS 3: liveness probe — restarts container if it stops responding
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 3
+
+          # PASS 4: readiness probe — holds traffic until app is truly ready
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3

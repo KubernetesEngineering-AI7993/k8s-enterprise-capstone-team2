@@ -1,0 +1,135 @@
+
+[1;35m========== STEP 0: Verify Cluster ==========[0m
+Kubernetes control plane is running at https://127.0.0.1:35119
+CoreDNS is running at https://127.0.0.1:35119/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+NAME                       STATUS   ROLES           AGE    VERSION
+gitops-lab-control-plane   Ready    control-plane   117m   v1.35.0
+gitops-lab-worker          Ready    <none>          117m   v1.35.0
+gitops-lab-worker2         Ready    <none>          117m   v1.35.0
+[1;32m[OK][0m Cluster is ready.
+
+[1;35m========== STEP 1: Create Secrets ==========[0m
+
+[1;34m[INFO][0m Method A – kubectl imperative command (equivalent to secret-generic.yaml):
+apiVersion: v1
+data:
+  admin-password: Y2hhbmdlbWUxMjM=
+  admin-username: YWRtaW4=
+  upstream-dns-token: ZmFrZS1kbnMtdG9rZW4tYWJjMTIz
+kind: Secret
+metadata:
+  name: adguard-credentials-imperative
+  namespace: adguard-home
+
+[1;34m[INFO][0m Method B – applying YAML manifest (declarative):
+secret/adguard-credentials created
+Warning: tls: failed to find any PEM data in certificate input
+secret/adguard-tls created
+[1;32m[OK][0m Secrets created.
+
+[1;35m========== STEP 2: Inspect Secrets ==========[0m
+
+[1;34m[INFO][0m Listing secrets in adguard-home:
+NAME                  TYPE                DATA   AGE
+adguard-credentials   Opaque              3      1s
+adguard-tls           kubernetes.io/tls   2      0s
+
+[1;34m[INFO][0m Describing adguard-credentials (no values shown):
+Name:         adguard-credentials
+Namespace:    adguard-home
+Labels:       app=adguard-home
+              lab=week09-10-lab02
+Annotations:  <none>
+
+Type:  Opaque
+
+Data
+====
+admin-password:      11 bytes
+admin-username:      5 bytes
+upstream-dns-token:  21 bytes
+
+[1;34m[INFO][0m Decoding a value to verify (admin-username only):
+admin
+[1;32m[OK][0m Secrets verified.
+
+[1;35m========== STEP 3: Secret Injection – Environment Variables ==========[0m
+
+[1;34m[INFO][0m Applying pod-env.yaml...
+pod/adguard-secret-env-demo created
+
+[1;34m[INFO][0m Waiting for pod to complete...
+error: timed out waiting for the condition on pods/adguard-secret-env-demo
+
+[1;34m[INFO][0m Pod logs (evidence of env var injection):
+=== Secrets injected as environment variables ===
+ADGUARD_USERNAME: admin
+ADGUARD_PASSWORD: [hidden for security — exists: yes]
+UPSTREAM_DNS_TOKEN: [hidden — exists: yes]
+=== Done ===
+
+[1;34m[INFO][0m Confirming env vars visible in pod describe (security consideration):
+    Environment:
+      ADGUARD_USERNAME:    <set to the key 'admin-username' in secret 'adguard-credentials'>      Optional: false
+      ADGUARD_PASSWORD:    <set to the key 'admin-password' in secret 'adguard-credentials'>      Optional: false
+      UPSTREAM_DNS_TOKEN:  <set to the key 'upstream-dns-token' in secret 'adguard-credentials'>  Optional: false
+[1;32m[OK][0m Environment variable injection demonstrated.
+
+[1;35m========== STEP 4: Secret Injection – Mounted Volume ==========[0m
+
+[1;34m[INFO][0m Applying pod-volume.yaml...
+pod/adguard-secret-vol-demo created
+
+[1;34m[INFO][0m Waiting for pod to complete...
+error: timed out waiting for the condition on pods/adguard-secret-vol-demo
+
+[1;34m[INFO][0m Pod logs (evidence of volume mount injection):
+=== Secrets injected as mounted volume files ===
+Mount path: /etc/adguard/secrets/
+
+Files present:
+total 4
+drwxrwxrwt    3 root     root           140 Apr  1 07:18 .
+drwxr-xr-x    3 root     root          4096 Apr  1 07:18 ..
+drwxr-xr-x    2 root     root           100 Apr  1 07:18 ..2026_04_01_07_18_07.2802652554
+lrwxrwxrwx    1 root     root            32 Apr  1 07:18 ..data -> ..2026_04_01_07_18_07.2802652554
+lrwxrwxrwx    1 root     root            21 Apr  1 07:18 admin-password -> ..data/admin-password
+lrwxrwxrwx    1 root     root            21 Apr  1 07:18 admin-username -> ..data/admin-username
+lrwxrwxrwx    1 root     root            25 Apr  1 07:18 upstream-dns-token -> ..data/upstream-dns-token
+
+admin-username contents: admin
+admin-password contents: [hidden — 11 bytes]
+upstream-dns-token contents: [hidden — 21 bytes]
+
+File permissions (secrets are mode 0444 by default):
+  File: '/etc/adguard/secrets/admin-password' -> '..data/admin-password'
+  Size: 21        	Blocks: 0          IO Block: 4096   symbolic link
+Device: 1000a1h/1048737d	Inode: 9           Links: 1
+Access: (0777/lrwxrwxrwx)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2026-04-01 07:18:07.777311421 +0000
+Modify: 2026-04-01 07:18:07.777311421 +0000
+Change: 2026-04-01 07:18:07.777311421 +0000
+=== Done ===
+
+[1;34m[INFO][0m Confirming mount in pod describe:
+    Mounts:
+      /etc/adguard/secrets from adguard-secrets (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-cf6kv (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   False 
+[1;32m[OK][0m Volume mount injection demonstrated.
+
+[1;35m========== STEP 5: Cleanup Demo Pods ==========[0m
+pod "adguard-secret-env-demo" deleted from adguard-home namespace
+pod "adguard-secret-vol-demo" deleted from adguard-home namespace
+
+[1;34m[INFO][0m Remaining secrets:
+NAME                  TYPE                DATA   AGE
+adguard-credentials   Opaque              3      2m11s
+adguard-tls           kubernetes.io/tls   2      2m10s
+[1;32m[OK][0m Cleanup complete. Secrets adguard-credentials and adguard-tls retained.
+
+[1;35m========== Lab 02 Complete ==========[0m

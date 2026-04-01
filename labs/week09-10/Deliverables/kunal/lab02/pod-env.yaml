@@ -1,0 +1,52 @@
+# =============================================================================
+# Secret Injection Method 1: Environment Variables
+# =============================================================================
+# This pod demonstrates injecting the adguard-credentials secret as
+# environment variables. The container can read them via $ADGUARD_USERNAME,
+# $ADGUARD_PASSWORD, and $UPSTREAM_DNS_TOKEN.
+#
+# Pros:  Simple, works with any app, no filesystem access needed
+# Cons:  Env vars are visible in `kubectl describe pod`, process listings,
+#        and child processes inherit them. Less secure than volume mounts.
+# =============================================================================
+apiVersion: v1
+kind: Pod
+metadata:
+  name: adguard-secret-env-demo
+  namespace: adguard-home
+  labels:
+    app: adguard-home
+    demo: secret-env
+    lab: week09-10-lab02
+spec:
+  restartPolicy: Never
+  containers:
+    - name: adguard-env-demo
+      image: busybox:1.36
+      # Print the injected env vars to stdout as evidence, then exit
+      command:
+        - sh
+        - -c
+        - |
+          echo "=== Secrets injected as environment variables ==="
+          echo "ADGUARD_USERNAME: $ADGUARD_USERNAME"
+          echo "ADGUARD_PASSWORD: [hidden for security — exists: $([ -n "$ADGUARD_PASSWORD" ] && echo yes || echo no)]"
+          echo "UPSTREAM_DNS_TOKEN: [hidden — exists: $([ -n "$UPSTREAM_DNS_TOKEN" ] && echo yes || echo no)]"
+          echo "=== Done ==="
+      env:
+        # Inject individual keys from the secret as named env vars
+        - name: ADGUARD_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: adguard-credentials
+              key: admin-username
+        - name: ADGUARD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: adguard-credentials
+              key: admin-password
+        - name: UPSTREAM_DNS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: adguard-credentials
+              key: upstream-dns-token
