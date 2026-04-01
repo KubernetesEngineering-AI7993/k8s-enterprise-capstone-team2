@@ -1,0 +1,104 @@
+> kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/core-install.yaml
+
+customresourcedefinition.apiextensions.k8s.io/applications.argoproj.io unchanged
+customresourcedefinition.apiextensions.k8s.io/appprojects.argoproj.io unchanged
+serviceaccount/argocd-application-controller unchanged
+serviceaccount/argocd-applicationset-controller unchanged
+serviceaccount/argocd-redis unchanged
+serviceaccount/argocd-repo-server unchanged
+role.rbac.authorization.k8s.io/argocd-application-controller unchanged
+role.rbac.authorization.k8s.io/argocd-applicationset-controller unchanged
+role.rbac.authorization.k8s.io/argocd-redis unchanged
+clusterrole.rbac.authorization.k8s.io/argocd-application-controller unchanged
+rolebinding.rbac.authorization.k8s.io/argocd-application-controller unchanged
+rolebinding.rbac.authorization.k8s.io/argocd-applicationset-controller unchanged
+rolebinding.rbac.authorization.k8s.io/argocd-redis unchanged
+clusterrolebinding.rbac.authorization.k8s.io/argocd-application-controller unchanged
+configmap/argocd-cm unchanged
+configmap/argocd-cmd-params-cm unchanged
+configmap/argocd-gpg-keys-cm unchanged
+configmap/argocd-rbac-cm unchanged
+configmap/argocd-ssh-known-hosts-cm unchanged
+configmap/argocd-tls-certs-cm unchanged
+secret/argocd-secret unchanged
+service/argocd-applicationset-controller unchanged
+service/argocd-metrics unchanged
+service/argocd-redis unchanged
+service/argocd-repo-server unchanged
+deployment.apps/argocd-applicationset-controller unchanged
+deployment.apps/argocd-redis unchanged
+deployment.apps/argocd-repo-server unchanged
+statefulset.apps/argocd-application-controller unchanged
+networkpolicy.networking.k8s.io/argocd-application-controller-network-policy configured
+networkpolicy.networking.k8s.io/argocd-applicationset-controller-network-policy unchanged
+networkpolicy.networking.k8s.io/argocd-redis-network-policy unchanged
+networkpolicy.networking.k8s.io/argocd-repo-server-network-policy configured
+The CustomResourceDefinition "applicationsets.argoproj.io" is invalid: metadata.annotations: Too long: must have at most 262144 bytes
+
+> kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+Forwarding from 127.0.0.1:8080 -> 8080
+Forwarding from [::1]:8080 -> 8080
+Handling connection for 8080
+
+> kubectl -n argocd get secret argocd-initial-admin-secret `
+>> -o jsonpath="{.data.password}" | % { [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($_)) }
+
+H9e4Zu8UPp6ij3Iy
+
+> kubectl apply -f application.yaml
+
+application.argoproj.io/sample-app created
+
+PS C:\Users\jeric> kubectl apply -f deployment-validation.yaml
+deployment.apps/validated-app created
+PS C:\Users\jeric> kubectl apply -f secret.yaml
+secret/app-secret configured
+PS C:\Users\jeric> kubectl apply -f trivy-scan.yaml
+job.batch/trivy-scan created
+PS C:\Users\jeric> kubectl get deployments -n dev
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+app-demo           4/4     4            4           27d
+app-probes         1/1     1            1           27d
+nginx-deployment   2/2     2            2           60d
+resource-demo      1/1     1            1           46d
+rolling-demo       1/1     1            1           12d
+sample-app         2/2     2            2           12d
+validated-app      2/2     2            2           38s
+PS C:\Users\jeric> kubectl get pods -n dev
+NAME                                READY   STATUS         RESTARTS       AGE
+app-demo-bd4cdb4c6-2tb6g            1/1     Running        4 (24m ago)    27d
+app-demo-bd4cdb4c6-6vltv            1/1     Running        4 (24m ago)    27d
+app-demo-bd4cdb4c6-g8jh5            1/1     Running        4 (24m ago)    27d
+app-demo-bd4cdb4c6-znd8w            1/1     Running        4 (24m ago)    27d
+app-probes-748c6b5758-4gnx8         0/1     Running        3 (24m ago)    26d
+app-probes-bb4b56bdf-q2zgl          1/1     Running        3 (24m ago)    26d
+nginx-deployment-7c79c4bf97-dmqbg   1/1     Running        4 (24m ago)    27d
+nginx-deployment-7c79c4bf97-jhclh   1/1     Running        4 (24m ago)    27d
+resource-demo-647b7bc4c5-crwm7      1/1     Running        11 (24m ago)   27d
+rolling-demo-5cd5549bdb-g89rp       1/1     Running        2 (24m ago)    12d
+sample-app-8446c7c678-hsxrh         1/1     Running        2 (24m ago)    12d
+sample-app-8446c7c678-x8w5c         1/1     Running        2 (24m ago)    12d
+sidecar-demo                        2/2     Running        4 (24m ago)    12d
+trivy-scan-8d6lk                    0/1     ErrImagePull   0              35s
+validated-app-ffcf474c6-2cst6       1/1     Running        0              43s
+validated-app-ffcf474c6-wjhnb       1/1     Running        0              43s
+PS C:\Users\jeric> kubectl get secrets -n dev
+NAME                               TYPE                 DATA   AGE
+app-secret                         Opaque               1      27d
+sh.helm.release.v1.sample-app.v1   helm.sh/release.v1   1      12d
+sh.helm.release.v1.sample-app.v2   helm.sh/release.v1   1      12d
+sh.helm.release.v1.sample-app.v3   helm.sh/release.v1   1      12d
+PS C:\Users\jeric> kubectl scale deployment validated-app --replicas=1 -n dev
+deployment.apps/validated-app scaled
+PS C:\Users\jeric> kubectl get deployment validated-app -n dev
+NAME            READY   UP-TO-DATE   AVAILABLE   AGE
+validated-app   1/1     1            1           66s
+PS C:\Users\jeric> kubectl get jobs -n dev
+NAME         COMPLETIONS   DURATION   AGE
+trivy-scan   0/1           100s       100s
+PS C:\Users\jeric> kubectl logs job/trivy-scan -n dev
+Error from server (BadRequest): container "trivy" in pod "trivy-scan-8d6lk" is waiting to start: image can't be pulled
+PS C:\Users\jeric> docker pull aquasec/trivy:latest
+Error response from daemon: manifest for aquasec/trivy:latest not found: manifest unknown: manifest unknown
+PS C:\Users\jeric>

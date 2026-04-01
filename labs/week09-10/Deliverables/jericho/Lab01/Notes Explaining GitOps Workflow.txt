@@ -1,0 +1,13 @@
+Declarative Deployments:
+All cluster configurations are stored in Git. The cluster’s state should always match Git.
+
+Continuous Reconciliation:
+ArgoCD monitors the Git repository and automatically applies changes to the cluster (auto-sync) if it detects differences.
+
+Drift Detection:
+Any manual changes in the cluster (like scaling replicas or modifying a deployment) are detected as drift. With selfHeal enabled, ArgoCD would automatically revert these changes to match Git.
+
+Lab Notes on Limitations:
+	Network restrictions in this environment prevented ArgoCD from accessing GitHub directly, so the sync status shows Unknown.
+	Trivy scan job also failed due to inability to pull the image.
+	Despite these constraints, the lab demonstrates key GitOps concepts: declarative config, drift, and auto-sync behavior.
