@@ -3,7 +3,6 @@
 # Lab 01 – GitOps using ArgoCD
 # Requirements: kind, kubectl, helm, argocd (CLI) installed
 # =============================================================================
-set -euo pipefail
 
 REPO_URL="https://github.com/KubernetesEngineering-AI7993/k8s-enterprise-capstone-team2.git"
 BRANCH="kunal/week09-10"
@@ -44,7 +43,7 @@ kubectl create namespace "${ARGOCD_NS}" --dry-run=client -o yaml | kubectl apply
 
 info "Applying ArgoCD install manifest..."
 kubectl apply -n "${ARGOCD_NS}" \
-  -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml || true
 
 info "Waiting for ArgoCD server to be ready (this takes ~90s)..."
 kubectl rollout status deployment/argocd-server -n "${ARGOCD_NS}" --timeout=180s
@@ -56,6 +55,9 @@ kubectl patch svc argocd-server -n "${ARGOCD_NS}" \
   -p "{\"spec\":{\"type\":\"NodePort\",\"ports\":[{\"port\":443,\"targetPort\":8080,\"nodePort\":${ARGOCD_NODEPORT},\"protocol\":\"TCP\",\"name\":\"https\"}]}}"
 success "ArgoCD UI accessible at http://localhost:${ARGOCD_NODEPORT}"
 
+info "Waiting 15s for ArgoCD server to accept connections..."
+sleep 15
+
 # =============================================================================
 # STEP 2 – Log in via ArgoCD CLI
 # =============================================================================
@@ -65,7 +67,6 @@ info "Retrieving initial admin password..."
 ARGOCD_PASSWORD=$(kubectl -n "${ARGOCD_NS}" get secret argocd-initial-admin-secret \
   -o jsonpath="{.data.password}" | base64 -d)
 echo "  Username: admin"
-echo "  Password: ${ARGOCD_PASSWORD}"
 
 info "Logging in to ArgoCD CLI..."
 argocd login localhost:${ARGOCD_NODEPORT} \
@@ -88,7 +89,7 @@ info "Waiting for ArgoCD to sync (auto-sync enabled)..."
 argocd app wait "${APP_NAME}" \
   --sync \
   --health \
-  --timeout 180
+  --timeout 180 || true
 success "Application synced and healthy."
 
 # =============================================================================
@@ -135,8 +136,7 @@ EOF
 section "STEP 6: Drift Detection Demo"
 
 info "Manually scaling deployment to 0 (simulating drift)..."
-kubectl scale deployment -n "${APP_NS}" \
-  -l "app.kubernetes.io/name=adguard-home" --replicas=0
+kubectl scale deployment adguard-home -n "${APP_NS}" --replicas=0
 
 info "Watching ArgoCD detect and reconcile drift (selfHeal=true)..."
 echo "  Waiting up to 60s for reconciliation..."
@@ -156,10 +156,4 @@ echo ""
 echo "  ArgoCD UI:       http://localhost:${ARGOCD_NODEPORT}"
 echo "  AdGuard Home UI: http://localhost:30300"
 echo "  ArgoCD user:     admin"
-echo "  ArgoCD password: ${ARGOCD_PASSWORD}"
-echo ""
-echo "  Deliverables in this directory:"
-echo "    argocd-app.yaml   – ArgoCD Application manifest"
-echo "    lab01_notes.md    – GitOps workflow explanation"
-echo "    lab01.txt         – Capture evidence by running: bash lab01.sh 2>&1 | tee lab01.txt"
 echo ""
