@@ -1,0 +1,13 @@
+> docker run --rm -v //var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.69.3-amd64 image nginx:latest
+
+Unable to find image 'aquasec/trivy:0.69.3-amd64' locally
+0.69.3-amd64: Pulling from aquasec/trivy
+589002ba0eae: Pull complete
+fc2618f97117: Pull complete
+7b08753d422d: Pull complete
+653c20201193: Pull complete
+Digest: sha256:7228e304ae0f610a1fad937baa463598cadac0c2ac4027cc68f3a8b997115689
+Status: Downloaded newer image for aquasec/trivy:0.69.3-amd64
+2026-04-01T03:24:47Z    INFO    [vulndb] Need to update DB
+2026-04-01T03:24:47Z    INFO    [vulndb] Downloading vulnerability DB...
+2026-04-01T03:24:47Z    INFO    [vulndb] Downloading artifact...        repo="mirror.gcr.io/aquasec/trivy-db:2"

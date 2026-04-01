@@ -1,0 +1,5 @@
+> .\validate-manifests.ps1
+
+Validating C:\Users\jeric\app-probes-service.yaml...
+ERROR: app-probes-service.yaml is missing resource limits.
+

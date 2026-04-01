@@ -1,0 +1,16 @@
+Resource Requests and Limits
+	Each container is checked for CPU and memory requests and limits.
+	Missing resource limits can cause pods to consume excessive cluster resources, leading to instability.
+	Example error: ERROR: app-probes-service.yaml is missing resource limits.
+
+Avoid latest Image Tag
+	Containers using the latest image tag are flagged because this can lead to unpredictable deployments.
+	Explicit version tags are recommended for reproducibility.
+
+Readiness and Liveness Probes
+	The script ensures that pods include readinessProbe and livenessProbe checks.
+	These probes help Kubernetes detect unhealthy pods and avoid routing traffic to them, improving application reliability.
+
+Blocking Invalid Deployments
+	If any of the above checks fail, the script outputs an error message.
+	In a full CI/CD pipeline, these errors would prevent the deployment from proceeding, ensuring only valid manifests are applied to the cluster.
