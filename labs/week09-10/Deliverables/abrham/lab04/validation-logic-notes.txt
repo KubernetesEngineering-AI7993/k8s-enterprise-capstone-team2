@@ -1,0 +1,182 @@
+================================================================
+VALIDATION LOGIC — EXPLANATION NOTES
+Kubernetes Manifest Validation (validate.sh)
+================================================================
+
+
+HOW THE SCRIPT WORKS
+--------------------
+validate.sh scans every .yaml and .yml file in the manifests
+folder. It only checks Deployments and StatefulSets — other
+kinds like Services or ConfigMaps are skipped automatically.
+
+For each Deployment it runs 4 checks. If any check fails the
+script exits with code 1, which tells the CI pipeline to stop
+and block the deployment.
+
+The key line that blocks the pipeline:
+  exit 1
+
+When the CI runner sees exit code 1 it marks the job as failed
+and all downstream jobs (Trivy scan, deploy) are skipped.
+
+
+CHECK 1 — RESOURCE LIMITS
+--------------------------
+What it checks:
+  Every container must define a resources.limits block with
+  both cpu and memory values.
+
+Why it matters:
+  Without limits a single runaway container can consume all
+  CPU and memory on the node, starving every other workload.
+  This is called the "noisy neighbour" problem. Limits tell
+  the Linux kernel to throttle or kill the container if it
+  exceeds its allocation.
+
+What a passing manifest looks like:
+  resources:
+    requests:
+      cpu: "250m"       # minimum guaranteed
+      memory: "128Mi"
+    limits:
+      cpu: "500m"       # maximum allowed
+      memory: "256Mi"
+
+How the script detects failure:
+  Looks for the word "limits:" in the file, then checks
+  that both "cpu:" and "memory:" appear within 5 lines of it.
+
+
+CHECK 2 — NO :latest IMAGE TAG
+--------------------------------
+What it checks:
+  No container image field may end with :latest.
+
+Why it matters:
+  :latest is a moving target. The same tag can point to a
+  completely different image tomorrow after a registry push.
+  This breaks reproducibility — two identical manifests can
+  deploy different code depending on when they run. It also
+  makes rollbacks unreliable because you can't be sure what
+  version a pod is actually running.
+
+What a passing manifest looks like:
+  image: nginx:1.27.3        PASS
+  image: nginx:latest        FAIL
+  image: nginx               FAIL (implies latest)
+
+How the script detects failure:
+  Finds all lines containing "image:" and checks if any of
+  them also contain the string ":latest".
+
+
+CHECK 3 — LIVENESS PROBE
+--------------------------
+What it checks:
+  Every Deployment must define a livenessProbe.
+
+Why it matters:
+  A container can be running (process is alive) but completely
+  broken internally — deadlocked, out of memory, stuck in an
+  infinite loop. Without a liveness probe Kubernetes has no
+  way to know this. It will keep sending traffic to a broken
+  pod forever. The liveness probe lets Kubernetes detect the
+  problem and restart the container automatically.
+
+What a passing manifest looks like:
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 8080
+    initialDelaySeconds: 10   # wait before first check
+    periodSeconds: 15         # check every 15 seconds
+    failureThreshold: 3       # restart after 3 failures
+
+How the script detects failure:
+  Counts occurrences of "livenessProbe:" in the file.
+  Zero occurrences = failure.
+
+
+CHECK 4 — READINESS PROBE
+---------------------------
+What it checks:
+  Every Deployment must define a readinessProbe.
+
+Why it matters:
+  When a pod starts it takes time to warm up — loading config,
+  connecting to databases, compiling caches. Without a
+  readiness probe Kubernetes sends traffic immediately on
+  startup, causing users to hit a pod that isn't ready yet
+  and get errors. The readiness probe gates traffic: the pod
+  only joins the load balancer rotation once it passes.
+
+  Liveness and readiness are different:
+  - Liveness  = "is this container healthy? restart if not"
+  - Readiness = "is this container ready for traffic? wait if not"
+
+What a passing manifest looks like:
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
+
+How the script detects failure:
+  Counts occurrences of "readinessProbe:" in the file.
+  Zero occurrences = failure.
+
+
+THE PIPELINE GATE ORDER
+------------------------
+The CI pipeline runs jobs in this order:
+
+  1. validate       <- validate.sh runs all 4 checks
+  2. trivy-scan     <- only runs if validate passed
+  3. deploy         <- only runs if both above passed
+
+This means a manifest with :latest tag or missing probes
+never even reaches the Trivy scan or the cluster. It is
+blocked at the very first gate, saving time and compute.
+
+
+OPA / GATEKEEPER (ADVANCED CONCEPT)
+-------------------------------------
+validate.sh is a pre-deploy gate — it runs in CI before
+anything reaches the cluster. OPA Gatekeeper is an
+admission controller — it enforces the same rules INSIDE
+the cluster at the API server level.
+
+  CI (validate.sh)        — blocks bad manifests before push
+  Gatekeeper              — blocks bad manifests at kubectl apply
+
+Using both gives you defence in depth: even if someone
+bypasses CI and runs kubectl apply manually, Gatekeeper
+rejects the manifest at the cluster level.
+
+A Gatekeeper constraint that enforces resource limits looks
+like this (for reference only — not required for this task):
+
+  apiVersion: constraints.gatekeeper.sh/v1beta1
+  kind: K8sRequiredResources
+  metadata:
+    name: require-resource-limits
+  spec:
+    match:
+      kinds:
+        - apiGroups: ["apps"]
+          kinds: ["Deployment"]
+    parameters:
+      limits: ["cpu", "memory"]
+
+
+QUICK REFERENCE — WHAT EACH EXIT CODE MEANS
+---------------------------------------------
+  Exit code 0  = all checks passed, pipeline continues
+  Exit code 1  = one or more checks failed, pipeline stops
+
+================================================================
+END OF NOTES
+================================================================
