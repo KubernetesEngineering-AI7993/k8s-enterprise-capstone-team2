@@ -1,0 +1,148 @@
+
+[1;35m========== STEP 0: Verify Prerequisites ==========[0m
+Kubernetes control plane is running at https://127.0.0.1:35119
+CoreDNS is running at https://127.0.0.1:35119/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+Python 3.12.3
+[1;32m[OK][0m Prerequisites ready.
+
+[1;35m========== STEP 1: Validate bad-deployment.yaml (expect FAIL) ==========[0m
+
+[1;34m[INFO][0m Running validator against bad-deployment.yaml...
+
+[1m============================================================[0m
+[1m Kubernetes Manifest Validator[0m
+[1m============================================================[0m
+Target: /home/k8worker/k8s-enterprise-capstone-team2/labs/week09-10/Deliverables/kunal/lab04/bad-deployment.yaml
+Files:  1
+
+[1mDeployment: adguard-bad  (/home/k8worker/k8s-enterprise-capstone-team2/labs/week09-10/Deliverables/kunal/lab04/bad-deployment.yaml)[0m
+[0;36m-->[0m Container: adguard
+  [0;31m[FAIL][0m Resource limits missing — no cpu or memory limits defined
+  [0;31m[FAIL][0m Image uses ':latest' tag — pin to a specific version (found: adguard/adguardhome:latest)
+  [0;31m[FAIL][0m Liveness probe missing — kubelet cannot detect deadlocked containers
+  [0;31m[FAIL][0m Readiness probe missing — Service will route traffic to unready pods
+
+  [0;31m[1mResult: FAILED[0m — 4 check(s) failed for adguard-bad
+
+[1m============================================================[0m
+[1m Summary[0m
+[1m============================================================[0m
+  Deployments checked : 2
+  Passed              : [0;32m0[0m
+  Failed              : [0;31m2[0m
+
+[0;31m[1mVALIDATION FAILED — fix the issues above before deploying.[0m
+
+[1;32m[OK][0m Validator correctly rejected bad-deployment.yaml (exit code: 1)
+
+[1;35m========== STEP 2: Attempt to Apply Bad Deployment (blocked by validator) ==========[0m
+
+[1;34m[INFO][0m Simulating CI gate — validate before kubectl apply...
+
+[1;31m[BLOCKED][0m Deployment rejected by validator — kubectl apply was NOT run.
+         Fix the manifest and re-run validation before deploying.
+[1;32m[OK][0m Bad deployment was blocked.
+
+[1;35m========== STEP 3: Validate good-deployment.yaml (expect PASS) ==========[0m
+
+[1;34m[INFO][0m Running validator against good-deployment.yaml...
+
+[1m============================================================[0m
+[1m Kubernetes Manifest Validator[0m
+[1m============================================================[0m
+Target: /home/k8worker/k8s-enterprise-capstone-team2/labs/week09-10/Deliverables/kunal/lab04/good-deployment.yaml
+Files:  1
+
+[1mDeployment: adguard-good  (/home/k8worker/k8s-enterprise-capstone-team2/labs/week09-10/Deliverables/kunal/lab04/good-deployment.yaml)[0m
+[0;36m-->[0m Container: adguard
+  [0;32m[PASS][0m Resource limits set (cpu: 200m, memory: 256Mi)
+  [0;32m[PASS][0m Image tag is pinned: adguard/adguardhome:v0.107.53
+  [0;32m[PASS][0m Liveness probe defined
+  [0;32m[PASS][0m Readiness probe defined
+
+  [0;32m[1mResult: PASSED[0m — all checks passed for adguard-good
+
+[1m============================================================[0m
+[1m Summary[0m
+[1m============================================================[0m
+  Deployments checked : 2
+  Passed              : [0;32m2[0m
+  Failed              : [0;31m0[0m
+
+[0;32m[1mVALIDATION PASSED — all deployments meet required standards.[0m
+
+[1;32m[OK][0m Validator accepted good-deployment.yaml (exit code: 0)
+
+[1;35m========== STEP 4: Apply Good Deployment to Cluster ==========[0m
+
+[1;34m[INFO][0m Validation passed — applying good-deployment.yaml to cluster...
+deployment.apps/adguard-good created
+
+[1;34m[INFO][0m Waiting for rollout...
+Waiting for deployment "adguard-good" rollout to finish: 0 of 1 updated replicas are available...
+deployment "adguard-good" successfully rolled out
+
+[1;34m[INFO][0m Verifying pod is running:
+NAME                           READY   STATUS    RESTARTS   AGE
+adguard-good-d9f476b79-s2gcz   1/1     Running   0          23s
+[1;32m[OK][0m Good deployment applied and running.
+
+[1;35m========== STEP 5: Batch Validation of All Manifests in Lab04 ==========[0m
+
+[1;34m[INFO][0m Running validator against all YAML files in lab04/...
+
+[1m============================================================[0m
+[1m Kubernetes Manifest Validator[0m
+[1m============================================================[0m
+Target: /home/k8worker/k8s-enterprise-capstone-team2/labs/week09-10/Deliverables/kunal/lab04
+Files:  2
+
+[1mDeployment: adguard-good  (/home/k8worker/k8s-enterprise-capstone-team2/labs/week09-10/Deliverables/kunal/lab04/good-deployment.yaml)[0m
+[0;36m-->[0m Container: adguard
+  [0;32m[PASS][0m Resource limits set (cpu: 200m, memory: 256Mi)
+  [0;32m[PASS][0m Image tag is pinned: adguard/adguardhome:v0.107.53
+  [0;32m[PASS][0m Liveness probe defined
+  [0;32m[PASS][0m Readiness probe defined
+
+  [0;32m[1mResult: PASSED[0m — all checks passed for adguard-good
+
+[1mDeployment: adguard-bad  (/home/k8worker/k8s-enterprise-capstone-team2/labs/week09-10/Deliverables/kunal/lab04/bad-deployment.yaml)[0m
+[0;36m-->[0m Container: adguard
+  [0;31m[FAIL][0m Resource limits missing — no cpu or memory limits defined
+  [0;31m[FAIL][0m Image uses ':latest' tag — pin to a specific version (found: adguard/adguardhome:latest)
+  [0;31m[FAIL][0m Liveness probe missing — kubelet cannot detect deadlocked containers
+  [0;31m[FAIL][0m Readiness probe missing — Service will route traffic to unready pods
+
+  [0;31m[1mResult: FAILED[0m — 4 check(s) failed for adguard-bad
+
+[1m============================================================[0m
+[1m Summary[0m
+[1m============================================================[0m
+  Deployments checked : 4
+  Passed              : [0;32m2[0m
+  Failed              : [0;31m2[0m
+
+[0;31m[1mVALIDATION FAILED — fix the issues above before deploying.[0m
+
+
+[1;34m[INFO][0m Batch validation exit code: 1
+
+[1;34m[INFO][0m (Expected: 1 — because bad-deployment.yaml is present in the directory)
+
+[1;35m========== STEP 6: Cleanup ==========[0m
+deployment.apps "adguard-good" deleted from adguard-home namespace
+[1;32m[OK][0m Cleaned up adguard-good deployment.
+
+[1;35m========== Lab 04 Complete ==========[0m
+
+  validate.sh exit codes:
+    bad-deployment.yaml  → exit 1 (FAIL — deployment blocked)
+    good-deployment.yaml → exit 0 (PASS — deployment allowed)
+
+  Checks enforced:
+    1. Resource limits (cpu + memory)
+    2. No ':latest' image tag
+    3. Liveness probe defined
+    4. Readiness probe defined

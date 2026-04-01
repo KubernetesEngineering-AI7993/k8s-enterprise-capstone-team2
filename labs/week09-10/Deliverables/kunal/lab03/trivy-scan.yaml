@@ -1,0 +1,121 @@
+# =============================================================================
+# CI Pipeline – Image Scanning with Trivy
+# =============================================================================
+# Trigger: push or PR to kunal/week09-10 branch
+# Runner:  Gitea Actions (self-hosted)
+#
+# Pipeline stages:
+#   1. scan-pinned   – Scan pinned AdGuard image (expected: findings, non-zero exit)
+#   2. scan-latest   – Scan nginx:latest for comparison
+#   3. report        – Upload scan results as artifacts
+# =============================================================================
+
+name: trivy-image-scan
+
+on:
+  push:
+    branches:
+      - kunal/week09-10
+    paths:
+      - 'labs/week09-10/Deliverables/kunal/**'
+      - '.gitea/workflows/trivy-scan.yaml'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1 – Scan the pinned AdGuard image used in lab01
+  # Fails pipeline if CRITICAL or HIGH vulnerabilities are found
+  # ---------------------------------------------------------------------------
+  scan-adguard:
+    name: Scan adguard/adguardhome:v0.107.53
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sudo sh -s -- -b /usr/local/bin v0.69.3
+          trivy --version
+
+      - name: Run Trivy scan – table output (human readable)
+        run: |
+          trivy image \
+            --severity CRITICAL,HIGH \
+            --format table \
+            adguard/adguardhome:v0.107.53
+
+      - name: Run Trivy scan – JSON output (artifact)
+        run: |
+          trivy image \
+            --severity CRITICAL,HIGH \
+            --format json \
+            --output trivy-adguard-results.json \
+            adguard/adguardhome:v0.107.53 || true
+          # '|| true' here so JSON is always written even when findings exist
+
+      - name: Upload JSON scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-adguard-results
+          path: trivy-adguard-results.json
+          retention-days: 30
+
+      # --exit-code 1 makes Trivy return non-zero when findings are found
+      # This step FAILS the pipeline — comment out to warn-only
+      - name: Fail pipeline on CRITICAL or HIGH vulnerabilities
+        run: |
+          trivy image \
+            --severity CRITICAL,HIGH \
+            --exit-code 1 \
+            --format table \
+            adguard/adguardhome:v0.107.53
+
+  # ---------------------------------------------------------------------------
+  # Job 2 – Scan nginx:latest for comparison (warn only, no pipeline failure)
+  # Demonstrates how to run a non-blocking scan for monitoring purposes
+  # ---------------------------------------------------------------------------
+  scan-nginx:
+    name: Scan nginx:latest (warn only)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sudo sh -s -- -b /usr/local/bin v0.69.3
+          trivy --version
+
+      - name: Run Trivy scan – nginx:latest (no pipeline failure)
+        run: |
+          trivy image \
+            --severity CRITICAL,HIGH \
+            --exit-code 0 \
+            --format table \
+            nginx:latest
+        # exit-code 0 = findings are reported but pipeline continues
+        # Use this pattern for images you don't own / can't immediately fix
+
+      - name: Run Trivy scan – JSON output
+        run: |
+          trivy image \
+            --severity CRITICAL,HIGH \
+            --format json \
+            --output trivy-nginx-results.json \
+            nginx:latest || true
+
+      - name: Upload JSON scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-nginx-results
+          path: trivy-nginx-results.json
+          retention-days: 30

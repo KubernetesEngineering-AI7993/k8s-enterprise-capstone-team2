@@ -1,0 +1,41 @@
+# =============================================================================
+# bad-deployment.yaml – Intentionally fails all 4 validation checks
+# =============================================================================
+# Failures:
+#   1. No resource limits defined
+#   2. Uses ':latest' image tag
+#   3. No liveness probe
+#   4. No readiness probe
+#
+# Used to demonstrate: bash validate.sh bad-deployment.yaml → exit code 1
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adguard-bad
+  namespace: adguard-home
+  labels:
+    app: adguard-home
+    lab: week09-10-lab04
+    validation: "bad"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adguard-bad
+  template:
+    metadata:
+      labels:
+        app: adguard-bad
+    spec:
+      containers:
+        - name: adguard
+          # FAIL 2: uses ':latest' tag — unpredictable, not reproducible
+          image: adguard/adguardhome:latest
+          ports:
+            - containerPort: 3000
+            - containerPort: 53
+              protocol: UDP
+          # FAIL 1: no resources block — unbounded CPU/memory consumption
+          # FAIL 3: no livenessProbe — deadlocked container will never restart
+          # FAIL 4: no readinessProbe — traffic routed before app is ready
