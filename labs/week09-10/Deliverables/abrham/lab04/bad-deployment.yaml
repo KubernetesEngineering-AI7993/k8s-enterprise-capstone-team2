@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bad-app
+  namespace: my-app-namespace
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bad-app
+  template:
+    metadata:
+      labels:
+        app: bad-app
+    spec:
+      containers:
+        - name: bad-app
+          image: nginx:latest    # CHECK 2 FAIL — pinned version required
+          ports:
+            - containerPort: 80
+          # CHECK 1 FAIL — no resources block at all
+          # CHECK 3 FAIL — no livenessProbe
+          # CHECK 4 FAIL — no readinessProbe

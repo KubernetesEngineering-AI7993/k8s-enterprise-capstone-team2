@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app-volume-pod
+  namespace: my-app-namespace
+spec:
+  volumes:
+    - name: secret-vol              
+      secret:
+        secretName: my-app-secret  
+  containers:
+    - name: my-app
+      image: nginx:1.25.0
+      volumeMounts:
+        - name: secret-vol
+          mountPath: /etc/secrets   
+          readOnly: true            

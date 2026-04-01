@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: good-app
+  namespace: my-app-namespace
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: good-app
+  template:
+    metadata:
+      labels:
+        app: good-app
+    spec:
+      containers:
+        - name: good-app
+          image: nginx:1.27.3        
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3

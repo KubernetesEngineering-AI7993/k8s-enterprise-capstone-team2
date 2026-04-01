@@ -1,0 +1,11 @@
+$ kubectl apply -f pod-volume.yaml
+pod/my-app-volume-pod created
+$ kubectl exec my-app-volume-pod \
+  -n my-app-namespace \
+  -- ls /etc/secrets
+API_KEY
+DB_PASSWORD
+$ kubectl exec my-app-volume-pod \
+  -n my-app-namespace \
+  -- cat /etc/secrets/DB_PASSWORD
+password123

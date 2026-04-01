@@ -1,0 +1,5 @@
+Declarative. You describe what you want (replicas: 2, image: nginx:1.26.0), not how to get there. ArgoCD figures out the how.
+Versioned and auditable. Every change to your cluster is a git commit. You get a full audit log, git blame, and the ability to roll back any deployment with git revert.
+Pulled, not pushed. ArgoCD runs inside the cluster and pulls from Git. You never need to give your CI/CD pipeline direct kubectl access or cluster credentials. This is a major security improvement over push-based pipelines.
+Continuously reconciled. With selfHeal: true, ArgoCD runs a compare loop roughly every 3 minutes (and immediately on any Git push via a webhook). Any drift — whether from a human running kubectl edit, a misbehaving operator, or a node restart — is detected and corrected automatically.
+The practical result: if it's not in Git, it doesn't stay in the cluster. Conversely, if it is in Git, it will be in the cluster — whether you manually applied it or not.
