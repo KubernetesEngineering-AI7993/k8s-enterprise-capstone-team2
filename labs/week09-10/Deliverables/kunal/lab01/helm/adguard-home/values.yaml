@@ -6,7 +6,7 @@ app-template:
   controllers:
     adguard-home:
       type: deployment
-      replicas: 1
+      replicas: 2
       containers:
         app:
           image:
