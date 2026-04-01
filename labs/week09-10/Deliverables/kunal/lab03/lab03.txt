@@ -1,0 +1,428 @@
+
+[1;35m========== STEP 0: Verify Trivy ==========[0m
+Version: 0.69.3
+Vulnerability DB:
+  Version: 2
+  UpdatedAt: 2026-04-01 06:58:46.769549147 +0000 UTC
+  NextUpdate: 2026-04-02 06:58:46.769548857 +0000 UTC
+  DownloadedAt: 2026-04-01 08:07:51.881273278 +0000 UTC
+Java DB:
+  Version: 1
+  UpdatedAt: 2026-03-19 01:17:54.395813642 +0000 UTC
+  NextUpdate: 2026-03-22 01:17:54.39581332 +0000 UTC
+  DownloadedAt: 2026-04-01 08:10:44.984038741 +0000 UTC
+[1;32m[OK][0m Trivy is installed.
+
+[1;35m========== STEP 1: Scan adguard/adguardhome:v0.107.53 ==========[0m
+
+[1;34m[INFO][0m Running table scan (CRITICAL and HIGH only)...
+2026-04-01T08:59:52Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-04-01T08:59:52Z	INFO	[secret] Secret scanning is enabled
+2026-04-01T08:59:52Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+2026-04-01T08:59:52Z	INFO	[secret] Please see https://trivy.dev/docs/v0.69/guide/scanner/secret#recommendation for faster secret detection
+2026-04-01T08:59:53Z	INFO	Detected OS	family="alpine" version="3.18.9"
+2026-04-01T08:59:53Z	INFO	[alpine] Detecting vulnerabilities...	os_version="3.18" repository="3.18" pkg_num=20
+2026-04-01T08:59:53Z	INFO	Number of language-specific files	num=1
+2026-04-01T08:59:53Z	INFO	[gobinary] Detecting vulnerabilities...
+2026-04-01T08:59:53Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.69/guide/scanner/vulnerability#severity-selection for details.
+2026-04-01T08:59:53Z	WARN	This OS version is no longer supported by the distribution	family="alpine" version="3.18.9"
+2026-04-01T08:59:53Z	WARN	The vulnerability detection may be insufficient because security updates are not provided
+
+Report Summary
+
+┌───────────────────────────────────────────────┬──────────┬─────────────────┬─────────┐
+│                    Target                     │   Type   │ Vulnerabilities │ Secrets │
+├───────────────────────────────────────────────┼──────────┼─────────────────┼─────────┤
+│ adguard/adguardhome:v0.107.53 (alpine 3.18.9) │  alpine  │        2        │    -    │
+├───────────────────────────────────────────────┼──────────┼─────────────────┼─────────┤
+│ opt/adguardhome/AdGuardHome                   │ gobinary │        9        │    -    │
+└───────────────────────────────────────────────┴──────────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+adguard/adguardhome:v0.107.53 (alpine 3.18.9)
+=============================================
+Total: 2 (HIGH: 2, CRITICAL: 0)
+
+┌────────────┬────────────────┬──────────┬────────┬───────────────────┬───────────────┬────────────────────────────────────────────────────┐
+│  Library   │ Vulnerability  │ Severity │ Status │ Installed Version │ Fixed Version │                       Title                        │
+├────────────┼────────────────┼──────────┼────────┼───────────────────┼───────────────┼────────────────────────────────────────────────────┤
+│ musl       │ CVE-2025-26519 │ HIGH     │ fixed  │ 1.2.4-r2          │ 1.2.4-r3      │ musl libc 0.9.13 through 1.2.5 before 1.2.6 has an │
+│            │                │          │        │                   │               │ out-of-bounds write ......                         │
+│            │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2025-26519         │
+├────────────┤                │          │        │                   │               │                                                    │
+│ musl-utils │                │          │        │                   │               │                                                    │
+│            │                │          │        │                   │               │                                                    │
+│            │                │          │        │                   │               │                                                    │
+└────────────┴────────────────┴──────────┴────────┴───────────────────┴───────────────┴────────────────────────────────────────────────────┘
+
+opt/adguardhome/AdGuardHome (gobinary)
+======================================
+Total: 9 (HIGH: 7, CRITICAL: 2)
+
+┌─────────────────────┬────────────────┬──────────┬────────┬───────────────────┬──────────────────────────────┬──────────────────────────────────────────────────────────────┐
+│       Library       │ Vulnerability  │ Severity │ Status │ Installed Version │        Fixed Version         │                            Title                             │
+├─────────────────────┼────────────────┼──────────┼────────┼───────────────────┼──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│ golang.org/x/crypto │ CVE-2024-45337 │ CRITICAL │ fixed  │ v0.26.0           │ 0.31.0                       │ golang.org/x/crypto/ssh: Misuse of                           │
+│                     │                │          │        │                   │                              │ ServerConfig.PublicKeyCallback may cause authorization       │
+│                     │                │          │        │                   │                              │ bypass in golang.org/x/crypto                                │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2024-45337                   │
+│                     ├────────────────┼──────────┤        │                   ├──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-22869 │ HIGH     │        │                   │ 0.35.0                       │ golang.org/x/crypto/ssh: Denial of Service in the Key        │
+│                     │                │          │        │                   │                              │ Exchange of golang.org/x/crypto/ssh                          │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-22869                   │
+├─────────────────────┼────────────────┼──────────┤        ├───────────────────┼──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│ stdlib              │ CVE-2025-68121 │ CRITICAL │        │ v1.23.2           │ 1.24.13, 1.25.7, 1.26.0-rc.3 │ crypto/tls: Unexpected session resumption in crypto/tls      │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-68121                   │
+│                     ├────────────────┼──────────┤        │                   ├──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-47907 │ HIGH     │        │                   │ 1.23.12, 1.24.6              │ database/sql: Postgres Scan Race Condition                   │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-47907                   │
+│                     ├────────────────┤          │        │                   ├──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-58183 │          │        │                   │ 1.24.8, 1.25.2               │ golang: archive/tar: Unbounded allocation when parsing GNU   │
+│                     │                │          │        │                   │                              │ sparse map                                                   │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-58183                   │
+│                     ├────────────────┤          │        │                   ├──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-61726 │          │        │                   │ 1.24.12, 1.25.6              │ golang: net/url: Memory exhaustion in query parameter        │
+│                     │                │          │        │                   │                              │ parsing in net/url                                           │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-61726                   │
+│                     ├────────────────┤          │        │                   │                              ├──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-61728 │          │        │                   │                              │ golang: archive/zip: Excessive CPU consumption when building │
+│                     │                │          │        │                   │                              │ archive index in archive/zip                                 │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-61728                   │
+│                     ├────────────────┤          │        │                   ├──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-61729 │          │        │                   │ 1.24.11, 1.25.5              │ crypto/x509: golang: Denial of Service due to excessive      │
+│                     │                │          │        │                   │                              │ resource consumption via crafted...                          │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-61729                   │
+│                     ├────────────────┤          │        │                   ├──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2026-25679 │          │        │                   │ 1.25.8, 1.26.1               │ net/url: Incorrect parsing of IPv6 host literals in net/url  │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2026-25679                   │
+└─────────────────────┴────────────────┴──────────┴────────┴───────────────────┴──────────────────────────────┴──────────────────────────────────────────────────────────────┘
+
+[1;34m[INFO][0m Saving JSON results to trivy-scan-adguard.json...
+2026-04-01T08:59:53Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-04-01T08:59:53Z	INFO	[secret] Secret scanning is enabled
+2026-04-01T08:59:53Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+2026-04-01T08:59:53Z	INFO	[secret] Please see https://trivy.dev/docs/v0.69/guide/scanner/secret#recommendation for faster secret detection
+2026-04-01T08:59:53Z	INFO	Detected OS	family="alpine" version="3.18.9"
+2026-04-01T08:59:53Z	INFO	[alpine] Detecting vulnerabilities...	os_version="3.18" repository="3.18" pkg_num=20
+2026-04-01T08:59:53Z	INFO	Number of language-specific files	num=1
+2026-04-01T08:59:53Z	INFO	[gobinary] Detecting vulnerabilities...
+2026-04-01T08:59:53Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.69/guide/scanner/vulnerability#severity-selection for details.
+2026-04-01T08:59:53Z	WARN	This OS version is no longer supported by the distribution	family="alpine" version="3.18.9"
+2026-04-01T08:59:53Z	WARN	The vulnerability detection may be insufficient because security updates are not provided
+
+[1;34m[INFO][0m AdGuard scan summary:
+  CRITICAL: 2
+  HIGH:     9
+
+[1;35m========== STEP 2: Scan nginx:latest (comparison) ==========[0m
+
+[1;34m[INFO][0m Running table scan...
+2026-04-01T08:59:53Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-04-01T08:59:53Z	INFO	[secret] Secret scanning is enabled
+2026-04-01T08:59:53Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+2026-04-01T08:59:53Z	INFO	[secret] Please see https://trivy.dev/docs/v0.69/guide/scanner/secret#recommendation for faster secret detection
+2026-04-01T08:59:54Z	INFO	Detected OS	family="debian" version="13.4"
+2026-04-01T08:59:54Z	INFO	[debian] Detecting vulnerabilities...	os_version="13" pkg_num=151
+2026-04-01T08:59:54Z	INFO	Number of language-specific files	num=0
+2026-04-01T08:59:54Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.69/guide/scanner/vulnerability#severity-selection for details.
+
+Report Summary
+
+┌────────────────────────────┬────────┬─────────────────┬─────────┐
+│           Target           │  Type  │ Vulnerabilities │ Secrets │
+├────────────────────────────┼────────┼─────────────────┼─────────┤
+│ nginx:latest (debian 13.4) │ debian │       16        │    -    │
+└────────────────────────────┴────────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+nginx:latest (debian 13.4)
+==========================
+Total: 16 (HIGH: 16, CRITICAL: 0)
+
+┌─────────────────────────┬────────────────┬──────────┬──────────────┬───────────────────┬──────────────────┬──────────────────────────────────────────────────────────────┐
+│         Library         │ Vulnerability  │ Severity │    Status    │ Installed Version │  Fixed Version   │                            Title                             │
+├─────────────────────────┼────────────────┼──────────┼──────────────┼───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libc-bin                │ CVE-2026-4046  │ HIGH     │ fix_deferred │ 2.41-12+deb13u2   │                  │ glibc: glibc: Denial of Service via iconv() function with    │
+│                         │                │          │              │                   │                  │ specific character sets...                                   │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-4046                    │
+├─────────────────────────┤                │          │              │                   ├──────────────────┤                                                              │
+│ libc6                   │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+├─────────────────────────┼────────────────┤          ├──────────────┼───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libde265-0              │ CVE-2026-33164 │          │ affected     │ 1.0.15-1+b3       │                  │ libde265 is an open source implementation of the h.265 video │
+│                         │                │          │              │                   │                  │ codec. Pr...                                                 │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-33164                   │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libexpat1               │ CVE-2026-25210 │          │              │ 2.7.1-2           │                  │ libexpat: libexpat: Information disclosure and data          │
+│                         │                │          │              │                   │                  │ integrity issues due to integer overflow...                  │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-25210                   │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libheif-plugin-dav1d    │ CVE-2025-68431 │          │              │ 1.19.8-1          │                  │ libheif is an HEIF and AVIF file format decoder and encoder. │
+│                         │                │          │              │                   │                  │ Prior...                                                     │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2025-68431                   │
+├─────────────────────────┤                │          │              │                   ├──────────────────┤                                                              │
+│ libheif-plugin-libde265 │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+├─────────────────────────┤                │          │              │                   ├──────────────────┤                                                              │
+│ libheif1                │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libnghttp2-14           │ CVE-2026-27135 │          │              │ 1.64.0-1.1        │                  │ nghttp2: nghttp2: Denial of Service via malformed HTTP/2     │
+│                         │                │          │              │                   │                  │ frames after session termination...                          │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-27135                   │
+├─────────────────────────┼────────────────┤          ├──────────────┼───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libpng16-16t64          │ CVE-2026-33416 │          │ fixed        │ 1.6.48-1+deb13u3  │ 1.6.48-1+deb13u4 │ libpng: libpng: Arbitrary code execution due to              │
+│                         │                │          │              │                   │                  │ use-after-free vulnerability                                 │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-33416                   │
+│                         ├────────────────┤          │              │                   │                  ├──────────────────────────────────────────────────────────────┤
+│                         │ CVE-2026-33636 │          │              │                   │                  │ libpng: libpng: Information disclosure and denial of service │
+│                         │                │          │              │                   │                  │ via out-of-bounds read/write in...                           │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-33636                   │
+├─────────────────────────┼────────────────┤          ├──────────────┼───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libsystemd0             │ CVE-2026-29111 │          │ affected     │ 257.9-1~deb13u1   │                  │ systemd: systemd: Arbitrary code execution or Denial of      │
+│                         │                │          │              │                   │                  │ Service via spurious IPC...                                  │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-29111                   │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libtiff6                │ CVE-2026-4775  │          │              │ 4.7.0-3+deb13u1   │                  │ libtiff: libtiff: Arbitrary code execution or denial of      │
+│                         │                │          │              │                   │                  │ service via signed integer...                                │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-4775                    │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libtinfo6               │ CVE-2025-69720 │          │              │ 6.5+20250216-2    │                  │ ncurses: ncurses: Buffer overflow vulnerability may lead to  │
+│                         │                │          │              │                   │                  │ arbitrary code execution.                                    │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2025-69720                   │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libudev1                │ CVE-2026-29111 │          │              │ 257.9-1~deb13u1   │                  │ systemd: systemd: Arbitrary code execution or Denial of      │
+│                         │                │          │              │                   │                  │ Service via spurious IPC...                                  │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-29111                   │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ ncurses-base            │ CVE-2025-69720 │          │              │ 6.5+20250216-2    │                  │ ncurses: ncurses: Buffer overflow vulnerability may lead to  │
+│                         │                │          │              │                   │                  │ arbitrary code execution.                                    │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2025-69720                   │
+├─────────────────────────┤                │          │              │                   ├──────────────────┤                                                              │
+│ ncurses-bin             │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+└─────────────────────────┴────────────────┴──────────┴──────────────┴───────────────────┴──────────────────┴──────────────────────────────────────────────────────────────┘
+
+[1;34m[INFO][0m Saving JSON results to trivy-scan-nginx.json...
+2026-04-01T08:59:54Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-04-01T08:59:54Z	INFO	[secret] Secret scanning is enabled
+2026-04-01T08:59:54Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+2026-04-01T08:59:54Z	INFO	[secret] Please see https://trivy.dev/docs/v0.69/guide/scanner/secret#recommendation for faster secret detection
+2026-04-01T08:59:54Z	INFO	Detected OS	family="debian" version="13.4"
+2026-04-01T08:59:54Z	INFO	[debian] Detecting vulnerabilities...	os_version="13" pkg_num=151
+2026-04-01T08:59:54Z	INFO	Number of language-specific files	num=0
+2026-04-01T08:59:54Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.69/guide/scanner/vulnerability#severity-selection for details.
+
+[1;35m========== STEP 3: Pipeline Failure Demo (--exit-code 1) ==========[0m
+
+[1;34m[INFO][0m Scanning AdGuard with --exit-code 1...
+
+[1;34m[INFO][0m This would FAIL a CI pipeline when CRITICAL/HIGH findings exist.
+2026-04-01T08:59:55Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-04-01T08:59:55Z	INFO	[secret] Secret scanning is enabled
+2026-04-01T08:59:55Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+2026-04-01T08:59:55Z	INFO	[secret] Please see https://trivy.dev/docs/v0.69/guide/scanner/secret#recommendation for faster secret detection
+2026-04-01T08:59:55Z	INFO	Detected OS	family="alpine" version="3.18.9"
+2026-04-01T08:59:55Z	INFO	[alpine] Detecting vulnerabilities...	os_version="3.18" repository="3.18" pkg_num=20
+2026-04-01T08:59:55Z	INFO	Number of language-specific files	num=1
+2026-04-01T08:59:55Z	INFO	[gobinary] Detecting vulnerabilities...
+2026-04-01T08:59:55Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.69/guide/scanner/vulnerability#severity-selection for details.
+2026-04-01T08:59:55Z	WARN	This OS version is no longer supported by the distribution	family="alpine" version="3.18.9"
+2026-04-01T08:59:55Z	WARN	The vulnerability detection may be insufficient because security updates are not provided
+
+Report Summary
+
+┌───────────────────────────────────────────────┬──────────┬─────────────────┬─────────┐
+│                    Target                     │   Type   │ Vulnerabilities │ Secrets │
+├───────────────────────────────────────────────┼──────────┼─────────────────┼─────────┤
+│ adguard/adguardhome:v0.107.53 (alpine 3.18.9) │  alpine  │        2        │    -    │
+├───────────────────────────────────────────────┼──────────┼─────────────────┼─────────┤
+│ opt/adguardhome/AdGuardHome                   │ gobinary │        9        │    -    │
+└───────────────────────────────────────────────┴──────────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+adguard/adguardhome:v0.107.53 (alpine 3.18.9)
+=============================================
+Total: 2 (HIGH: 2, CRITICAL: 0)
+
+┌────────────┬────────────────┬──────────┬────────┬───────────────────┬───────────────┬────────────────────────────────────────────────────┐
+│  Library   │ Vulnerability  │ Severity │ Status │ Installed Version │ Fixed Version │                       Title                        │
+├────────────┼────────────────┼──────────┼────────┼───────────────────┼───────────────┼────────────────────────────────────────────────────┤
+│ musl       │ CVE-2025-26519 │ HIGH     │ fixed  │ 1.2.4-r2          │ 1.2.4-r3      │ musl libc 0.9.13 through 1.2.5 before 1.2.6 has an │
+│            │                │          │        │                   │               │ out-of-bounds write ......                         │
+│            │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2025-26519         │
+├────────────┤                │          │        │                   │               │                                                    │
+│ musl-utils │                │          │        │                   │               │                                                    │
+│            │                │          │        │                   │               │                                                    │
+│            │                │          │        │                   │               │                                                    │
+└────────────┴────────────────┴──────────┴────────┴───────────────────┴───────────────┴────────────────────────────────────────────────────┘
+
+opt/adguardhome/AdGuardHome (gobinary)
+======================================
+Total: 9 (HIGH: 7, CRITICAL: 2)
+
+┌─────────────────────┬────────────────┬──────────┬────────┬───────────────────┬──────────────────────────────┬──────────────────────────────────────────────────────────────┐
+│       Library       │ Vulnerability  │ Severity │ Status │ Installed Version │        Fixed Version         │                            Title                             │
+├─────────────────────┼────────────────┼──────────┼────────┼───────────────────┼──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│ golang.org/x/crypto │ CVE-2024-45337 │ CRITICAL │ fixed  │ v0.26.0           │ 0.31.0                       │ golang.org/x/crypto/ssh: Misuse of                           │
+│                     │                │          │        │                   │                              │ ServerConfig.PublicKeyCallback may cause authorization       │
+│                     │                │          │        │                   │                              │ bypass in golang.org/x/crypto                                │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2024-45337                   │
+│                     ├────────────────┼──────────┤        │                   ├──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-22869 │ HIGH     │        │                   │ 0.35.0                       │ golang.org/x/crypto/ssh: Denial of Service in the Key        │
+│                     │                │          │        │                   │                              │ Exchange of golang.org/x/crypto/ssh                          │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-22869                   │
+├─────────────────────┼────────────────┼──────────┤        ├───────────────────┼──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│ stdlib              │ CVE-2025-68121 │ CRITICAL │        │ v1.23.2           │ 1.24.13, 1.25.7, 1.26.0-rc.3 │ crypto/tls: Unexpected session resumption in crypto/tls      │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-68121                   │
+│                     ├────────────────┼──────────┤        │                   ├──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-47907 │ HIGH     │        │                   │ 1.23.12, 1.24.6              │ database/sql: Postgres Scan Race Condition                   │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-47907                   │
+│                     ├────────────────┤          │        │                   ├──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-58183 │          │        │                   │ 1.24.8, 1.25.2               │ golang: archive/tar: Unbounded allocation when parsing GNU   │
+│                     │                │          │        │                   │                              │ sparse map                                                   │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-58183                   │
+│                     ├────────────────┤          │        │                   ├──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-61726 │          │        │                   │ 1.24.12, 1.25.6              │ golang: net/url: Memory exhaustion in query parameter        │
+│                     │                │          │        │                   │                              │ parsing in net/url                                           │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-61726                   │
+│                     ├────────────────┤          │        │                   │                              ├──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-61728 │          │        │                   │                              │ golang: archive/zip: Excessive CPU consumption when building │
+│                     │                │          │        │                   │                              │ archive index in archive/zip                                 │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-61728                   │
+│                     ├────────────────┤          │        │                   ├──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2025-61729 │          │        │                   │ 1.24.11, 1.25.5              │ crypto/x509: golang: Denial of Service due to excessive      │
+│                     │                │          │        │                   │                              │ resource consumption via crafted...                          │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2025-61729                   │
+│                     ├────────────────┤          │        │                   ├──────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                     │ CVE-2026-25679 │          │        │                   │ 1.25.8, 1.26.1               │ net/url: Incorrect parsing of IPv6 host literals in net/url  │
+│                     │                │          │        │                   │                              │ https://avd.aquasec.com/nvd/cve-2026-25679                   │
+└─────────────────────┴────────────────┴──────────┴────────┴───────────────────┴──────────────────────────────┴──────────────────────────────────────────────────────────────┘
+[1;33m[WARN][0m Findings detected — pipeline would FAIL (exit code: 1)
+
+[1;34m[INFO][0m Scanning nginx with --exit-code 0 (warn-only mode)...
+
+[1;34m[INFO][0m This reports findings but does NOT fail the pipeline.
+2026-04-01T08:59:55Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-04-01T08:59:55Z	INFO	[secret] Secret scanning is enabled
+2026-04-01T08:59:55Z	INFO	[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning
+2026-04-01T08:59:55Z	INFO	[secret] Please see https://trivy.dev/docs/v0.69/guide/scanner/secret#recommendation for faster secret detection
+2026-04-01T08:59:56Z	INFO	Detected OS	family="debian" version="13.4"
+2026-04-01T08:59:56Z	INFO	[debian] Detecting vulnerabilities...	os_version="13" pkg_num=151
+2026-04-01T08:59:56Z	INFO	Number of language-specific files	num=0
+2026-04-01T08:59:56Z	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.69/guide/scanner/vulnerability#severity-selection for details.
+
+Report Summary
+
+┌────────────────────────────┬────────┬─────────────────┬─────────┐
+│           Target           │  Type  │ Vulnerabilities │ Secrets │
+├────────────────────────────┼────────┼─────────────────┼─────────┤
+│ nginx:latest (debian 13.4) │ debian │       16        │    -    │
+└────────────────────────────┴────────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+nginx:latest (debian 13.4)
+==========================
+Total: 16 (HIGH: 16, CRITICAL: 0)
+
+┌─────────────────────────┬────────────────┬──────────┬──────────────┬───────────────────┬──────────────────┬──────────────────────────────────────────────────────────────┐
+│         Library         │ Vulnerability  │ Severity │    Status    │ Installed Version │  Fixed Version   │                            Title                             │
+├─────────────────────────┼────────────────┼──────────┼──────────────┼───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libc-bin                │ CVE-2026-4046  │ HIGH     │ fix_deferred │ 2.41-12+deb13u2   │                  │ glibc: glibc: Denial of Service via iconv() function with    │
+│                         │                │          │              │                   │                  │ specific character sets...                                   │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-4046                    │
+├─────────────────────────┤                │          │              │                   ├──────────────────┤                                                              │
+│ libc6                   │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+├─────────────────────────┼────────────────┤          ├──────────────┼───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libde265-0              │ CVE-2026-33164 │          │ affected     │ 1.0.15-1+b3       │                  │ libde265 is an open source implementation of the h.265 video │
+│                         │                │          │              │                   │                  │ codec. Pr...                                                 │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-33164                   │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libexpat1               │ CVE-2026-25210 │          │              │ 2.7.1-2           │                  │ libexpat: libexpat: Information disclosure and data          │
+│                         │                │          │              │                   │                  │ integrity issues due to integer overflow...                  │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-25210                   │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libheif-plugin-dav1d    │ CVE-2025-68431 │          │              │ 1.19.8-1          │                  │ libheif is an HEIF and AVIF file format decoder and encoder. │
+│                         │                │          │              │                   │                  │ Prior...                                                     │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2025-68431                   │
+├─────────────────────────┤                │          │              │                   ├──────────────────┤                                                              │
+│ libheif-plugin-libde265 │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+├─────────────────────────┤                │          │              │                   ├──────────────────┤                                                              │
+│ libheif1                │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libnghttp2-14           │ CVE-2026-27135 │          │              │ 1.64.0-1.1        │                  │ nghttp2: nghttp2: Denial of Service via malformed HTTP/2     │
+│                         │                │          │              │                   │                  │ frames after session termination...                          │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-27135                   │
+├─────────────────────────┼────────────────┤          ├──────────────┼───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libpng16-16t64          │ CVE-2026-33416 │          │ fixed        │ 1.6.48-1+deb13u3  │ 1.6.48-1+deb13u4 │ libpng: libpng: Arbitrary code execution due to              │
+│                         │                │          │              │                   │                  │ use-after-free vulnerability                                 │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-33416                   │
+│                         ├────────────────┤          │              │                   │                  ├──────────────────────────────────────────────────────────────┤
+│                         │ CVE-2026-33636 │          │              │                   │                  │ libpng: libpng: Information disclosure and denial of service │
+│                         │                │          │              │                   │                  │ via out-of-bounds read/write in...                           │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-33636                   │
+├─────────────────────────┼────────────────┤          ├──────────────┼───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libsystemd0             │ CVE-2026-29111 │          │ affected     │ 257.9-1~deb13u1   │                  │ systemd: systemd: Arbitrary code execution or Denial of      │
+│                         │                │          │              │                   │                  │ Service via spurious IPC...                                  │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-29111                   │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libtiff6                │ CVE-2026-4775  │          │              │ 4.7.0-3+deb13u1   │                  │ libtiff: libtiff: Arbitrary code execution or denial of      │
+│                         │                │          │              │                   │                  │ service via signed integer...                                │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-4775                    │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libtinfo6               │ CVE-2025-69720 │          │              │ 6.5+20250216-2    │                  │ ncurses: ncurses: Buffer overflow vulnerability may lead to  │
+│                         │                │          │              │                   │                  │ arbitrary code execution.                                    │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2025-69720                   │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libudev1                │ CVE-2026-29111 │          │              │ 257.9-1~deb13u1   │                  │ systemd: systemd: Arbitrary code execution or Denial of      │
+│                         │                │          │              │                   │                  │ Service via spurious IPC...                                  │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-29111                   │
+├─────────────────────────┼────────────────┤          │              ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ ncurses-base            │ CVE-2025-69720 │          │              │ 6.5+20250216-2    │                  │ ncurses: ncurses: Buffer overflow vulnerability may lead to  │
+│                         │                │          │              │                   │                  │ arbitrary code execution.                                    │
+│                         │                │          │              │                   │                  │ https://avd.aquasec.com/nvd/cve-2025-69720                   │
+├─────────────────────────┤                │          │              │                   ├──────────────────┤                                                              │
+│ ncurses-bin             │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+│                         │                │          │              │                   │                  │                                                              │
+└─────────────────────────┴────────────────┴──────────┴──────────────┴───────────────────┴──────────────────┴──────────────────────────────────────────────────────────────┘
+[1;32m[OK][0m nginx scan complete — exit-code 0 means pipeline continues regardless.
+
+[1;35m========== Lab 03 Complete ==========[0m
+
+  Images scanned:
+    adguard/adguardhome:v0.107.53  → CRITICAL: 2, HIGH: 9 (in Go binary)
+    nginx:latest              → CRITICAL: 0, HIGH: 16 (in OS packages)
+
+  Key finding: --exit-code 1 is required to fail a pipeline.
+  Default Trivy behavior (exit-code 0) reports but never blocks.
+
+  Deliverables:
+    trivy-scan.yaml          – Gitea Actions CI pipeline
+    trivy-scan-adguard.json  – AdGuard scan results (JSON)
+    trivy-scan-nginx.json    – nginx scan results (JSON)
+    lab03_notes.md           – Vulnerability management notes
+    lab03.txt                – This output
+
