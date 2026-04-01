@@ -1,0 +1,66 @@
+# =============================================================================
+# Secret Injection Method 2: Mounted Volume
+# =============================================================================
+# This pod demonstrates mounting the adguard-credentials secret as files
+# inside the container at /etc/adguard/secrets/.
+#
+# Each key in the Secret becomes a file:
+#   /etc/adguard/secrets/admin-username
+#   /etc/adguard/secrets/admin-password
+#   /etc/adguard/secrets/upstream-dns-token
+#
+# Pros:  More secure — secrets are not in the process environment.
+#        Kubernetes can rotate secrets and update the files without
+#        restarting the pod (after ~1 minute kubelet sync).
+#        Apps that read config from files (like AdGuard) prefer this.
+# Cons:  App must be written to read from files, not env vars.
+# =============================================================================
+apiVersion: v1
+kind: Pod
+metadata:
+  name: adguard-secret-vol-demo
+  namespace: adguard-home
+  labels:
+    app: adguard-home
+    demo: secret-volume
+    lab: week09-10-lab02
+spec:
+  restartPolicy: Never
+  containers:
+    - name: adguard-vol-demo
+      image: busybox:1.36
+      # List the mounted secret files and show their content as evidence
+      command:
+        - sh
+        - -c
+        - |
+          echo "=== Secrets injected as mounted volume files ==="
+          echo "Mount path: /etc/adguard/secrets/"
+          echo ""
+          echo "Files present:"
+          ls -la /etc/adguard/secrets/
+          echo ""
+          echo "admin-username contents: $(cat /etc/adguard/secrets/admin-username)"
+          echo "admin-password contents: [hidden — $(wc -c < /etc/adguard/secrets/admin-password) bytes]"
+          echo "upstream-dns-token contents: [hidden — $(wc -c < /etc/adguard/secrets/upstream-dns-token) bytes]"
+          echo ""
+          echo "File permissions (secrets are mode 0444 by default):"
+          stat /etc/adguard/secrets/admin-password
+          echo "=== Done ==="
+      volumeMounts:
+        - name: adguard-secrets
+          mountPath: /etc/adguard/secrets
+          readOnly: true   # Best practice: always mount secrets read-only
+  volumes:
+    - name: adguard-secrets
+      secret:
+        secretName: adguard-credentials
+        # Optional: restrict which keys are mounted (mount all if omitted)
+        items:
+          - key: admin-username
+            path: admin-username
+          - key: admin-password
+            path: admin-password
+          - key: upstream-dns-token
+            path: upstream-dns-token
+        defaultMode: 0400  # Owner read-only — tighter than default 0444
