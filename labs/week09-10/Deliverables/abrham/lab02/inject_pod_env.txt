@@ -1,0 +1,6 @@
+$ kubectl apply -f pod-env.yaml
+pod/my-app-env-pod created
+$ kubectl exec my-app-env-pod \
+  -n my-app-namespace \
+  -- env | grep DB_PASSWORD
+DB_PASSWORD=password123

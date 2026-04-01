@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app-env-pod
+  namespace: my-app-namespace
+spec:
+  containers:
+    - name: my-app
+      image: nginx:1.25.0
+      env:
+        - name: DB_PASSWORD         
+          valueFrom:
+            secretKeyRef:
+              name: my-app-secret    
+              key: DB_PASSWORD       
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: my-app-secret
+              key: API_KEY
+      envFrom:
+        - secretRef:
+            name: my-app-secret

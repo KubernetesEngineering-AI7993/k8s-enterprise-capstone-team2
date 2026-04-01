@@ -1,0 +1,70 @@
+================================================================
+EVIDENCE OF BLOCKED AND ALLOWED DEPLOYMENTS
+validate.sh — Kubernetes Manifest Validation
+================================================================
+
+
+====== TEST 1: BAD MANIFEST (expected: BLOCKED) ======
+
+==============================================
+ Kubernetes Manifest Validation
+ Scanning: bad-deployment.yaml
+==============================================
+
+----------------------------------------------
+Checking: bad-deployment.yaml
+----------------------------------------------
+  FAIL  [CHECK 1] Missing resource limits
+        Every container must define:
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+  FAIL  [CHECK 2] Image using :latest tag
+        Found:
+              image: nginx:latest
+        Pin to a specific version e.g. nginx:1.27.3
+
+  FAIL  [CHECK 3] Missing livenessProbe
+        Add a livenessProbe so Kubernetes restarts
+        unhealthy containers automatically.
+
+  FAIL  [CHECK 4] Missing readinessProbe
+        Add a readinessProbe so Kubernetes only sends
+        traffic to containers that are ready.
+
+  Result: 4 check(s) failed
+
+==============================================
+ VALIDATION FAILED — 4 error(s) found
+ Deployment is BLOCKED until all errors are fixed.
+==============================================
+Exit code: 1   <-- pipeline stops here, deploy never runs
+
+
+====== TEST 2: GOOD MANIFEST (expected: ALLOWED) ======
+
+==============================================
+ Kubernetes Manifest Validation
+ Scanning: good-deployment.yaml
+==============================================
+
+----------------------------------------------
+Checking: good-deployment.yaml
+----------------------------------------------
+  PASS  [CHECK 1] Resource limits found
+  PASS  [CHECK 2] No :latest tag found
+  PASS  [CHECK 3] livenessProbe found
+  PASS  [CHECK 4] readinessProbe found
+
+  Result: all checks passed
+
+==============================================
+ ALL CHECKS PASSED — deployment allowed
+==============================================
+Exit code: 0   <-- pipeline continues, deploy proceeds
+
+================================================================
+END OF EVIDENCE
+================================================================
