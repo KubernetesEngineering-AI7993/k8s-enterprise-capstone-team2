@@ -1,0 +1,79 @@
+# ---------------------------------------------------------------
+# AdGuard Home – bjw-s app-template values
+# Target: Kind cluster (NodePort access, no persistent storage)
+# ---------------------------------------------------------------
+app-template:
+  controllers:
+    adguard-home:
+      type: deployment
+      replicas: 1
+      containers:
+        app:
+          image:
+            repository: adguard/adguardhome
+            tag: v0.107.53
+            pullPolicy: IfNotPresent
+          env:
+            TZ: "America/New_York"
+          # AdGuard Home needs to write config; use emptyDir for lab purposes
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          probes:
+            liveness:
+              enabled: true
+              custom: true
+              spec:
+                httpGet:
+                  path: /
+                  port: 3000
+                initialDelaySeconds: 30
+                periodSeconds: 15
+            readiness:
+              enabled: true
+              custom: true
+              spec:
+                httpGet:
+                  path: /
+                  port: 3000
+                initialDelaySeconds: 15
+                periodSeconds: 10
+
+  # Persistent storage (emptyDir for lab – data lost on pod restart)
+  persistence:
+    config:
+      type: emptyDir
+      globalMounts:
+        - path: /opt/adguardhome/conf
+    data:
+      type: emptyDir
+      globalMounts:
+        - path: /opt/adguardhome/work
+
+  service:
+    # Web UI + initial setup (port 3000)
+    app:
+      controller: adguard-home
+      type: NodePort
+      ports:
+        http:
+          port: 3000
+          nodePort: 30300
+          protocol: HTTP
+    # DNS service (port 53 → NodePort 30053)
+    dns:
+      controller: adguard-home
+      type: NodePort
+      ports:
+        dns-udp:
+          port: 53
+          nodePort: 30053
+          protocol: UDP
+        dns-tcp:
+          port: 53
+          nodePort: 30054
+          protocol: TCP
