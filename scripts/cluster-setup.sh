@@ -251,6 +251,7 @@ install_monitoring() {
   success "kube-prometheus-stack ready."
 
   info "Applying ServiceMonitor and Grafana dashboard..."
+  kubectl create namespace "${APP_NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -
   kubectl apply -f "${REPO_ROOT}/monitoring/prometheus/servicemonitor.yaml"
   kubectl apply -f "${REPO_ROOT}/monitoring/grafana/warehouse-cv-overview-dashboard-configmap.yaml"
   success "Monitoring resources applied."
