@@ -27,51 +27,27 @@ PROM_STACK_VERSION="${PROM_STACK_VERSION:-82.4.0}"
 INGRESS_NGINX_VERSION="${INGRESS_NGINX_VERSION:-4.15.1}"
 CREATE_KIND_IF_MISSING="${CREATE_KIND_IF_MISSING:-true}"
 KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-warehouse-cv}"
-KIND_WORKER_COUNT="${KIND_WORKER_COUNT:-2}"
-KIND_NODE_IMAGE="${KIND_NODE_IMAGE:-kindest/node:v1.30.0}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+KIND_CONFIG_FILE="${KIND_CONFIG_FILE:-${REPO_ROOT}/k8s/kind/kind.yaml}"
 CURRENT_CONTEXT=""
 IS_KIND_CLUSTER="false"
 
 # ─── Kind bootstrap (optional) ────────────────────────────────────────────────
 create_kind_cluster() {
   command -v kind &>/dev/null || die "No kube context is set and 'kind' is not installed.\nInstall kind: https://kind.sigs.k8s.io/docs/user/quick-start/#installation"
+  [[ -f "${KIND_CONFIG_FILE}" ]] || die "Kind config not found at '${KIND_CONFIG_FILE}'."
 
   info "No kube context found. Creating a local kind cluster..."
   info "  Name          : ${KIND_CLUSTER_NAME}"
-  info "  Worker nodes  : ${KIND_WORKER_COUNT}"
-  info "  Node image    : ${KIND_NODE_IMAGE}"
-
-  local kind_cfg
-  kind_cfg="$(mktemp)"
-
-  {
-    echo "kind: Cluster"
-    echo "apiVersion: kind.x-k8s.io/v1alpha4"
-    echo "nodes:"
-    echo "- role: control-plane"
-    echo "  image: ${KIND_NODE_IMAGE}"
-    echo "  extraPortMappings:"
-    echo "    - containerPort: 30080"
-    echo "      hostPort: 80"
-    echo "      protocol: TCP"
-    echo "    - containerPort: 30443"
-    echo "      hostPort: 443"
-    echo "      protocol: TCP"
-    for ((i=1; i<=KIND_WORKER_COUNT; i++)); do
-      echo "- role: worker"
-      echo "  image: ${KIND_NODE_IMAGE}"
-    done
-  } > "${kind_cfg}"
+  info "  Config file   : ${KIND_CONFIG_FILE}"
 
   if kind get clusters | rg -x "${KIND_CLUSTER_NAME}" &>/dev/null; then
     warn "kind cluster '${KIND_CLUSTER_NAME}' already exists; reusing it."
   else
-    kind create cluster --name "${KIND_CLUSTER_NAME}" --config "${kind_cfg}" --wait 180s
+    kind create cluster --name "${KIND_CLUSTER_NAME}" --config "${KIND_CONFIG_FILE}" --wait 180s
   fi
-  rm -f "${kind_cfg}"
 
   kubectl config use-context "kind-${KIND_CLUSTER_NAME}" >/dev/null
   CURRENT_CONTEXT="kind-${KIND_CLUSTER_NAME}"
