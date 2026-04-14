@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend
+  namespace: dev
+  labels:
+    app: backend
+spec:
+  containers:
+  - name: backend
+    image: nginx:1.27
+    ports:
+    - containerPort: 80
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend
+  namespace: dev
+  labels:
+    app: frontend
+spec:
+  containers:
+  - name: frontend
+    image: nginx:1.27
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rogue-pod
+  namespace: dev
+  labels:
+    app: rogue
+spec:
+  containers:
+  - name: rogue
+    image: nginx:1.27
