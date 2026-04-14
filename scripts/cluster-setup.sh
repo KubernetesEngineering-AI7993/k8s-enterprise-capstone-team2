@@ -20,10 +20,11 @@ REPO_URL="${REPO_URL:-https://github.com/example-org/k8s-enterprise-capstone-tea
 TARGET_BRANCH="${TARGET_BRANCH:-mlops}"
 APP_NAMESPACE="${APP_NAMESPACE:-warehouse-cv}"
 ARGOCD_NAMESPACE="${ARGOCD_NAMESPACE:-argocd}"
-ARGOCD_VERSION="${ARGOCD_VERSION:-v2.11.3}"
-SEALED_SECRETS_VERSION="${SEALED_SECRETS_VERSION:-2.16.1}"
-PROM_STACK_VERSION="${PROM_STACK_VERSION:-61.3.1}"
-INGRESS_NGINX_VERSION="${INGRESS_NGINX_VERSION:-4.11.2}"
+ARGOCD_CHART_VERSION="${ARGOCD_CHART_VERSION:-9.5.0}"
+ARGOCD_IMAGE_TAG="${ARGOCD_IMAGE_TAG:-v3.3.6}"
+SEALED_SECRETS_VERSION="${SEALED_SECRETS_VERSION:-2.18.4}"
+PROM_STACK_VERSION="${PROM_STACK_VERSION:-82.4.0}"
+INGRESS_NGINX_VERSION="${INGRESS_NGINX_VERSION:-4.15.1}"
 CREATE_KIND_IF_MISSING="${CREATE_KIND_IF_MISSING:-true}"
 KIND_CLUSTER_NAME="${KIND_CLUSTER_NAME:-warehouse-cv}"
 KIND_WORKER_COUNT="${KIND_WORKER_COUNT:-2}"
@@ -185,12 +186,12 @@ seal_secret() {
 
 # ─── 4. Argo CD ──────────────────────────────────────────────────────────────
 install_argocd() {
-  info "Installing Argo CD (${ARGOCD_VERSION})..."
+  info "Installing Argo CD (chart ${ARGOCD_CHART_VERSION}, image ${ARGOCD_IMAGE_TAG})..."
   kubectl create namespace "${ARGOCD_NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -
   helm upgrade --install argocd argo/argo-cd \
     --namespace "${ARGOCD_NAMESPACE}" \
-    --version "${ARGOCD_VERSION}" \
-    --set global.image.tag="${ARGOCD_VERSION}" \
+    --version "${ARGOCD_CHART_VERSION}" \
+    --set global.image.tag="${ARGOCD_IMAGE_TAG}" \
     --set server.service.type=ClusterIP \
     --wait
   success "Argo CD ready."
