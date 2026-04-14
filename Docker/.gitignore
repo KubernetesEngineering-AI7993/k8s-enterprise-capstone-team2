@@ -1,0 +1,5 @@
+# Warehouse images (~250MB) - too large for git
+# Download from Kaggle and copy into intake-service/images/ before building
+intake-service/images/*.jpg
+intake-service/images/*.jpeg
+intake-service/images/*.png
