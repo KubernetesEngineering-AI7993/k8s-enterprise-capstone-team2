@@ -22,9 +22,9 @@ ingress:
   enabled: true
   className: nginx
   hosts:
-    intake: intake.warehouse-cv.local
-    inference: inference.warehouse-cv.local
-    dashboard: dashboard.warehouse-cv.local
+    intake: intake.warehouse-cv.internal
+    inference: inference.warehouse-cv.internal
+    dashboard: dashboard.warehouse-cv.internal
 
 gpuScheduling:
   nodeSelector:

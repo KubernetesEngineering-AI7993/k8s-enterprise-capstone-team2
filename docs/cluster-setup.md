@@ -206,23 +206,23 @@ For cloud/VM clusters, get the external IP and add entries to `/etc/hosts` (or y
 INGRESS_IP=$(kubectl -n ingress-nginx get svc ingress-nginx-controller \
   -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 
-echo "${INGRESS_IP}  intake.warehouse-cv.local" | sudo tee -a /etc/hosts
-echo "${INGRESS_IP}  inference.warehouse-cv.local" | sudo tee -a /etc/hosts
-echo "${INGRESS_IP}  dashboard.warehouse-cv.local" | sudo tee -a /etc/hosts
-echo "${INGRESS_IP}  argocd.warehouse-cv.local" | sudo tee -a /etc/hosts
-echo "${INGRESS_IP}  prometheus.warehouse-cv.local" | sudo tee -a /etc/hosts
-echo "${INGRESS_IP}  grafana.warehouse-cv.local" | sudo tee -a /etc/hosts
+echo "${INGRESS_IP}  intake.warehouse-cv.internal" | sudo tee -a /etc/hosts
+echo "${INGRESS_IP}  inference.warehouse-cv.internal" | sudo tee -a /etc/hosts
+echo "${INGRESS_IP}  dashboard.warehouse-cv.internal" | sudo tee -a /etc/hosts
+echo "${INGRESS_IP}  argocd.warehouse-cv.internal" | sudo tee -a /etc/hosts
+echo "${INGRESS_IP}  prometheus.warehouse-cv.internal" | sudo tee -a /etc/hosts
+echo "${INGRESS_IP}  grafana.warehouse-cv.internal" | sudo tee -a /etc/hosts
 ```
 
 For `kind`, use localhost:
 
 ```bash
-echo "127.0.0.1 intake.warehouse-cv.local" | sudo tee -a /etc/hosts
-echo "127.0.0.1 inference.warehouse-cv.local" | sudo tee -a /etc/hosts
-echo "127.0.0.1 dashboard.warehouse-cv.local" | sudo tee -a /etc/hosts
-echo "127.0.0.1 argocd.warehouse-cv.local" | sudo tee -a /etc/hosts
-echo "127.0.0.1 prometheus.warehouse-cv.local" | sudo tee -a /etc/hosts
-echo "127.0.0.1 grafana.warehouse-cv.local" | sudo tee -a /etc/hosts
+echo "127.0.0.1 intake.warehouse-cv.internal" | sudo tee -a /etc/hosts
+echo "127.0.0.1 inference.warehouse-cv.internal" | sudo tee -a /etc/hosts
+echo "127.0.0.1 dashboard.warehouse-cv.internal" | sudo tee -a /etc/hosts
+echo "127.0.0.1 argocd.warehouse-cv.internal" | sudo tee -a /etc/hosts
+echo "127.0.0.1 prometheus.warehouse-cv.internal" | sudo tee -a /etc/hosts
+echo "127.0.0.1 grafana.warehouse-cv.internal" | sudo tee -a /etc/hosts
 ```
 
 ---
@@ -296,12 +296,12 @@ Internet
    ▼
 ingress-nginx (LoadBalancer)
    │
-   ├──▶ dashboard.warehouse-cv.local   ──▶  results-dashboard :8080
-   ├──▶ intake.warehouse-cv.local      ──▶  footage-intake    :8081
-   ├──▶ inference.warehouse-cv.local   ──▶  cv-inference      :8082
-   ├──▶ argocd.warehouse-cv.local      ──▶  argocd-server     :443
-   ├──▶ prometheus.warehouse-cv.local  ──▶  kube-prometheus-stack-prometheus :9090
-   └──▶ grafana.warehouse-cv.local     ──▶  kube-prometheus-stack-grafana    :80
+   ├──▶ dashboard.warehouse-cv.internal   ──▶  results-dashboard :8080
+   ├──▶ intake.warehouse-cv.internal      ──▶  footage-intake    :8081
+   ├──▶ inference.warehouse-cv.internal   ──▶  cv-inference      :8082
+   ├──▶ argocd.warehouse-cv.internal      ──▶  argocd-server     :443
+   ├──▶ prometheus.warehouse-cv.internal  ──▶  kube-prometheus-stack-prometheus :9090
+   └──▶ grafana.warehouse-cv.internal     ──▶  kube-prometheus-stack-grafana    :80
 
 footage-intake ──[NetworkPolicy allow]──▶ cv-inference
                                               │

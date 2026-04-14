@@ -243,22 +243,28 @@ apply_system_ingress() {
 # ─── 9. Wait for Argo CD sync ────────────────────────────────────────────────
 wait_for_sync() {
   info "Waiting for Argo CD to sync warehouse-cv-dev (up to 5 min)..."
-  if command -v argocd &>/dev/null; then
-    local argocd_pass
-    argocd_pass=$(kubectl -n "${ARGOCD_NAMESPACE}" get secret argocd-initial-admin-secret \
-      -o jsonpath="{.data.password}" | base64 -d)
-    argocd login \
-      "$(kubectl -n "${ARGOCD_NAMESPACE}" get svc argocd-server -o jsonpath='{.spec.clusterIP}')" \
-      --username admin \
-      --password "${argocd_pass}" \
-      --insecure --grpc-web &>/dev/null || true
-    argocd app wait warehouse-cv-dev --timeout 300 || \
-      warn "Argo CD sync timed out. Check: kubectl -n ${ARGOCD_NAMESPACE} get app warehouse-cv-dev"
-  else
-    warn "argocd CLI not found — skipping automated sync wait."
-    warn "Monitor sync status manually:"
-    warn "  kubectl -n ${ARGOCD_NAMESPACE} get app warehouse-cv-dev"
-  fi
+  local timeout_seconds=300
+  local poll_seconds=5
+  local elapsed=0
+
+  while (( elapsed < timeout_seconds )); do
+    local sync_status
+    local health_status
+    sync_status="$(kubectl -n "${ARGOCD_NAMESPACE}" get app warehouse-cv-dev -o jsonpath='{.status.sync.status}' 2>/dev/null || true)"
+    health_status="$(kubectl -n "${ARGOCD_NAMESPACE}" get app warehouse-cv-dev -o jsonpath='{.status.health.status}' 2>/dev/null || true)"
+
+    if [[ "${sync_status}" == "Synced" && "${health_status}" == "Healthy" ]]; then
+      success "Argo CD app is Synced and Healthy."
+      return 0
+    fi
+
+    sleep "${poll_seconds}"
+    elapsed=$((elapsed + poll_seconds))
+  done
+
+  warn "Argo CD sync timed out. Check:"
+  warn "  kubectl -n ${ARGOCD_NAMESPACE} get app warehouse-cv-dev"
+  warn "  kubectl -n ${ARGOCD_NAMESPACE} describe app warehouse-cv-dev"
 }
 
 # ─── 10. Summary ─────────────────────────────────────────────────────────────
@@ -293,19 +299,19 @@ print_summary() {
 
   echo -e "  ${BOLD}Ingress hosts (add to /etc/hosts pointing at ingress LoadBalancer IP)${RESET}"
   if [[ "${IS_KIND_CLUSTER}" == "true" ]]; then
-    echo "    127.0.0.1 intake.warehouse-cv.local"
-    echo "    127.0.0.1 inference.warehouse-cv.local"
-    echo "    127.0.0.1 dashboard.warehouse-cv.local"
-    echo "    127.0.0.1 argocd.warehouse-cv.local"
-    echo "    127.0.0.1 prometheus.warehouse-cv.local"
-    echo "    127.0.0.1 grafana.warehouse-cv.local"
+    echo "    127.0.0.1 intake.warehouse-cv.internal"
+    echo "    127.0.0.1 inference.warehouse-cv.internal"
+    echo "    127.0.0.1 dashboard.warehouse-cv.internal"
+    echo "    127.0.0.1 argocd.warehouse-cv.internal"
+    echo "    127.0.0.1 prometheus.warehouse-cv.internal"
+    echo "    127.0.0.1 grafana.warehouse-cv.internal"
   else
-    echo "    intake.warehouse-cv.local"
-    echo "    inference.warehouse-cv.local"
-    echo "    dashboard.warehouse-cv.local"
-    echo "    argocd.warehouse-cv.local"
-    echo "    prometheus.warehouse-cv.local"
-    echo "    grafana.warehouse-cv.local"
+    echo "    intake.warehouse-cv.internal"
+    echo "    inference.warehouse-cv.internal"
+    echo "    dashboard.warehouse-cv.internal"
+    echo "    argocd.warehouse-cv.internal"
+    echo "    prometheus.warehouse-cv.internal"
+    echo "    grafana.warehouse-cv.internal"
   fi
   echo
 }

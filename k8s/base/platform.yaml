@@ -409,7 +409,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: intake.warehouse-cv.local
+    - host: intake.warehouse-cv.internal
       http:
         paths:
           - path: /
@@ -419,7 +419,7 @@ spec:
                 name: intake-svc
                 port:
                   number: 8081
-    - host: inference.warehouse-cv.local
+    - host: inference.warehouse-cv.internal
       http:
         paths:
           - path: /
@@ -429,7 +429,7 @@ spec:
                 name: inference-svc
                 port:
                   number: 8082
-    - host: dashboard.warehouse-cv.local
+    - host: dashboard.warehouse-cv.internal
       http:
         paths:
           - path: /
