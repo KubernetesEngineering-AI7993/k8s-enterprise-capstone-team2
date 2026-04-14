@@ -2,9 +2,9 @@ name: capstone-platform-ci
 
 on:
   pull_request:
-    branches: ["main"]
+    branches: ["mlops"]
   push:
-    branches: ["main"]
+    branches: ["mlops"]
 
 jobs:
   validate-manifests:
