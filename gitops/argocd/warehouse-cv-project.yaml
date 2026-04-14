@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: warehouse-cv
+  namespace: argocd
+spec:
+  description: Warehouse computer vision platform project boundaries
+  sourceRepos:
+    - "*"
+  destinations:
+    - namespace: warehouse-cv
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: warehouse-cv-dev
+  namespace: argocd
+spec:
+  project: warehouse-cv
+  source:
+    repoURL: https://github.com/example-org/k8s-enterprise-capstone-team2.git
+    targetRevision: mlops
+    path: k8s/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: warehouse-cv
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

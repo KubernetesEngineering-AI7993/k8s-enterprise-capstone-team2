@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: warehouse-cv-overview-dashboard
+  namespace: warehouse-cv
+  labels:
+    grafana_dashboard: "1"
+data:
+  warehouse-cv-overview.json: |
+    {
+      "title": "Warehouse CV Overview (Placeholder)",
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Inference Throughput",
+          "targets": [
+            {
+              "expr": "sum(rate(inference_frames_processed_total[5m]))"
+            }
+          ],
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Queue Backlog",
+          "targets": [
+            {
+              "expr": "sum(intake_frame_queue_depth)"
+            }
+          ],
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 0
+          }
+        }
+      ]
+    }

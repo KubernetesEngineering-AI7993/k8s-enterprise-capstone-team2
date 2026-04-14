@@ -1,0 +1,441 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: warehouse-cv
+  labels:
+    app.kubernetes.io/name: warehouse-cv
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: warehouse-cv-config
+  namespace: warehouse-cv
+data:
+  DEPLOYMENT_MODE: "live"
+  MODEL_REGISTRY_URI: "s3://placeholder-model-registry"
+  FOOTAGE_SOURCE: "rtsp://placeholder-camera-stream"
+  RESULTS_STORE_URI: "postgres://results-db-placeholder"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-artifacts-pvc
+  namespace: warehouse-cv
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: trainer-sa
+  namespace: warehouse-cv
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: intake-sa
+  namespace: warehouse-cv
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: inference-sa
+  namespace: warehouse-cv
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dashboard-sa
+  namespace: warehouse-cv
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: dashboard-readonly
+  namespace: warehouse-cv
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "endpoints", "configmaps"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: dashboard-readonly-binding
+  namespace: warehouse-cv
+subjects:
+  - kind: ServiceAccount
+    name: dashboard-sa
+    namespace: warehouse-cv
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: dashboard-readonly
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: model-finetune
+  namespace: warehouse-cv
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: model-training
+        spec:
+          serviceAccountName: trainer-sa
+          restartPolicy: Never
+          nodeSelector:
+            node-type: gpu
+          tolerations:
+            - key: "gpu"
+              operator: "Equal"
+              value: "true"
+              effect: "NoSchedule"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: trainer
+              image: ubuntu:22.04
+              envFrom:
+                - configMapRef:
+                    name: warehouse-cv-config
+                - secretRef:
+                    name: warehouse-cv-secret
+              resources:
+                requests:
+                  cpu: "500m"
+                  memory: "1Gi"
+                  nvidia.com/gpu: "1"
+                limits:
+                  cpu: "2"
+                  memory: "4Gi"
+                  nvidia.com/gpu: "1"
+              volumeMounts:
+                - name: model-artifacts
+                  mountPath: /models
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: false
+                capabilities:
+                  drop: ["ALL"]
+          volumes:
+            - name: model-artifacts
+              persistentVolumeClaim:
+                claimName: model-artifacts-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: footage-intake
+  namespace: warehouse-cv
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: footage-intake
+  template:
+    metadata:
+      labels:
+        app: footage-intake
+    spec:
+      serviceAccountName: intake-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: intake
+          image: ubuntu:22.04
+          envFrom:
+            - configMapRef:
+                name: warehouse-cv-config
+            - secretRef:
+                name: warehouse-cv-secret
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          livenessProbe:
+            exec:
+              command: ["true"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["true"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cv-inference
+  namespace: warehouse-cv
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: cv-inference
+  template:
+    metadata:
+      labels:
+        app: cv-inference
+    spec:
+      serviceAccountName: inference-sa
+      nodeSelector:
+        node-type: gpu
+      tolerations:
+        - key: "gpu"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: inference
+          image: ubuntu:22.04
+          envFrom:
+            - configMapRef:
+                name: warehouse-cv-config
+            - secretRef:
+                name: warehouse-cv-secret
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+              nvidia.com/gpu: "1"
+            limits:
+              cpu: "2"
+              memory: "4Gi"
+              nvidia.com/gpu: "1"
+          livenessProbe:
+            exec:
+              command: ["true"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["true"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: model-artifacts
+              mountPath: /models
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: model-artifacts
+          persistentVolumeClaim:
+            claimName: model-artifacts-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: results-dashboard
+  namespace: warehouse-cv
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: results-dashboard
+  template:
+    metadata:
+      labels:
+        app: results-dashboard
+    spec:
+      serviceAccountName: dashboard-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: dashboard
+          image: ubuntu:22.04
+          envFrom:
+            - configMapRef:
+                name: warehouse-cv-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            exec:
+              command: ["true"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["true"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: intake-svc
+  namespace: warehouse-cv
+spec:
+  selector:
+    app: footage-intake
+  ports:
+    - name: http
+      port: 8081
+      targetPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inference-svc
+  namespace: warehouse-cv
+spec:
+  selector:
+    app: cv-inference
+  ports:
+    - name: http
+      port: 8082
+      targetPort: 8082
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-svc
+  namespace: warehouse-cv
+spec:
+  selector:
+    app: results-dashboard
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: intake-hpa
+  namespace: warehouse-cv
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: footage-intake
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: dashboard-hpa
+  namespace: warehouse-cv
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: results-dashboard
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: warehouse-cv-ingress
+  namespace: warehouse-cv
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: intake.warehouse-cv.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: intake-svc
+                port:
+                  number: 8081
+    - host: inference.warehouse-cv.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: inference-svc
+                port:
+                  number: 8082
+    - host: dashboard.warehouse-cv.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dashboard-svc
+                port:
+                  number: 8080

@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: warehouse-cv
+  namespace: warehouse-cv
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - footage-intake
+          - cv-inference
+          - results-dashboard
+  namespaceSelector:
+    matchNames:
+      - warehouse-cv
+  endpoints:
+    - port: http
+      interval: 30s
+      path: /metrics
