@@ -209,6 +209,9 @@ INGRESS_IP=$(kubectl -n ingress-nginx get svc ingress-nginx-controller \
 echo "${INGRESS_IP}  intake.warehouse-cv.local" | sudo tee -a /etc/hosts
 echo "${INGRESS_IP}  inference.warehouse-cv.local" | sudo tee -a /etc/hosts
 echo "${INGRESS_IP}  dashboard.warehouse-cv.local" | sudo tee -a /etc/hosts
+echo "${INGRESS_IP}  argocd.warehouse-cv.local" | sudo tee -a /etc/hosts
+echo "${INGRESS_IP}  prometheus.warehouse-cv.local" | sudo tee -a /etc/hosts
+echo "${INGRESS_IP}  grafana.warehouse-cv.local" | sudo tee -a /etc/hosts
 ```
 
 For `kind`, use localhost:
@@ -217,6 +220,9 @@ For `kind`, use localhost:
 echo "127.0.0.1 intake.warehouse-cv.local" | sudo tee -a /etc/hosts
 echo "127.0.0.1 inference.warehouse-cv.local" | sudo tee -a /etc/hosts
 echo "127.0.0.1 dashboard.warehouse-cv.local" | sudo tee -a /etc/hosts
+echo "127.0.0.1 argocd.warehouse-cv.local" | sudo tee -a /etc/hosts
+echo "127.0.0.1 prometheus.warehouse-cv.local" | sudo tee -a /etc/hosts
+echo "127.0.0.1 grafana.warehouse-cv.local" | sudo tee -a /etc/hosts
 ```
 
 ---
@@ -240,6 +246,7 @@ Apply the platform-specific monitoring resources (these are outside the Kustomiz
 ```bash
 kubectl apply -f monitoring/prometheus/servicemonitor.yaml
 kubectl apply -f monitoring/grafana/warehouse-cv-overview-dashboard-configmap.yaml
+kubectl apply -f k8s/system-ingress.yaml
 ```
 
 Access Grafana:
@@ -289,9 +296,12 @@ Internet
    ▼
 ingress-nginx (LoadBalancer)
    │
-   ├──▶ dashboard.warehouse-cv.local  ──▶  results-dashboard :8080
-   ├──▶ intake.warehouse-cv.local     ──▶  footage-intake    :8081  (no NetworkPolicy allow yet)
-   └──▶ inference.warehouse-cv.local  ──▶  cv-inference      :8082  (no NetworkPolicy allow yet)
+   ├──▶ dashboard.warehouse-cv.local   ──▶  results-dashboard :8080
+   ├──▶ intake.warehouse-cv.local      ──▶  footage-intake    :8081
+   ├──▶ inference.warehouse-cv.local   ──▶  cv-inference      :8082
+   ├──▶ argocd.warehouse-cv.local      ──▶  argocd-server     :443
+   ├──▶ prometheus.warehouse-cv.local  ──▶  kube-prometheus-stack-prometheus :9090
+   └──▶ grafana.warehouse-cv.local     ──▶  kube-prometheus-stack-grafana    :80
 
 footage-intake ──[NetworkPolicy allow]──▶ cv-inference
                                               │
@@ -317,6 +327,6 @@ Grafana    (monitoring ns) ──reads──▶ Prometheus
 | Argo CD `OutOfSync` | Check `repoURL` is correct and branch `mlops` exists |
 | Ingress not routing | Verify `ingress-nginx` pod is running and LoadBalancer IP is assigned |
 | Metrics missing in Grafana | Confirm `ServiceMonitor` label `release: kube-prometheus-stack` matches the Helm release name |
-| NetworkPolicy blocking traffic | `kubectl describe networkpolicy -n warehouse-cv` — intake→inference is allowed; ingress→intake/inference is not yet whitelisted |
+| NetworkPolicy blocking traffic | `kubectl describe networkpolicy -n warehouse-cv` — ingress-nginx must be allowed to intake/inference/dashboard |
 
 See [`docs/troubleshooting-report.md`](troubleshooting-report.md) for a full runbook.

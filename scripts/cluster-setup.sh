@@ -233,7 +233,14 @@ install_monitoring() {
   success "Monitoring resources applied."
 }
 
-# ─── 8. Wait for Argo CD sync ────────────────────────────────────────────────
+# ─── 8. System ingress (Argo CD + Prometheus + Grafana) ──────────────────────
+apply_system_ingress() {
+  info "Applying ingress resources for Argo CD and monitoring..."
+  kubectl apply -f "${REPO_ROOT}/k8s/system-ingress.yaml"
+  success "System ingress resources applied."
+}
+
+# ─── 9. Wait for Argo CD sync ────────────────────────────────────────────────
 wait_for_sync() {
   info "Waiting for Argo CD to sync warehouse-cv-dev (up to 5 min)..."
   if command -v argocd &>/dev/null; then
@@ -254,7 +261,7 @@ wait_for_sync() {
   fi
 }
 
-# ─── 9. Summary ──────────────────────────────────────────────────────────────
+# ─── 10. Summary ─────────────────────────────────────────────────────────────
 print_summary() {
   echo
   echo -e "${GREEN}${BOLD}════════════════════════════════════════${RESET}"
@@ -289,10 +296,16 @@ print_summary() {
     echo "    127.0.0.1 intake.warehouse-cv.local"
     echo "    127.0.0.1 inference.warehouse-cv.local"
     echo "    127.0.0.1 dashboard.warehouse-cv.local"
+    echo "    127.0.0.1 argocd.warehouse-cv.local"
+    echo "    127.0.0.1 prometheus.warehouse-cv.local"
+    echo "    127.0.0.1 grafana.warehouse-cv.local"
   else
     echo "    intake.warehouse-cv.local"
     echo "    inference.warehouse-cv.local"
     echo "    dashboard.warehouse-cv.local"
+    echo "    argocd.warehouse-cv.local"
+    echo "    prometheus.warehouse-cv.local"
+    echo "    grafana.warehouse-cv.local"
   fi
   echo
 }
@@ -309,6 +322,7 @@ main() {
   apply_gitops
   install_ingress_nginx
   install_monitoring
+  apply_system_ingress
   wait_for_sync
   print_summary
 }
