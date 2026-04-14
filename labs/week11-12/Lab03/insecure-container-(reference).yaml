@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: insecure-pod
+  namespace: dev
+spec:
+  containers:
+  - name: insecure-container
+    image: nginx
+    securityContext:
+      privileged: true
+      runAsUser: 0
+    volumeMounts:
+    - name: host-volume
+      mountPath: /host
+  volumes:
+  - name: host-volume
+    hostPath:
+      path: /

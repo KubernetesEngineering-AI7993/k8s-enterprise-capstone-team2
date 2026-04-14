@@ -1,0 +1,108 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Try the new cross-platform PowerShell https://aka.ms/pscore6
+
+PS C:\Users\jeric> kubectl apply -f default-deny.yaml
+networkpolicy.networking.k8s.io/default-deny created
+PS C:\Users\jeric> kubectl apply -f allow-frontend-backend.yaml
+networkpolicy.networking.k8s.io/allow-frontend-to-backend created
+PS C:\Users\jeric> kubectl exec -it allow-frontend-backend -n dev -- sh
+Error from server (NotFound): pods "allow-frontend-backend" not found
+PS C:\Users\jeric> kubectl get pods -n dev
+NAME                                READY   STATUS             RESTARTS       AGE
+app-demo-bd4cdb4c6-2tb6g            1/1     Running            6 (18m ago)    42d
+app-demo-bd4cdb4c6-6vltv            1/1     Running            6 (18m ago)    42d
+app-demo-bd4cdb4c6-g8jh5            1/1     Running            6 (18m ago)    42d
+app-demo-bd4cdb4c6-znd8w            1/1     Running            6 (18m ago)    42d
+app-probes-748c6b5758-4gnx8         0/1     Running            5 (18m ago)    41d
+app-probes-bb4b56bdf-q2zgl          1/1     Running            5 (18m ago)    41d
+nginx-deployment-7c79c4bf97-dmqbg   1/1     Running            6 (18m ago)    42d
+nginx-deployment-7c79c4bf97-jhclh   1/1     Running            6 (18m ago)    42d
+resource-demo-647b7bc4c5-crwm7      1/1     Running            20 (18m ago)   42d
+rolling-demo-5cd5549bdb-g89rp       1/1     Running            4 (18m ago)    27d
+sample-app-8446c7c678-hsxrh         1/1     Running            4 (18m ago)    27d
+sample-app-8446c7c678-x8w5c         1/1     Running            4 (18m ago)    27d
+secret-test-pod                     1/1     Running            6 (18m ago)    12d
+secret-volume-pod                   1/1     Running            5 (18m ago)    12d
+sidecar-demo                        2/2     Running            8 (18m ago)    27d
+test-sa-pod                         1/1     Running            0              12m
+trivy-scan-8d6lk                    0/1     ImagePullBackOff   0              14d
+validated-app-ffcf474c6-2cst6       1/1     Running            2 (18m ago)    14d
+PS C:\Users\jeric> kubectl get pods -n dev --show-labels
+NAME                                READY   STATUS             RESTARTS       AGE   LABELS
+app-demo-bd4cdb4c6-2tb6g            1/1     Running            6 (19m ago)    42d   app=app-demo,pod-template-hash=bd4cdb4c6
+app-demo-bd4cdb4c6-6vltv            1/1     Running            6 (19m ago)    42d   app=app-demo,pod-template-hash=bd4cdb4c6
+app-demo-bd4cdb4c6-g8jh5            1/1     Running            6 (19m ago)    42d   app=app-demo,pod-template-hash=bd4cdb4c6
+app-demo-bd4cdb4c6-znd8w            1/1     Running            6 (19m ago)    42d   app=app-demo,pod-template-hash=bd4cdb4c6
+app-probes-748c6b5758-4gnx8         0/1     Running            5 (19m ago)    41d   app=app-probes,pod-template-hash=748c6b5758
+app-probes-bb4b56bdf-q2zgl          1/1     Running            5 (19m ago)    41d   app=app-probes,pod-template-hash=bb4b56bdf
+nginx-deployment-7c79c4bf97-dmqbg   1/1     Running            6 (19m ago)    42d   app=nginx,pod-template-hash=7c79c4bf97
+nginx-deployment-7c79c4bf97-jhclh   1/1     Running            6 (19m ago)    42d   app=nginx,pod-template-hash=7c79c4bf97
+resource-demo-647b7bc4c5-crwm7      1/1     Running            20 (19m ago)   42d   app=resource-demo,pod-template-hash=647b7bc4c5
+rolling-demo-5cd5549bdb-g89rp       1/1     Running            4 (19m ago)    27d   app=rolling-demo,pod-template-hash=5cd5549bdb
+sample-app-8446c7c678-hsxrh         1/1     Running            4 (19m ago)    27d   app=sample-app,pod-template-hash=8446c7c678
+sample-app-8446c7c678-x8w5c         1/1     Running            4 (19m ago)    27d   app=sample-app,pod-template-hash=8446c7c678
+secret-test-pod                     1/1     Running            6 (19m ago)    12d   <none>
+secret-volume-pod                   1/1     Running            5 (19m ago)    12d   <none>
+sidecar-demo                        2/2     Running            8 (19m ago)    27d   <none>
+test-sa-pod                         1/1     Running            0              12m   <none>
+trivy-scan-8d6lk                    0/1     ImagePullBackOff   0              14d   batch.kubernetes.io/controller-uid=d8c867a6-6087-44a2-95cf-727e45aaeb08,batch.kubernetes.io/job-name=trivy-scan,controller-uid=d8c867a6-6087-44a2-95cf-727e45aaeb08,job-name=trivy-scan
+validated-app-ffcf474c6-2cst6       1/1     Running            2 (19m ago)    14d   app=validated-app,pod-template-hash=ffcf474c6
+PS C:\Users\jeric> kubectl label pod nginx-deployment-7c79c4bf97-dmqbg -n dev app=frontend --overwrite
+pod/nginx-deployment-7c79c4bf97-dmqbg labeled
+PS C:\Users\jeric> kubectl label pod sample-app-8446c7c678-hsxrh -n dev app=backend --overwrite
+pod/sample-app-8446c7c678-hsxrh labeled
+PS C:\Users\jeric> kubectl get pods -n dev --show-labels
+NAME                                READY   STATUS             RESTARTS       AGE   LABELS
+app-demo-bd4cdb4c6-2tb6g            1/1     Running            6 (20m ago)    42d   app=app-demo,pod-template-hash=bd4cdb4c6
+app-demo-bd4cdb4c6-6vltv            1/1     Running            6 (20m ago)    42d   app=app-demo,pod-template-hash=bd4cdb4c6
+app-demo-bd4cdb4c6-g8jh5            1/1     Running            6 (20m ago)    42d   app=app-demo,pod-template-hash=bd4cdb4c6
+app-demo-bd4cdb4c6-znd8w            1/1     Running            6 (20m ago)    42d   app=app-demo,pod-template-hash=bd4cdb4c6
+app-probes-748c6b5758-4gnx8         0/1     Running            5 (20m ago)    41d   app=app-probes,pod-template-hash=748c6b5758
+app-probes-bb4b56bdf-q2zgl          1/1     Running            5 (20m ago)    41d   app=app-probes,pod-template-hash=bb4b56bdf
+nginx-deployment-7c79c4bf97-dmqbg   1/1     Running            6 (20m ago)    42d   app=frontend,pod-template-hash=7c79c4bf97
+nginx-deployment-7c79c4bf97-jhclh   1/1     Running            6 (20m ago)    42d   app=nginx,pod-template-hash=7c79c4bf97
+nginx-deployment-7c79c4bf97-s95ss   1/1     Running            0              11s   app=nginx,pod-template-hash=7c79c4bf97
+resource-demo-647b7bc4c5-crwm7      1/1     Running            20 (20m ago)   42d   app=resource-demo,pod-template-hash=647b7bc4c5
+rolling-demo-5cd5549bdb-g89rp       1/1     Running            4 (20m ago)    27d   app=rolling-demo,pod-template-hash=5cd5549bdb
+sample-app-8446c7c678-h8fv8         1/1     Running            0              4s    app=sample-app,pod-template-hash=8446c7c678
+sample-app-8446c7c678-hsxrh         1/1     Running            4 (20m ago)    27d   app=backend,pod-template-hash=8446c7c678
+sample-app-8446c7c678-x8w5c         1/1     Running            4 (20m ago)    27d   app=sample-app,pod-template-hash=8446c7c678
+secret-test-pod                     1/1     Running            6 (20m ago)    12d   <none>
+secret-volume-pod                   1/1     Running            5 (20m ago)    12d   <none>
+sidecar-demo                        2/2     Running            8 (20m ago)    27d   <none>
+test-sa-pod                         1/1     Running            0              13m   <none>
+trivy-scan-8d6lk                    0/1     ImagePullBackOff   0              14d   batch.kubernetes.io/controller-uid=d8c867a6-6087-44a2-95cf-727e45aaeb08,batch.kubernetes.io/job-name=trivy-scan,controller-uid=d8c867a6-6087-44a2-95cf-727e45aaeb08,job-name=trivy-scan
+validated-app-ffcf474c6-2cst6       1/1     Running            2 (20m ago)    14d   app=validated-app,pod-template-hash=ffcf474c6
+PS C:\Users\jeric> kubectl exec -it nginx-deployment-7c79c4bf97-dmqbg -n dev -- sh
+# wget -q0- http://<backend-up>:80
+sh: 1: cannot open backend-up: No such file
+# wget -q0- https://10.244.0.21:80
+sh: 2: wget: not found
+# wget -qO- https://10.244.0.21:80
+sh: 3: wget: not found
+# wget -qO http://10.244.0.21:80
+sh: 4: wget: not found
+# whet -qO- http://10.244.0.21:80
+sh: 5: whet: not found
+# wget -qO- http://10.244.0.21:80
+sh: 6: wget: not found
+# wget -q0- http://12.244.0.21:80
+sh: 7: wget: not found
+# ^M
+: not found
+# curl http://10.244.0.21:80
+
+NAME                                READY   STATUS    RESTARTS      AGE   LABELS
+nginx-deployment-7c79c4bf97-dmqbg   1/1     Running   6 (26m ago)   42d   app=frontend,pod-template-hash=7c79c4bf97
+PS C:\Users\jeric>
+
+
+# curl http://10.244.0.21:80
+curl: (28) Failed to connect to 10.244.0.21 port 80 after 143877 ms: Could not connect to server
+#
+
+
+
+
