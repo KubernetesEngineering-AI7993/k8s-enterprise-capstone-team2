@@ -6,7 +6,7 @@ metadata:
 spec:
   project: warehouse-cv
   source:
-    repoURL: https://github.com/example-org/k8s-enterprise-capstone-team2.git
+    repoURL: https://github.com/KubernetesEngineering-AI7993/k8s-enterprise-capstone-team2.git
     targetRevision: mlops
     path: k8s/overlays/dev
   destination:
