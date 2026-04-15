@@ -11,24 +11,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-intake-to-inference
-  namespace: warehouse-cv
-spec:
-  podSelector:
-    matchLabels:
-      app: cv-inference
-  policyTypes:
-    - Ingress
-  ingress:
-    - from:
-        - podSelector:
-            matchLabels:
-              app: footage-intake
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-ingress-nginx-to-intake
+  name: allow-intake-ingress
   namespace: warehouse-cv
 spec:
   podSelector:
@@ -41,11 +24,19 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: ingress-nginx
+    - from:
+        - podSelector:
+            matchLabels:
+              app: cv-inference
+    - from:
+        - podSelector:
+            matchLabels:
+              app: results-dashboard
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-ingress-nginx-to-inference
+  name: allow-inference-ingress
   namespace: warehouse-cv
 spec:
   podSelector:
@@ -58,6 +49,10 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: ingress-nginx
+    - from:
+        - podSelector:
+            matchLabels:
+              app: results-dashboard
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

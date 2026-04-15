@@ -1,13 +1,14 @@
 from flask import Flask, jsonify, Response
 import requests as req
-import json
+import os
 import time
 import random
 
 app = Flask(__name__)
 
-INTAKE_URL = "http://intake-service:5000"
-DETECTION_URL = "http://detection-service:5001"
+# Defaults match k8s Service names and ports (intake-svc:8081, inference-svc:8082).
+INTAKE_URL = os.environ.get("INTAKE_URL", "http://intake-svc:8081")
+DETECTION_URL = os.environ.get("DETECTION_URL", "http://inference-svc:8082")
 
 @app.route("/")
 def home():

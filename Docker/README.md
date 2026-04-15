@@ -22,6 +22,20 @@ Trained YOLOv8n-seg model weights (~6MB). This IS included in the repo, no extra
 
 ## Build Commands
 
+From the repo root (or `Docker/`), run:
+
+```bash
+./Docker/build-images.sh
+```
+
+After the kind cluster exists (e.g. from `scripts/cluster-setup.sh`), load images into it:
+
+```bash
+./Docker/build-images.sh --load-kind
+```
+
+Equivalent manual `docker build` lines:
+
 ```powershell
 docker build -t intake-service:v6 ./intake-service
 docker build -t detection-service:v1 ./detection-service
@@ -33,23 +47,29 @@ docker build -t dashboard:v4 ./dashboard
 ### detection-service
 | Variable | Default | Description |
 |---|---|---|
-| INTAKE_URL | http://intake-service:5000 | URL of the intake service |
+| INTAKE_URL | http://intake-svc:8081 | URL of the intake **Kubernetes Service** (matches `k8s/base/platform.yaml`) |
 | MODEL_PATH | best.pt | Path to YOLO weights inside container |
 | CONFIDENCE_THRESHOLD | 0.25 | Minimum confidence for detections |
 
 ### dashboard
-Hardcoded to `http://intake-service:5000` and `http://detection-service:5001` in app.py.
-If using different internal hostnames, let Drew know and he'll refactor to env vars.
+| Variable | Default | Description |
+|---|---|---|
+| INTAKE_URL | http://intake-svc:8081 | Intake service URL |
+| DETECTION_URL | http://inference-svc:8082 | Detection service URL |
+
+Override via env when not using the repo’s Kubernetes Service names/ports.
 
 ### intake-service
 No configuration needed.
 
 ## Inter-Service Communication
 
+Container ports remain 5000 / 5001 / 3000. In Kubernetes, Services expose **8081 / 8082 / 8080** and forward to those ports (`intake-svc`, `inference-svc`, `dashboard-svc` in `k8s/base/platform.yaml`).
+
 ```
-dashboard:3000 ----> intake-service:5000/stream    (proxies MJPEG to browser)
-dashboard:3000 ----> detection-service:5001/detect  (POST, gets JSON detections)
-detection-service:5001 ----> intake-service:5000/frame  (GET, fetches single JPEG)
+dashboard (pod :3000) ----> http://intake-svc:8081/stream     (proxies MJPEG to browser)
+dashboard (pod :3000) ----> http://inference-svc:8082/detect  (POST, JSON detections)
+detection (pod :5001) ----> http://intake-svc:8081/frame      (GET, single JPEG)
 ```
 
 ## Resource Requirements

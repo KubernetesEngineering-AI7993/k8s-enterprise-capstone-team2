@@ -8,7 +8,7 @@ import os
 app = Flask(__name__)
 
 # --- Config ---
-INTAKE_URL = os.environ.get("INTAKE_URL", "http://intake-service:5000")
+INTAKE_URL = os.environ.get("INTAKE_URL", "http://intake-svc:8081")
 MODEL_PATH = os.environ.get("MODEL_PATH", "best.pt")
 CONFIDENCE_THRESHOLD = float(os.environ.get("CONFIDENCE_THRESHOLD", "0.25"))
 
