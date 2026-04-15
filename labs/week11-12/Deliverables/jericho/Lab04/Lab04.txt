@@ -1,0 +1,105 @@
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Try the new cross-platform PowerShell https://aka.ms/pscore6
+
+PS C:\Users\jeric> kubectl run cpu-stress --image=busybox --restart=Never -- sh -c "while true; do :; done"
+pod/cpu-stress created
+PS C:\Users\jeric> kubectl top pods
+error: Metrics not available for pod dev/app-demo-bd4cdb4c6-2tb6g, age: 1017h13m26.1748701s
+PS C:\Users\jeric> kubectl get deployment metrics-server -n kube-system
+NAME             READY   UP-TO-DATE   AVAILABLE   AGE
+metrics-server   1/1     1            1           61d
+PS C:\Users\jeric> kubectl top nodes
+error: metrics not available yet
+PS C:\Users\jeric> kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+serviceaccount/metrics-server unchanged
+clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader unchanged
+clusterrole.rbac.authorization.k8s.io/system:metrics-server unchanged
+rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader unchanged
+clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator unchanged
+clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server unchanged
+service/metrics-server unchanged
+deployment.apps/metrics-server configured
+apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io unchanged
+PS C:\Users\jeric> kubectl rollout restart deployment metrics-server -n kube-system
+deployment.apps/metrics-server restarted
+PS C:\Users\jeric> kubectl top pods
+NAME                                CPU(cores)   MEMORY(bytes)
+app-demo-bd4cdb4c6-2tb6g            0m           10Mi
+app-demo-bd4cdb4c6-6vltv            0m           12Mi
+app-demo-bd4cdb4c6-g8jh5            0m           11Mi
+app-demo-bd4cdb4c6-znd8w            0m           10Mi
+app-probes-748c6b5758-4gnx8         1m           11Mi
+app-probes-bb4b56bdf-q2zgl          1m           12Mi
+cpu-stress                          1088m        0Mi
+nginx-deployment-7c79c4bf97-dmqbg   0m           11Mi
+nginx-deployment-7c79c4bf97-jhclh   0m           10Mi
+nginx-deployment-7c79c4bf97-s95ss   0m           10Mi
+resource-demo-647b7bc4c5-crwm7      0m           2Mi
+rolling-demo-5cd5549bdb-g89rp       0m           13Mi
+sample-app-8446c7c678-h8fv8         0m           10Mi
+sample-app-8446c7c678-hsxrh         0m           10Mi
+sample-app-8446c7c678-wjmvz         0m           10Mi
+sample-app-8446c7c678-x8w5c         0m           10Mi
+sample-app-8446c7c678-xmsvc         0m           10Mi
+secret-test-pod                     0m           0Mi
+secret-volume-pod                   0m           0Mi
+sidecar-demo                        1m           10Mi
+test-sa-pod                         0m           0Mi
+validated-app-ffcf474c6-2cst6       0m           10Mi
+PS C:\Users\jeric> kubectl top pods --sort-by=cpu
+NAME                                CPU(cores)   MEMORY(bytes)
+cpu-stress                          957m         0Mi
+app-probes-748c6b5758-4gnx8         1m           11Mi
+sidecar-demo                        1m           10Mi
+app-probes-bb4b56bdf-q2zgl          1m           12Mi
+resource-demo-647b7bc4c5-crwm7      0m           2Mi
+sample-app-8446c7c678-hsxrh         0m           10Mi
+app-demo-bd4cdb4c6-g8jh5            0m           11Mi
+nginx-deployment-7c79c4bf97-dmqbg   0m           11Mi
+nginx-deployment-7c79c4bf97-jhclh   0m           10Mi
+nginx-deployment-7c79c4bf97-s95ss   0m           10Mi
+app-demo-bd4cdb4c6-2tb6g            0m           10Mi
+rolling-demo-5cd5549bdb-g89rp       0m           13Mi
+sample-app-8446c7c678-h8fv8         0m           10Mi
+app-demo-bd4cdb4c6-znd8w            0m           10Mi
+sample-app-8446c7c678-wjmvz         0m           10Mi
+sample-app-8446c7c678-x8w5c         0m           10Mi
+sample-app-8446c7c678-xmsvc         0m           10Mi
+secret-test-pod                     0m           0Mi
+secret-volume-pod                   0m           0Mi
+app-demo-bd4cdb4c6-6vltv            0m           12Mi
+test-sa-pod                         0m           0Mi
+validated-app-ffcf474c6-2cst6       0m           10Mi
+PS C:\Users\jeric> kubectl delete pod cpu-stress
+pod "cpu-stress" deleted from dev namespace
+
+PS C:\Users\jeric> kubectl top pods
+NAME                                CPU(cores)   MEMORY(bytes)
+app-demo-bd4cdb4c6-2tb6g            0m           10Mi
+app-demo-bd4cdb4c6-6vltv            0m           12Mi
+app-demo-bd4cdb4c6-g8jh5            0m           11Mi
+app-demo-bd4cdb4c6-znd8w            0m           10Mi
+app-probes-748c6b5758-4gnx8         1m           11Mi
+app-probes-bb4b56bdf-q2zgl          1m           12Mi
+cpu-stress                          957m         0Mi
+nginx-deployment-7c79c4bf97-dmqbg   0m           11Mi
+nginx-deployment-7c79c4bf97-jhclh   0m           10Mi
+nginx-deployment-7c79c4bf97-s95ss   0m           10Mi
+resource-demo-647b7bc4c5-crwm7      0m           2Mi
+rolling-demo-5cd5549bdb-g89rp       0m           13Mi
+sample-app-8446c7c678-h8fv8         0m           10Mi
+sample-app-8446c7c678-hsxrh         0m           10Mi
+sample-app-8446c7c678-wjmvz         0m           10Mi
+sample-app-8446c7c678-x8w5c         0m           10Mi
+sample-app-8446c7c678-xmsvc         0m           10Mi
+secret-test-pod                     0m           0Mi
+secret-volume-pod                   0m           0Mi
+sidecar-demo                        2m           10Mi
+test-sa-pod                         0m           0Mi
+validated-app-ffcf474c6-2cst6       0m           10Mi
+PS C:\Users\jeric>
+
+
+
