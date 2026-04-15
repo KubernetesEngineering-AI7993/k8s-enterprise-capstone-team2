@@ -1,0 +1,190 @@
+=== Week11-12 Labs Runner ===
+Base directory: /home/kube/11-12
+Cluster name:   week11-12-labs
+Kind config:    /home/kube/11-12/kind-cluster.yaml
+Lab timeout:    1200s each
+Log file:       /home/kube/11-12/output/all-labs-20260415-041136.txt
+
+Kind cluster 'week11-12-labs' already exists. Reusing it.
+Using kubectl context: kind-week11-12-labs
+
+----- START LAB01 -----
+=== Lab 01 - RBAC & ServiceAccounts ===
+Applying namespace and Frigate stack manifests...
+namespace/dev unchanged
+persistentvolumeclaim/frigate-config-pvc unchanged
+deployment.apps/frigate unchanged
+service/frigate unchanged
+ingress.networking.k8s.io/frigate unchanged
+Applying ServiceAccount + Role + RoleBinding...
+serviceaccount/readonly-app-sa unchanged
+role.rbac.authorization.k8s.io/pod-readonly unchanged
+rolebinding.rbac.authorization.k8s.io/pod-readonly-binding unchanged
+Installing/ensuring nginx ingress controller...
+Release "ingress-nginx" has been upgraded. Happy Helming!
+NAME: ingress-nginx
+LAST DEPLOYED: Wed Apr 15 04:11:37 2026
+NAMESPACE: ingress-nginx
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+NOTES:
+The ingress-nginx controller has been installed.
+Get the application URL by running these commands:
+  export HTTP_NODE_PORT=30080
+  export HTTPS_NODE_PORT=30443
+  export NODE_IP="$(kubectl get nodes --output jsonpath="{.items[0].status.addresses[1].address}")"
+
+  echo "Visit http://${NODE_IP}:${HTTP_NODE_PORT} to access your application via HTTP."
+  echo "Visit https://${NODE_IP}:${HTTPS_NODE_PORT} to access your application via HTTPS."
+
+An example Ingress that makes use of the controller:
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: example
+    namespace: foo
+  spec:
+    ingressClassName: nginx
+    rules:
+      - host: www.example.com
+        http:
+          paths:
+            - pathType: Prefix
+              backend:
+                service:
+                  name: exampleService
+                  port:
+                    number: 80
+              path: /
+    # This section is only required if TLS is to be enabled for the Ingress
+    tls:
+      - hosts:
+        - www.example.com
+        secretName: example-tls
+
+If TLS is enabled for the Ingress, a Secret containing the certificate and key must also be provided:
+
+  apiVersion: v1
+  kind: Secret
+  metadata:
+    name: example-tls
+    namespace: foo
+  data:
+    tls.crt: <base64 encoded cert>
+    tls.key: <base64 encoded key>
+  type: kubernetes.io/tls
+Waiting for Frigate deployment rollout (will stay pending if no GPU=true node exists)...
+deployment "frigate" successfully rolled out
+RBAC verification checks...
+Can readonly-app-sa list pods?
+yes
+Can readonly-app-sa delete pods? (should be no)
+no
+Current resources:
+NAME                            READY   STATUS    RESTARTS   AGE
+pod/backend-7c7df7c6fb-dltw8    1/1     Running   0          5m27s
+pod/frigate-549c7864bb-xn5s8    1/1     Running   0          6m27s
+pod/frontend-6d69f9df74-9b94f   1/1     Running   0          5m27s
+pod/intruder-558b4c8597-9zq6q   1/1     Running   0          5m27s
+
+NAME              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/backend   ClusterIP   10.96.243.115   <none>        8080/TCP   5m27s
+service/frigate   ClusterIP   10.96.222.77    <none>        80/TCP     6m27s
+
+NAME                                CLASS   HOSTS          ADDRESS       PORTS   AGE
+ingress.networking.k8s.io/frigate   nginx   nvr.internal   10.96.22.96   80      6m27s
+
+If Frigate is pending, label at least one node with:
+  kubectl label node <node-name> GPU=true
+
+Then re-check:
+  kubectl get pods -n dev -o wide
+
+To reach the UI locally from any device on your LAN:
+  curl http://<k8s-node-ip>:30080
+
+Optional host-based access:
+  echo "<k8s-node-ip> nvr.internal" | sudo tee -a /etc/hosts
+  curl -H "Host: nvr.internal" http://<k8s-node-ip>:30080
+----- END LAB01 (success) -----
+
+----- START LAB02 -----
+=== Lab 02 - NetworkPolicies ===
+Applying test workloads...
+namespace/dev unchanged
+namespace/qa unchanged
+deployment.apps/backend unchanged
+service/backend unchanged
+deployment.apps/frontend unchanged
+deployment.apps/intruder unchanged
+deployment.apps/qa-client unchanged
+Waiting for test pods to become ready...
+deployment.apps/backend condition met
+deployment.apps/frontend condition met
+deployment.apps/intruder condition met
+deployment.apps/qa-client condition met
+Applying default deny policy...
+networkpolicy.networking.k8s.io/default-deny-all unchanged
+Applying policy to allow frontend -> backend:8080...
+networkpolicy.networking.k8s.io/allow-frontend-to-backend-8080 unchanged
+networkpolicy.networking.k8s.io/allow-frontend-egress-to-backend unchanged
+networkpolicy.networking.k8s.io/allow-dns-egress unchanged
+=== Connectivity checks ===
+1) frontend (allowed): expected HTTP 200
+200
+2) intruder (blocked): expected timeout/non-200
+000
+curl: (28) Connection timed out after 5002 milliseconds
+3) qa namespace client (blocked): expected timeout/non-200
+000
+curl: (28) Connection timed out after 5002 milliseconds
+Current network policies in dev:
+NAME                               POD-SELECTOR   AGE
+allow-dns-egress                   <none>         5m34s
+allow-frontend-egress-to-backend   app=frontend   5m34s
+allow-frontend-to-backend-8080     app=backend    5m34s
+default-deny-all                   <none>         5m34s
+----- END LAB02 (success) -----
+
+----- START LAB03 -----
+=== Lab 03 - Pod Security Standards ===
+Creating namespace and enforcing restricted Pod Security profile...
+namespace/pss-lab not labeled
+Attempting to create non-compliant Pod (expected rejection)...
+Error from server (Forbidden): error when creating "/home/kube/11-12/lab03/non-compliant-pod.yaml": pods "insecure-pod" is forbidden: violates PodSecurity "restricted:latest": host namespaces (hostPID=true), privileged (container "insecure" must not set securityContext.privileged=true), allowPrivilegeEscalation != false (container "insecure" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "insecure" must set securityContext.capabilities.drop=["ALL"]), restricted volume types (volume "host-root" uses restricted volume type "hostPath"), runAsNonRoot != true (pod or container "insecure" must set securityContext.runAsNonRoot=true), runAsUser=0 (container "insecure" must not set runAsUser=0), seccompProfile (pod or container "insecure" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+Creating compliant restricted Pod...
+pod/restricted-pod unchanged
+pod/restricted-pod condition met
+Current pods in pss-lab:
+NAME             READY   STATUS    RESTARTS   AGE     IP           NODE                     NOMINATED NODE   READINESS GATES
+restricted-pod   1/1     Running   0          5m24s   10.244.2.6   week11-12-labs-worker2   <none>           <none>
+----- END LAB03 (success) -----
+
+----- START LAB04 -----
+=== Lab 04 - Observability & Incident Simulation ===
+Applying observability lab workload...
+namespace/observability-lab unchanged
+deployment.apps/podinfo unchanged
+service/podinfo unchanged
+deployment.apps/cpu-burner unchanged
+Waiting for podinfo deployment...
+deployment.apps/podinfo condition met
+Smoke test podinfo endpoint...
+Error from server (AlreadyExists): pods "curl-check" already exists
+
+Triggering incident: scale cpu-burner to 2 replicas...
+deployment.apps/cpu-burner scaled
+error: timed out waiting for the condition on deployments/cpu-burner
+
+Next steps:
+1) Ensure your Prometheus stack includes the scrape values from:
+   prometheus-scrape-config.yaml
+2) Import grafana-dashboard.json in Grafana.
+3) Observe CPU spike for pods in namespace observability-lab.
+4) Resolve incident:
+   kubectl scale deployment/cpu-burner -n observability-lab --replicas=0
+----- END LAB04 (success) -----
+
+All labs completed successfully.
+Output captured in: /home/kube/11-12/output/all-labs-20260415-041136.txt

@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability-lab
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: podinfo
+  namespace: observability-lab
+  labels:
+    app: podinfo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: podinfo
+  template:
+    metadata:
+      labels:
+        app: podinfo
+    spec:
+      containers:
+      - name: podinfo
+        image: ghcr.io/stefanprodan/podinfo:6.6.3
+        ports:
+        - containerPort: 9898
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 300m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: podinfo
+  namespace: observability-lab
+  labels:
+    app: podinfo
+spec:
+  selector:
+    app: podinfo
+  ports:
+  - name: http
+    port: 9898
+    targetPort: 9898
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpu-burner
+  namespace: observability-lab
+  labels:
+    app: cpu-burner
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: cpu-burner
+  template:
+    metadata:
+      labels:
+        app: cpu-burner
+    spec:
+      containers:
+      - name: stress
+        image: polinux/stress:latest
+        args: ["--cpu", "2", "--timeout", "600s"]
+        resources:
+          requests:
+            cpu: 700m
+            memory: 64Mi
+          limits:
+            cpu: "1"
+            memory: 128Mi
