@@ -1,0 +1,119 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: qa
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: dev
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: hashicorp/http-echo:1.0.0
+        args:
+        - "-text=hello-from-backend"
+        - "-listen=:8080"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: dev
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: dev
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: curl
+        image: curlimages/curl:8.7.1
+        command: ["/bin/sh", "-c"]
+        args:
+        - "sleep 36000"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: intruder
+  namespace: dev
+  labels:
+    app: intruder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: intruder
+  template:
+    metadata:
+      labels:
+        app: intruder
+    spec:
+      containers:
+      - name: curl
+        image: curlimages/curl:8.7.1
+        command: ["/bin/sh", "-c"]
+        args:
+        - "sleep 36000"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qa-client
+  namespace: qa
+  labels:
+    app: qa-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qa-client
+  template:
+    metadata:
+      labels:
+        app: qa-client
+    spec:
+      containers:
+      - name: curl
+        image: curlimages/curl:8.7.1
+        command: ["/bin/sh", "-c"]
+        args:
+        - "sleep 36000"

@@ -30,7 +30,7 @@ echo "RBAC verification checks..."
 echo "Can readonly-app-sa list pods?"
 kubectl auth can-i list pods -n "$NAMESPACE" --as "system:serviceaccount:$NAMESPACE:readonly-app-sa"
 echo "Can readonly-app-sa delete pods? (should be no)"
-kubectl auth can-i delete pods -n "$NAMESPACE" --as "system:serviceaccount:$NAMESPACE:readonly-app-sa"
+kubectl auth can-i delete pods -n "$NAMESPACE" --as "system:serviceaccount:$NAMESPACE:readonly-app-sa" || true
 
 echo "Current resources:"
 kubectl get pods,svc,ingress -n "$NAMESPACE"

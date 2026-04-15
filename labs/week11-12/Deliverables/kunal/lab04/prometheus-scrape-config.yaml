@@ -1,0 +1,14 @@
+# values snippet for kube-prometheus-stack Helm chart
+# usage:
+# helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+#   -n monitoring --create-namespace \
+#   -f prometheus-scrape-config.yaml
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+    - job_name: podinfo
+      metrics_path: /metrics
+      scrape_interval: 15s
+      static_configs:
+      - targets:
+        - podinfo.observability-lab.svc.cluster.local:9898
