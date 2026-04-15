@@ -242,8 +242,8 @@ apply_system_ingress() {
 
 # ─── 9. Wait for Argo CD sync ────────────────────────────────────────────────
 wait_for_sync() {
-  info "Waiting for Argo CD to sync warehouse-cv-dev (up to 5 min)..."
-  local timeout_seconds=300
+  info "Waiting for Argo CD to sync warehouse-cv-dev (up to 30 sec)..."
+  local timeout_seconds=30
   local poll_seconds=5
   local elapsed=0
 
