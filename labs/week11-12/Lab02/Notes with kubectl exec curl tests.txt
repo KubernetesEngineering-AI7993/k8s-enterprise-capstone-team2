@@ -1,5 +1,0 @@
-The initial Pod configuration was insecure because it allowed privileged execution, root access, and host filesystem mounting. These settings could allow container escape and full node compromise.
-
-The revised Pod applies a restricted security posture by disabling privileged mode, enforcing non-root execution, dropping all Linux capabilities, and preventing privilege escalation. Additionally, resource limits were added to reduce potential abuse.
-
-These changes significantly reduce the attack surface and align the Pod with Kubernetes security best practices.

@@ -1,9 +1,0 @@
-The Role allows only get and list actions on Pods, which are read-only operations.
-
-No permissions are granted for modifying resources (such as create, update, patch, or delete), preventing unintended or malicious changes.
-
-Access is restricted to the dev namespace, ensuring the ServiceAccount cannot interact with resources in other namespaces.
-
-The permissions are assigned to a dedicated ServiceAccount (readonly-sa), rather than broadly to users or groups, limiting the scope of access.
-
-A Role is used instead of a ClusterRole, ensuring permissions are namespace-scoped and reducing the potential impact if the account is compromised.
