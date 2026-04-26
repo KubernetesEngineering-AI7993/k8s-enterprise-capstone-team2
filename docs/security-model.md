@@ -1,50 +1,78 @@
-# Kubernetes Enterprise Capstone - Security Model
+# Security Model
 
-## Security Objectives
+This file describes the controls currently present in the repo and the most important remaining gaps.
 
-- Enforce least privilege access between workloads and operators.
-- Restrict pod-level privilege escalation and unsafe defaults.
-- Limit east-west network communication to required paths.
-- Support GitOps-based change control for security-sensitive manifests.
+## Identity and RBAC
 
-## Identity and Access Controls
+Implemented:
 
-- Each workload has a dedicated ServiceAccount:
+- Dedicated service accounts in `warehouse-cv`:
   - `trainer-sa`
   - `intake-sa`
   - `inference-sa`
   - `dashboard-sa`
-- A namespace-scoped `Role` + `RoleBinding` grants `dashboard-sa` read-only access to discover local services/pods/configmaps.
-- No broad cluster-admin role assignments are included in application manifests.
+- Namespace-scoped read-only RBAC for dashboard (`pods`, `services`, `endpoints`, `configmaps` via Role + RoleBinding).
 
-## Pod Security Standards
+Gaps:
 
-- Namespace labels enforce `restricted` Pod Security admission profile in the dev overlay.
-- Pods use `securityContext` with:
-  - `runAsNonRoot: true`
-  - explicit `runAsUser`
-  - `seccompProfile: RuntimeDefault`
-- Containers drop all Linux capabilities and disable privilege escalation.
+- Argo CD AppProject currently allows wildcard cluster and namespace resources (`*/*`), which is broader than least privilege.
+
+## Pod Security
+
+Implemented:
+
+- Dev overlay enforces Pod Security labels (`restricted`) on namespace `warehouse-cv`.
+- Workloads set `runAsNonRoot`, explicit `runAsUser`, and `seccompProfile: RuntimeDefault`.
+- Containers disable privilege escalation and drop all capabilities.
+
+Notes:
+
+- `readOnlyRootFilesystem` is currently `false` for containers.
 
 ## Network Security
 
-- Default deny ingress policy applies to all pods.
-- Explicit allow policies are defined for:
-  - `footage-intake` -> `cv-inference`
-  - ingress controller namespace -> `results-dashboard`
-- This model gives a secure default while preserving required traffic paths.
+Implemented in `k8s/overlays/dev/network-policies.yaml`:
 
-## Secret and Data Handling
+- default deny ingress for all pods
+- explicit ingress allows:
+  - ingress-nginx -> `footage-intake`
+  - `cv-inference` -> `footage-intake`
+  - `results-dashboard` -> `footage-intake`
+  - ingress-nginx -> `cv-inference`
+  - `results-dashboard` -> `cv-inference`
+  - ingress-nginx -> `results-dashboard`
 
-- Sensitive values are isolated in Kubernetes `Secret` objects.
-- Model artifacts are stored in a dedicated PVC and should be migrated to object storage in production.
-- The next iteration should integrate sealed secrets or external secret manager support.
+Effect:
 
-## Supply Chain and Pipeline Controls
+- East-west and north-south traffic is explicit instead of open by default.
 
-- CI validates YAML structure and renders Helm + Kustomize output before merge.
-- ArgoCD continuously reconciles desired state and self-heals drift.
-- Recommended near-term additions:
-  - image signing and provenance checks
-  - vulnerability scanning (Trivy)
-  - policy-as-code checks (Kyverno/Gatekeeper)
+## Secrets and Sensitive Configuration
+
+Implemented:
+
+- Credentials delivered through `SealedSecret` (`k8s/base/sealed-secret.yaml`) into secret `warehouse-cv-secret`.
+- `model-finetune` consumes config and secret via `envFrom`.
+
+Operational note:
+
+- `scripts/cluster-setup.sh` still contains placeholder-detection logic that checks for a sentinel string not present in the current sealed file.
+
+## Change Control and Drift Protection
+
+Implemented:
+
+- CI (`.github/workflows/capstone-platform-ci.yaml`) validates YAML and rendered manifests.
+- Argo CD applications auto-sync, prune, and self-heal from Git.
+
+Gaps:
+
+- No image scanning or signing enforcement in pipeline.
+- No policy-as-code admission checks (Kyverno/Gatekeeper/OPA) in this repo.
+- No explicit secret rotation runbook beyond resealing and committing updated values.
+
+## Current Security Priorities
+
+1. Tighten Argo CD project permissions (source repos, resource whitelists).
+2. Add image vulnerability scanning to CI.
+3. Add policy checks for pod hardening and namespace constraints.
+4. Add service-level metrics and alerts for security-relevant failures.

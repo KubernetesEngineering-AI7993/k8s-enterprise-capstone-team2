@@ -1,40 +1,74 @@
-# Kubernetes Enterprise Capstone - Warehouse CV Architecture
+# Warehouse CV Environment Architecture
 
-## Goal
+This document describes what is currently implemented in the repository.
 
-Run live warehouse object detection on Kubernetes with strong alignment to CKA, CKAD, and CKS practices
-## Workload Topology
+## System Overview
 
-- **Model training/fine-tune**: `CronJob` scheduled nightly on GPU nodes; writes model artifacts to a shared PVC.
-- **Footage intake**: `Deployment` for ingesting camera stream metadata and forwarding events to inference.
-- **CV inference/tracking**: `Deployment` on GPU nodes for detection/tracking processing.
-- **Results dashboard**: `Deployment` on standard nodes for visualization and operator workflows.
-- **Ingress**: NGINX Ingress routes traffic to dashboard service.
+The platform runs a warehouse computer-vision pipeline in Kubernetes using three live Flask services plus one scheduled training job:
 
-## Scheduling and Capacity Design
+- `footage-intake`: serves camera data from local images (`/stream`, `/frame`, `/health`)
+- `cv-inference`: fetches frames and runs YOLO detection (`/detect`, `/health`)
+- `results-dashboard`: web UI and API proxy (`/`, `/proxy/stream`, `/api/health`, `/api/detect`, `/health`)
+- `model-finetune`: nightly CronJob placeholder for training/fine-tuning
 
-- GPU workloads (`model-finetune`, `cv-inference`) use:
-  - `nodeSelector: node-type=gpu`
-  - `tolerations` for tainted GPU nodes
-  - `nvidia.com/gpu` requests/limits
-- Non-GPU workloads (`footage-intake`, `results-dashboard`) use standard node pools with smaller resource requests.
-- HPA is enabled for intake and dashboard to absorb workload spikes.
+## Runtime Flow
 
-## Configuration and Release Design
+1. Browser opens `results-dashboard`.
+2. Dashboard proxies video from `footage-intake` (`/proxy/stream` -> `/stream`).
+3. Dashboard requests detections from `cv-inference` (`/api/detect` -> `/detect`).
+4. Inference pulls a frame from intake (`/frame`), runs YOLO, returns JSON detections.
 
-- Runtime configuration is centralized with:
-  - `ConfigMap`: deployment mode, footage source URI, model registry URI, results store URI
-  - `Secret`: object storage credentials placeholder
-- Delivery models:
-  - `k8s/base` + `k8s/overlays/dev` for Kustomize-based GitOps
-  - `helm/warehouse-cv` as chart foundation for environment-specific values
-- ArgoCD definitions live in `gitops/argocd` and point at `k8s/overlays/dev`.
+## Kubernetes Layout
 
-## Repository Implementation Map
+### Namespace
 
-- `k8s/`: core platform resources, overlays, security policies
-- `gitops/`: ArgoCD project/application manifests
-- `helm/`: reusable chart for placeholder platform
-- `ci/`: YAML + Helm + Kustomize validation pipeline
-- `monitoring/`: ServiceMonitor and Grafana dashboard-as-code
-- `services/`: placeholder interfaces/contracts for teammate-owned app containers
+- Application namespace: `warehouse-cv`
+- Monitoring namespace: `monitoring`
+- Argo CD namespace: `argocd`
+
+### Base Resources (`k8s/base`)
+
+- Namespace: `namespace.yaml`
+- Shared platform objects: `shared.yaml`
+  - `warehouse-cv-config` ConfigMap
+  - `model-artifacts-pvc` PVC
+  - service accounts (`trainer-sa`, `intake-sa`, `inference-sa`, `dashboard-sa`)
+  - dashboard read-only Role + RoleBinding
+- Workloads:
+  - `footage-intake.yaml` (Deployment, Service, HPA)
+  - `cv-inference.yaml` (Deployment, Service)
+  - `results-dashboard.yaml` (Deployment, Service, HPA)
+  - `model-training.yaml` (CronJob)
+- Traffic entry: `ingress.yaml`
+- Secret source: `sealed-secret.yaml` (SealedSecret)
+
+### Dev Overlay (`k8s/overlays/dev`)
+
+- Includes base resources.
+- Adds ingress-focused NetworkPolicies.
+- Adds namespace pod-security labels (`restricted`).
+- Patches all Deployments to `replicas: 1` for dev.
+
+### Add-ons Overlay (`k8s/overlays/addons-dev`)
+
+- Creates `monitoring` namespace.
+- Applies `k8s/system-ingress.yaml` for Argo CD / Prometheus / Grafana hosts.
+- Applies monitoring objects:
+  - `monitoring/prometheus/servicemonitor.yaml`
+  - `monitoring/grafana/warehouse-cv-overview-dashboard-configmap.yaml`
+
+## GitOps and Delivery
+
+- Argo CD project: `gitops/argocd/warehouse-cv-project.yaml`
+- Argo CD apps:
+  - `warehouse-cv-dev` -> `k8s/overlays/dev`
+  - `warehouse-cv-addons-dev` -> `k8s/overlays/addons-dev`
+- Both apps use automated sync with prune and self-heal.
+- CI workflow (`.github/workflows/capstone-platform-ci.yaml`) validates YAML, renders kustomizations, and runs kubeconform on rendered output.
+
+## Images and Service Code
+
+- `intake-service:v6` from `Docker/intake-service`
+- `detection-service:v1` from `Docker/detection-service`
+- `dashboard:v4` from `Docker/dashboard`
+- `Docker/build-images.sh` builds these tags and can load them into kind.
