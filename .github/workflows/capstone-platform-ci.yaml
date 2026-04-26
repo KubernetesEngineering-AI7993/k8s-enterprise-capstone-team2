@@ -30,7 +30,9 @@ jobs:
         run: |
           kubectl kustomize k8s/base > /tmp/kustomize-base-rendered.yaml
           kubectl kustomize k8s/overlays/dev > /tmp/kustomize-dev-rendered.yaml
-          kubectl kustomize k8s/overlays/addons-dev > /tmp/kustomize-addons-dev-rendered.yaml
+          kubectl kustomize \
+            --load-restrictor=LoadRestrictionsNone \
+            k8s/overlays/addons-dev > /tmp/kustomize-addons-dev-rendered.yaml
 
       - name: Setup kubeconform
         run: |
