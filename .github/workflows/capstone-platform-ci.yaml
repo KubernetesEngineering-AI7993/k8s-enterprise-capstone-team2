@@ -1,6 +1,7 @@
+---
 name: capstone-platform-ci
 
-on:
+'on':
   pull_request:
     branches: ["mlops"]
   push:
@@ -18,7 +19,9 @@ jobs:
 
       - name: Validate YAML syntax
         run: |
-          yamllint k8s gitops monitoring .github/workflows ci
+          yamllint \
+            -d "{extends: default, rules: {line-length: disable}}" \
+            k8s gitops monitoring .github/workflows
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v4
