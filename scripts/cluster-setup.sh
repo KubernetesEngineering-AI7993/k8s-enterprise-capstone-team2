@@ -16,7 +16,7 @@ warn()    { echo -e "${YELLOW}[WARN]${RESET}  $*"; }
 die()     { echo -e "${RED}[ERROR]${RESET} $*" >&2; exit 1; }
 
 # ─── Configuration (override via env) ────────────────────────────────────────
-REPO_URL="${REPO_URL:-https://github.com/example-org/k8s-enterprise-capstone-team2.git}"
+REPO_URL="${REPO_URL:-https://github.com/KubernetesEngineering-AI7993/k8s-enterprise-capstone-team2.git}"
 TARGET_BRANCH="${TARGET_BRANCH:-mlops}"
 APP_NAMESPACE="${APP_NAMESPACE:-warehouse-cv}"
 ARGOCD_NAMESPACE="${ARGOCD_NAMESPACE:-argocd}"
@@ -175,10 +175,11 @@ install_argocd() {
 
 # ─── 5. Apply GitOps manifests ───────────────────────────────────────────────
 apply_gitops() {
-  info "Applying Argo CD AppProject and Application..."
+  info "Applying Argo CD AppProject and Applications..."
 
   # Patch repoURL if it still points at the example placeholder
   local app_file="${REPO_ROOT}/gitops/argocd/warehouse-cv-dev-application.yaml"
+  local addons_app_file="${REPO_ROOT}/gitops/argocd/warehouse-cv-addons-dev-application.yaml"
   if grep -q "example-org" "${app_file}"; then
     warn "repoURL in ${app_file} is still the example placeholder."
     warn "Update it to your real remote before Argo CD can pull manifests."
@@ -187,6 +188,7 @@ apply_gitops() {
 
   kubectl apply -f "${REPO_ROOT}/gitops/argocd/warehouse-cv-project.yaml"
   kubectl apply -f "${app_file}"
+  kubectl apply -f "${addons_app_file}"
   success "GitOps manifests applied. Argo CD will begin syncing."
 }
 
@@ -216,33 +218,26 @@ install_ingress_nginx() {
 # ─── 7. kube-prometheus-stack (Prometheus + Grafana) ─────────────────────────
 install_monitoring() {
   info "Installing kube-prometheus-stack (${PROM_STACK_VERSION})..."
-  kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
   helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
     --namespace monitoring \
+    --create-namespace \
     --version "${PROM_STACK_VERSION}" \
     --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false \
     --set grafana.sidecar.dashboards.enabled=true \
     --set grafana.sidecar.dashboards.searchNamespace=ALL \
     --wait
   success "kube-prometheus-stack ready."
-
-  info "Applying ServiceMonitor and Grafana dashboard..."
-  kubectl create namespace "${APP_NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f -
-  kubectl apply -f "${REPO_ROOT}/monitoring/prometheus/servicemonitor.yaml"
-  kubectl apply -f "${REPO_ROOT}/monitoring/grafana/warehouse-cv-overview-dashboard-configmap.yaml"
-  success "Monitoring resources applied."
+  info "ServiceMonitor and Grafana dashboard are managed by Argo CD addons app."
 }
 
 # ─── 8. System ingress (Argo CD + Prometheus + Grafana) ──────────────────────
 apply_system_ingress() {
-  info "Applying ingress resources for Argo CD and monitoring..."
-  kubectl apply -f "${REPO_ROOT}/k8s/system-ingress.yaml"
-  success "System ingress resources applied."
+  info "System ingress resources are managed by Argo CD addons app."
 }
 
 # ─── 9. Wait for Argo CD sync ────────────────────────────────────────────────
 wait_for_sync() {
-  info "Waiting for Argo CD to sync warehouse-cv-dev (up to 30 sec)..."
+  info "Waiting for Argo CD to sync applications (up to 30 sec)..."
   local timeout_seconds=30
   local poll_seconds=5
   local elapsed=0
@@ -250,11 +245,15 @@ wait_for_sync() {
   while (( elapsed < timeout_seconds )); do
     local sync_status
     local health_status
+    local sync_status_addons
+    local health_status_addons
     sync_status="$(kubectl -n "${ARGOCD_NAMESPACE}" get app warehouse-cv-dev -o jsonpath='{.status.sync.status}' 2>/dev/null || true)"
     health_status="$(kubectl -n "${ARGOCD_NAMESPACE}" get app warehouse-cv-dev -o jsonpath='{.status.health.status}' 2>/dev/null || true)"
+    sync_status_addons="$(kubectl -n "${ARGOCD_NAMESPACE}" get app warehouse-cv-addons-dev -o jsonpath='{.status.sync.status}' 2>/dev/null || true)"
+    health_status_addons="$(kubectl -n "${ARGOCD_NAMESPACE}" get app warehouse-cv-addons-dev -o jsonpath='{.status.health.status}' 2>/dev/null || true)"
 
-    if [[ "${sync_status}" == "Synced" && "${health_status}" == "Healthy" ]]; then
-      success "Argo CD app is Synced and Healthy."
+    if [[ "${sync_status}" == "Synced" && "${health_status}" == "Healthy" && "${sync_status_addons}" == "Synced" && "${health_status_addons}" == "Healthy" ]]; then
+      success "Argo CD applications are Synced and Healthy."
       return 0
     fi
 
@@ -264,7 +263,9 @@ wait_for_sync() {
 
   warn "Argo CD sync timed out. Check:"
   warn "  kubectl -n ${ARGOCD_NAMESPACE} get app warehouse-cv-dev"
+  warn "  kubectl -n ${ARGOCD_NAMESPACE} get app warehouse-cv-addons-dev"
   warn "  kubectl -n ${ARGOCD_NAMESPACE} describe app warehouse-cv-dev"
+  warn "  kubectl -n ${ARGOCD_NAMESPACE} describe app warehouse-cv-addons-dev"
 }
 
 # ─── 10. Summary ─────────────────────────────────────────────────────────────

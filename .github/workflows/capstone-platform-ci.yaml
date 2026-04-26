@@ -1,0 +1,100 @@
+name: capstone-platform-ci
+
+on:
+  pull_request:
+    branches: ["mlops"]
+  push:
+    branches: ["mlops"]
+
+jobs:
+  validate-manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip3 install yamllint
+
+      - name: Validate YAML syntax
+        run: |
+          yamllint k8s gitops monitoring .github/workflows ci
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Render Kustomize manifests
+        run: |
+          kubectl kustomize k8s/base > /tmp/kustomize-base-rendered.yaml
+          kubectl kustomize k8s/overlays/dev > /tmp/kustomize-dev-rendered.yaml
+          kubectl kustomize k8s/overlays/addons-dev > /tmp/kustomize-addons-dev-rendered.yaml
+
+      - name: Setup kubeconform
+        run: |
+          KUBECONFORM_VERSION=0.6.7
+          curl -sSL -o /tmp/kubeconform.tar.gz \
+            "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz"
+          tar -xzf /tmp/kubeconform.tar.gz -C /tmp kubeconform
+          chmod +x /tmp/kubeconform
+
+      - name: Validate rendered manifests with kubeconform
+        run: |
+          /tmp/kubeconform \
+            -strict \
+            -summary \
+            -ignore-missing-schemas \
+            /tmp/kustomize-base-rendered.yaml \
+            /tmp/kustomize-dev-rendered.yaml \
+            /tmp/kustomize-addons-dev-rendered.yaml
+
+      - name: Client-side kubectl parse validation
+        run: |
+          kubectl apply --dry-run=client --validate=false -f /tmp/kustomize-base-rendered.yaml
+          kubectl apply --dry-run=client --validate=false -f /tmp/kustomize-dev-rendered.yaml
+          kubectl apply --dry-run=client --validate=false -f /tmp/kustomize-addons-dev-rendered.yaml
+
+  trivy-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          severity: CRITICAL,HIGH
+
+      - name: Setup Trivy CLI
+        uses: aquasecurity/setup-trivy@v0.2.2
+
+      - name: Scan Docker base images from Dockerfiles
+        run: |
+          mapfile -t dockerfiles < <(git ls-files 'Docker/**/Dockerfile')
+          if [ "${#dockerfiles[@]}" -eq 0 ]; then
+            echo "No Dockerfiles found under Docker/"
+            exit 1
+          fi
+
+          mapfile -t base_images < <(
+            awk '
+              BEGIN { IGNORECASE=1 }
+              /^[[:space:]]*FROM[[:space:]]+/ {
+                image=$2
+                sub(/[[:space:]]+AS[[:space:]].*$/, "", image)
+                print image
+              }
+            ' "${dockerfiles[@]}" | sort -u
+          )
+
+          if [ "${#base_images[@]}" -eq 0 ]; then
+            echo "No Docker base images found under Docker/**/Dockerfile"
+            exit 1
+          fi
+
+          for image in "${base_images[@]}"; do
+            echo "Scanning base image: ${image}"
+            trivy image --severity CRITICAL,HIGH --exit-code 1 --no-progress "${image}"
+          done

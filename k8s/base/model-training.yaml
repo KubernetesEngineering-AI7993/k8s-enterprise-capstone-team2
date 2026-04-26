@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: model-finetune
+  namespace: warehouse-cv
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: model-training
+        spec:
+          serviceAccountName: trainer-sa
+          restartPolicy: Never
+          nodeSelector:
+            node-type: gpu
+          tolerations:
+            - key: "gpu"
+              operator: "Equal"
+              value: "true"
+              effect: "NoSchedule"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: trainer
+              image: ubuntu:22.04
+              envFrom:
+                - configMapRef:
+                    name: warehouse-cv-config
+                - secretRef:
+                    name: warehouse-cv-secret
+              resources:
+                requests:
+                  cpu: "500m"
+                  memory: "1Gi"
+                  nvidia.com/gpu: "1"
+                limits:
+                  cpu: "2"
+                  memory: "4Gi"
+                  nvidia.com/gpu: "1"
+              volumeMounts:
+                - name: model-artifacts
+                  mountPath: /models
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: false
+                capabilities:
+                  drop: ["ALL"]
+          volumes:
+            - name: model-artifacts
+              persistentVolumeClaim:
+                claimName: model-artifacts-pvc

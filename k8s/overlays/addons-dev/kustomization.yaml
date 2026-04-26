@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - monitoring-namespace.yaml
+  - ../../system-ingress.yaml
+  - ../../../monitoring/prometheus/servicemonitor.yaml
+  - ../../../monitoring/grafana/warehouse-cv-overview-dashboard-configmap.yaml
