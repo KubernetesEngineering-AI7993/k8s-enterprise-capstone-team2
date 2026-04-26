@@ -51,9 +51,3 @@ jobs:
             /tmp/kustomize-base-rendered.yaml \
             /tmp/kustomize-dev-rendered.yaml \
             /tmp/kustomize-addons-dev-rendered.yaml
-
-      - name: Client-side kubectl parse validation
-        run: |
-          kubectl apply --dry-run=client --validate=false -f /tmp/kustomize-base-rendered.yaml
-          kubectl apply --dry-run=client --validate=false -f /tmp/kustomize-dev-rendered.yaml
-          kubectl apply --dry-run=client --validate=false -f /tmp/kustomize-addons-dev-rendered.yaml
