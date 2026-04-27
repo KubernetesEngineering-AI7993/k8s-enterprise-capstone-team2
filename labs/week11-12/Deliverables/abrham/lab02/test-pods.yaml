@@ -1,0 +1,49 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# backend-pod.yaml  — the server being protected
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend
+  namespace: dev
+  labels:
+    app: backend            # must match podSelector in allow-frontend-to-backend
+spec:
+  containers:
+    - name: backend
+      image: hashicorp/http-echo:latest
+      args: ["-listen=:8080", "-text=hello from backend"]
+      ports:
+        - containerPort: 8080
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# frontend-pod.yaml  — the only allowed caller
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend
+  namespace: dev
+  labels:
+    app: frontend           # must match podSelector in allow-frontend-egress-to-backend
+spec:
+  containers:
+    - name: frontend
+      image: curlimages/curl:latest
+      command: ["sleep", "3600"]
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# other-pod.yaml  — untrusted pod in the same namespace (should be blocked)
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Pod
+metadata:
+  name: other-pod
+  namespace: dev
+  labels:
+    app: other              # no matching allow rule → blocked by default-deny
+spec:
+  containers:
+    - name: curl
+      image: curlimages/curl:latest
+      command: ["sleep", "3600"]
