@@ -1,6 +1,3 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# Policy 1 — Allow backend to receive ingress from frontend on port 8080
-# ─────────────────────────────────────────────────────────────────────────────
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -14,25 +11,19 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: backend          # this policy governs Pods labelled app=backend
+      app: backend          
   policyTypes:
     - Ingress
   ingress:
     - from:
         - podSelector:
             matchLabels:
-              app: frontend # only Pods labelled app=frontend may initiate the connection
+              app: frontend 
       ports:
         - protocol: TCP
-          port: 8080        # restrict to the application port — no other ports exposed
+          port: 8080        
 
 ---
-# ─────────────────────────────────────────────────────────────────────────────
-# Policy 2 — Allow frontend to initiate egress toward backend on port 8080
-# ─────────────────────────────────────────────────────────────────────────────
-# The default-deny policy blocks ALL egress. Without this rule, frontend Pods
-# cannot open outbound connections even though the backend ingress rule allows it.
-# Both sides of the connection must be explicitly permitted.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -46,25 +37,19 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: frontend         # governs Pods labelled app=frontend
+      app: frontend         
   policyTypes:
     - Egress
   egress:
     - to:
         - podSelector:
             matchLabels:
-              app: backend  # only toward backend Pods
+              app: backend  
       ports:
         - protocol: TCP
           port: 8080
 
 ---
-# ─────────────────────────────────────────────────────────────────────────────
-# Policy 3 — Allow DNS egress for all Pods in dev (kube-dns on UDP/TCP 53)
-# ─────────────────────────────────────────────────────────────────────────────
-# The default-deny blocks DNS resolution too — curl and wget will fail with
-# "Could not resolve host" even for allowed destinations unless DNS egress is
-# re-opened. This policy opens UDP/TCP 53 to kube-system (where CoreDNS runs).
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -76,14 +61,14 @@ metadata:
   annotations:
     description: "Re-opens UDP/TCP 53 to kube-system so CoreDNS resolution works after default-deny"
 spec:
-  podSelector: {}           # applies to every Pod in dev
+  podSelector: {}          
   policyTypes:
     - Egress
   egress:
     - to:
         - namespaceSelector:
             matchLabels:
-              kubernetes.io/metadata.name: kube-system  # CoreDNS lives here
+              kubernetes.io/metadata.name: kube-system  
       ports:
         - protocol: UDP
           port: 53

@@ -1,72 +1,28 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# NON-COMPLIANT POD — for reference only, DO NOT deploy in production
-# This pod intentionally violates every major Pod Security Standard restriction.
-# Apply to a PSA-enforced namespace to observe rejection.
-# ─────────────────────────────────────────────────────────────────────────────
 apiVersion: v1
 kind: Pod
 metadata:
   name: bad-pod
   namespace: dev
 spec:
-  # ❌ Violation 1 — hostNetwork: true
-  # Pod shares the node's network namespace. It can sniff all node traffic,
-  # bind to privileged ports, and bypass Kubernetes network policies entirely.
   hostNetwork: true
-
-  # ❌ Violation 2 — hostPID: true
-  # Pod can see and signal every process on the node — including PID 1 (init).
-  # Combined with ptrace capabilities this allows full node takeover.
   hostPID: true
-
-  # ❌ Violation 3 — hostIPC: true
-  # Shared memory segments and semaphores across all host processes exposed.
-  # Allows IPC attacks against node-level daemons.
   hostIPC: true
-
   containers:
     - name: bad-container
       image: ubuntu:22.04
       command: ["sleep", "3600"]
-
-      # ❌ Violation 4 — privileged: true
-      # The container gets ALL Linux capabilities plus direct device access.
-      # Equivalent to running as root on the node itself.
       securityContext:
         privileged: true
-
-        # ❌ Violation 5 — runAsNonRoot: false (running as root, UID 0)
-        # Process runs as root inside the container. If the container runtime
-        # escapes, the attacker is already root on the host.
         runAsNonRoot: false
         runAsUser: 0
-
-        # ❌ Violation 6 — allowPrivilegeEscalation: true (default)
-        # Child processes can gain more privileges than the parent via
-        # setuid binaries or file capabilities — e.g., sudo, passwd.
         allowPrivilegeEscalation: true
-
-        # ❌ Violation 7 — No capability dropping
-        # Container inherits the full default capability set:
-        # NET_RAW, SYS_CHROOT, AUDIT_WRITE, CHOWN, DAC_OVERRIDE, FOWNER,
-        # FSETID, KILL, MKNOD, NET_BIND_SERVICE, SETFCAP, SETGID,
-        # SETPCAP, SETUID, SYS_CHROOT — many are unnecessary for most apps.
         capabilities:
-          add: ["NET_ADMIN", "SYS_PTRACE"]  # explicit dangerous capability additions
-
-        # ❌ Violation 8 — readOnlyRootFilesystem: false (default)
-        # Attacker can write malicious binaries anywhere in the container
-        # filesystem — useful for persistence and pivoting.
-
-      # ❌ Violation 9 — hostPath volume
-      # Mounts the node's root filesystem directly into the container.
-      # With write access this is a complete node compromise vector.
+          add: ["NET_ADMIN", "SYS_PTRACE"]  
       volumeMounts:
         - name: host-root
           mountPath: /host
-
   volumes:
     - name: host-root
       hostPath:
-        path: /              # mounting node root — catastrophic write access
+        path: /              
         type: Directory

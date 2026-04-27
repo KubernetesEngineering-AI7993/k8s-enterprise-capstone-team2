@@ -1,30 +1,8 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# prometheus-scrape-config.yaml
-#
-# Three sections:
-#   1. Prometheus Operator — ServiceMonitor for the application
-#   2. Prometheus Operator — PodMonitor for sidecar / direct pod scraping
-#   3. Raw prometheus.yml scrape_configs snippet (for non-Operator installs)
-#
-# Resource metrics (CPU / memory) come from kube-state-metrics and
-# node-exporter, which ship with kube-prometheus-stack. No extra config needed
-# for those — the stack auto-discovers them. The ServiceMonitor below targets
-# the application's /metrics endpoint.
-# ─────────────────────────────────────────────────────────────────────────────
-
-# ─────────────────────────────────────────────────────────────────────────────
-# 1. Namespace (if not already created)
-# ─────────────────────────────────────────────────────────────────────────────
 apiVersion: v1
 kind: Namespace
 metadata:
   name: dev
-
 ---
-# ─────────────────────────────────────────────────────────────────────────────
-# 2. Example application Deployment (exposes /metrics on port 8080)
-#    Replace image / args with your real workload.
-# ─────────────────────────────────────────────────────────────────────────────
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -42,16 +20,15 @@ spec:
       labels:
         app: sample-app
       annotations:
-        # Prometheus auto-discovery annotations (for raw Prometheus installs)
         prometheus.io/scrape: "true"
         prometheus.io/port: "8080"
         prometheus.io/path: "/metrics"
     spec:
       containers:
         - name: app
-          image: quay.io/brancz/prometheus-example-app:v0.3.0  # real image exposing Go metrics
+          image: quay.io/brancz/prometheus-example-app:v0.3.0  
           ports:
-            - name: http-metrics    # named port — referenced by ServiceMonitor below
+            - name: http-metrics    
               containerPort: 8080
           resources:
             requests:
@@ -75,74 +52,61 @@ spec:
             periodSeconds: 10
 
 ---
-# ─────────────────────────────────────────────────────────────────────────────
-# 3. Service exposing the metrics port (required for ServiceMonitor discovery)
-# ─────────────────────────────────────────────────────────────────────────────
 apiVersion: v1
 kind: Service
 metadata:
   name: sample-app
   namespace: dev
   labels:
-    app: sample-app           # must match ServiceMonitor selector below
+    app: sample-app           
 spec:
   selector:
     app: sample-app
   ports:
-    - name: http-metrics      # named port — must match ServiceMonitor endpoint
+    - name: http-metrics      
       port: 8080
       targetPort: http-metrics
 
 ---
-# ─────────────────────────────────────────────────────────────────────────────
-# 4. ServiceMonitor (Prometheus Operator CRD)
-#    Tells the Operator to scrape this Service every 15 seconds.
-#    Requires kube-prometheus-stack or prometheus-operator installed.
-# ─────────────────────────────────────────────────────────────────────────────
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: sample-app
   namespace: dev
   labels:
-    release: prometheus       # must match Prometheus CR's serviceMonitorSelector
+    release: prometheus       
 spec:
   selector:
     matchLabels:
-      app: sample-app         # selects the Service above
+      app: sample-app        
   namespaceSelector:
     matchNames:
       - dev
   endpoints:
-    - port: http-metrics      # named port from the Service
+    - port: http-metrics      
       path: /metrics
-      interval: 15s           # scrape every 15 seconds
+      interval: 15s           
       scrapeTimeout: 10s
-      honorLabels: false      # use Prometheus server-side labels over app labels
+      honorLabels: false      
       relabelings:
-        # Carry the pod name and namespace as labels on every time series
         - sourceLabels: [__meta_kubernetes_pod_name]
           targetLabel: pod
         - sourceLabels: [__meta_kubernetes_namespace]
           targetLabel: namespace
 
 ---
-# ─────────────────────────────────────────────────────────────────────────────
-# 5. PrometheusRule — alerting rules for this application
-# ─────────────────────────────────────────────────────────────────────────────
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: sample-app-alerts
   namespace: dev
   labels:
-    release: prometheus       # must match Prometheus CR's ruleSelector
+    release: prometheus      
 spec:
   groups:
     - name: sample-app.availability
       interval: 30s
       rules:
-        # Alert: HTTP error rate > 5% over 5 minutes
         - alert: HighErrorRate
           expr: |
             (
@@ -157,8 +121,6 @@ spec:
           annotations:
             summary: "High HTTP error rate in dev"
             description: "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes."
-
-        # Alert: p99 latency > 500ms
         - alert: HighLatencyP99
           expr: |
             histogram_quantile(0.99,
@@ -173,7 +135,6 @@ spec:
 
     - name: sample-app.resources
       rules:
-        # Alert: Pod CPU throttling > 25%
         - alert: PodCpuThrottling
           expr: |
             sum(rate(container_cpu_cfs_throttled_seconds_total{namespace="dev", container!=""}[5m]))
@@ -187,8 +148,6 @@ spec:
             severity: warning
           annotations:
             summary: "Pod {{ $labels.pod }} CPU throttled > 25%"
-
-        # Alert: Pod memory > 90% of limit
         - alert: PodMemoryNearLimit
           expr: |
             container_memory_working_set_bytes{namespace="dev", container!=""}
@@ -202,52 +161,3 @@ spec:
             summary: "Pod {{ $labels.pod }} memory at {{ $value | humanizePercentage }} of limit"
 
 ---
-# ─────────────────────────────────────────────────────────────────────────────
-# 6. Raw prometheus.yml scrape_configs snippet
-#    Use this if you are NOT using the Prometheus Operator.
-#    Merge into your existing prometheus.yml under scrape_configs:.
-# ─────────────────────────────────────────────────────────────────────────────
-# scrape_configs:
-#
-#   # Application metrics via annotation-based auto-discovery
-#   - job_name: 'kubernetes-pods-annotated'
-#     kubernetes_sd_configs:
-#       - role: pod
-#         namespaces:
-#           names: ['dev']
-#     relabel_configs:
-#       - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-#         action: keep
-#         regex: "true"
-#       - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
-#         action: replace
-#         target_label: __metrics_path__
-#         regex: (.+)
-#       - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
-#         action: replace
-#         regex: ([^:]+)(?::\d+)?;(\d+)
-#         replacement: $1:$2
-#         target_label: __address__
-#       - source_labels: [__meta_kubernetes_namespace]
-#         target_label: namespace
-#       - source_labels: [__meta_kubernetes_pod_name]
-#         target_label: pod
-#
-#   # cAdvisor — Pod CPU and memory (served by kubelet)
-#   - job_name: 'kubernetes-cadvisor'
-#     scheme: https
-#     metrics_path: /metrics/cadvisor
-#     tls_config:
-#       ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-#       insecure_skip_verify: true
-#     bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-#     kubernetes_sd_configs:
-#       - role: node
-#     relabel_configs:
-#       - action: labelmap
-#         regex: __meta_kubernetes_node_label_(.+)
-#
-#   # kube-state-metrics — Deployment / Pod desired vs actual state
-#   - job_name: 'kube-state-metrics'
-#     static_configs:
-#       - targets: ['kube-state-metrics.monitoring.svc.cluster.local:8080']
