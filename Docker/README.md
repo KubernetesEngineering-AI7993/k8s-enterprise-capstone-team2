@@ -47,7 +47,7 @@ docker build -t dashboard:v4 ./dashboard
 ### detection-service
 | Variable | Default | Description |
 |---|---|---|
-| INTAKE_URL | http://intake-svc:8081 | URL of the intake **Kubernetes Service** (matches `k8s/base/platform.yaml`) |
+| INTAKE_URL | http://intake-svc:8081 | URL of the intake **Kubernetes Service** (matches `k8s/base/footage-intake.yaml`) |
 | MODEL_PATH | best.pt | Path to YOLO weights inside container |
 | CONFIDENCE_THRESHOLD | 0.25 | Minimum confidence for detections |
 
@@ -64,7 +64,7 @@ No configuration needed.
 
 ## Inter-Service Communication
 
-Container ports remain 5000 / 5001 / 3000. In Kubernetes, Services expose **8081 / 8082 / 8080** and forward to those ports (`intake-svc`, `inference-svc`, `dashboard-svc` in `k8s/base/platform.yaml`).
+Container ports remain 5000 / 5001 / 3000. In Kubernetes, Services expose **8081 / 8082 / 8080** and forward to those ports (`intake-svc`, `inference-svc`, `dashboard-svc` in `k8s/base/footage-intake.yaml`, `k8s/base/cv-inference.yaml`, and `k8s/base/results-dashboard.yaml`).
 
 ```
 dashboard (pod :3000) ----> http://intake-svc:8081/stream     (proxies MJPEG to browser)
@@ -73,7 +73,7 @@ detection (pod :5001) ----> http://intake-svc:8081/frame      (GET, single JPEG)
 ```
 
 ## Resource Requirements
-- intake-service: needs ~2Gi memory at startup (pre-encodes 361 images, takes ~30s)
+- intake-service: Kubernetes requests 2Gi and limits 3Gi; current code pre-encodes resized JPEG stream frames instead of raw pixels to reduce memory pressure
 - detection-service: needs ~1Gi memory (PyTorch + YOLO model on CPU)
 - dashboard: lightweight, 256Mi is fine
 

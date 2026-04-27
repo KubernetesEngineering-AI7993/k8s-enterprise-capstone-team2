@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build warehouse pipeline images with tags matching k8s/base/platform.yaml.
+# Build warehouse pipeline images with tags matching k8s/base workload manifests.
 # Optional: load into a local kind cluster (same names as scripts/cluster-setup.sh).
 #
 # Usage:
