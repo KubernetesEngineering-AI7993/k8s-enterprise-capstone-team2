@@ -9,8 +9,8 @@ metadata:
   annotations:
     description: "Deny ALL ingress and egress for every Pod in dev unless another policy explicitly allows it"
 spec:
-  podSelector: {}        # {} matches every Pod in the namespace — no exceptions
+  podSelector: {}       
   policyTypes:
-    - Ingress            # block all inbound traffic
-    - Egress             # block all outbound traffic (including DNS — see note below)
-  # No ingress: or egress: rules defined → nothing is allowed
+    - Ingress            
+    - Egress             
+  
