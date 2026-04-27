@@ -1,7 +1,3 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# COMPLIANT POD — satisfies Kubernetes "restricted" Pod Security Standard
-# Every field here is a direct fix for one of the violations in bad-pod.yaml
-# ─────────────────────────────────────────────────────────────────────────────
 apiVersion: v1
 kind: Pod
 metadata:
@@ -11,65 +7,28 @@ metadata:
     app: restricted-app
     env: dev
 spec:
-  # ✅ Fix 1 — No hostNetwork / hostPID / hostIPC
-  # Omitting these fields (default: false) keeps the Pod in its own isolated
-  # network, process, and IPC namespaces. It cannot observe node traffic or
-  # signal host processes.
-
-  # ✅ Fix 2 — Non-root user at the Pod level
-  # seccompProfile must be set at pod or container level for "restricted" tier.
   securityContext:
-    runAsNonRoot: true          # admission will reject if the image resolves UID 0
-    runAsUser: 10001            # explicit non-root UID; avoids accidental root fallback
-    runAsGroup: 10001           # explicit GID — good practice alongside runAsUser
-    fsGroup: 10001              # volumes mounted with this GID so app can write them
+    runAsNonRoot: true         
+    runAsUser: 10001            
+    runAsGroup: 10001           
+    fsGroup: 10001              
     seccompProfile:
-      type: RuntimeDefault      # enables the container runtime's default seccomp filter
-                                # (syscall allowlist — blocks ~300 rarely-needed syscalls)
-
+      type: RuntimeDefault      
   containers:
     - name: restricted-container
-      image: gcr.io/distroless/static-debian11:nonroot  # distroless: no shell, no package mgr
-      command: ["/bin/sleep"]   # distroless base; replace with your real entrypoint
+      image: gcr.io/distroless/static-debian11:nonroot  
+      command: ["/bin/sleep"]   
       args: ["3600"]
-
       ports:
-        - containerPort: 8080   # declare the port for documentation and NetworkPolicy matching
-
+        - containerPort: 8080   
       securityContext:
-        # ✅ Fix 3 — privileged: false
-        # Container cannot access devices or bypass kernel security checks.
         privileged: false
-
-        # ✅ Fix 4 — allowPrivilegeEscalation: false
-        # Sets the no_new_privs bit on the process. Setuid binaries and file
-        # capabilities cannot grant additional privileges to child processes.
         allowPrivilegeEscalation: false
-
-        # ✅ Fix 5 — Drop ALL capabilities, add none back
-        # "ALL" drops the default capability set entirely. Adding back nothing
-        # means the process has only the permissions of a regular unprivileged
-        # user. Most application servers (HTTP, gRPC, etc.) need no Linux caps.
         capabilities:
           drop: ["ALL"]
-          # add: []  — intentionally empty; add only what the app genuinely needs
-
-        # ✅ Fix 6 — Read-only root filesystem
-        # The container's root FS is immutable at runtime. An attacker cannot
-        # write binaries, modify config, or create setuid files. If the app
-        # needs ephemeral writes, use an emptyDir volume (see below).
         readOnlyRootFilesystem: true
-
-        # ✅ Fix 7 — runAsNonRoot at container level (belt-and-suspenders)
-        # Redundant with the Pod-level setting but provides defense-in-depth:
-        # if the Pod-level setting is ever removed, this still protects.
         runAsNonRoot: true
         runAsUser: 10001
-
-      # ✅ Fix 8 — emptyDir for ephemeral writes instead of hostPath
-      # If the application needs a writable temp directory, use emptyDir.
-      # It is namespaced to the Pod lifecycle — wiped on Pod deletion —
-      # and never touches the node filesystem directly.
       volumeMounts:
         - name: tmp-dir
           mountPath: /tmp
@@ -83,31 +42,10 @@ spec:
         limits:
           cpu: "250m"
           memory: "128Mi"
-
   volumes:
-    # ✅ Fix 9 — emptyDir instead of hostPath
-    # emptyDir is ephemeral, isolated to this Pod, and backed by the node's
-    # local disk or memory (medium: Memory). No host filesystem path is exposed.
     - name: tmp-dir
       emptyDir: {}
     - name: cache-dir
       emptyDir:
-        medium: Memory      # RAM-backed; faster, auto-wiped, no disk persistence
-
+        medium: Memory      
   restartPolicy: Never
-
-# ─────────────────────────────────────────────────────────────────────────────
-# HOW TO ENFORCE THIS AT THE NAMESPACE LEVEL (Pod Security Admission)
-# ─────────────────────────────────────────────────────────────────────────────
-# Label the namespace to enforce the "restricted" PSS profile:
-#
-#   kubectl label namespace dev \
-#     pod-security.kubernetes.io/enforce=restricted \
-#     pod-security.kubernetes.io/enforce-version=latest \
-#     pod-security.kubernetes.io/warn=restricted \
-#     pod-security.kubernetes.io/audit=restricted
-#
-# With this label set:
-#   - bad-pod.yaml will be REJECTED by the API server at admission time
-#   - restricted-pod.yaml will be ACCEPTED
-# ─────────────────────────────────────────────────────────────────────────────
