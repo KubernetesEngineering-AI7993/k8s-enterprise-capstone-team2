@@ -227,12 +227,12 @@ install_monitoring() {
     --set grafana.sidecar.dashboards.searchNamespace=ALL \
     --wait
   success "kube-prometheus-stack ready."
-  info "ServiceMonitor and Grafana dashboard are managed by Argo CD addons app."
+  info "ServiceMonitor and Grafana dashboard are managed by Argo CD"
 }
 
 # ─── 8. System ingress (Argo CD + Prometheus + Grafana) ──────────────────────
 apply_system_ingress() {
-  info "System ingress resources are managed by Argo CD addons app."
+  info "System ingress resources are managed by Argo CD"
 }
 
 # ─── 9. Wait for Argo CD sync ────────────────────────────────────────────────
@@ -277,8 +277,14 @@ print_summary() {
   echo
 
   local argocd_pass
+  local grafana_user
+  local grafana_pass
   argocd_pass=$(kubectl -n "${ARGOCD_NAMESPACE}" get secret argocd-initial-admin-secret \
     -o jsonpath="{.data.password}" 2>/dev/null | base64 -d || echo "<retrieve manually>")
+  grafana_user=$(kubectl -n monitoring get secret kube-prometheus-stack-grafana \
+    -o jsonpath="{.data.admin-user}" 2>/dev/null | base64 -d || echo "admin")
+  grafana_pass=$(kubectl -n monitoring get secret kube-prometheus-stack-grafana \
+    -o jsonpath="{.data.admin-password}" 2>/dev/null | base64 -d || echo "<retrieve manually>")
 
   echo -e "  ${BOLD}Argo CD${RESET}"
   echo "    Port-forward : kubectl port-forward svc/argocd-server -n ${ARGOCD_NAMESPACE} 8080:443"
@@ -290,8 +296,10 @@ print_summary() {
   echo -e "  ${BOLD}Grafana${RESET}"
   echo "    Port-forward : kubectl port-forward svc/kube-prometheus-stack-grafana -n monitoring 3000:80"
   echo "    URL          : http://localhost:3000"
-  echo "    Username     : admin"
-  echo "    Password     : prom-operator"
+  echo "    Username     : ${grafana_user}"
+  echo "    Password     : ${grafana_pass}"
+  echo "    Note         : if login fails, reset admin password:"
+  echo "                   kubectl -n monitoring exec deploy/kube-prometheus-stack-grafana -- grafana cli --homepath /usr/share/grafana admin reset-admin-password '<new-password>'"
   echo
 
   echo -e "  ${BOLD}Application namespace${RESET}"
